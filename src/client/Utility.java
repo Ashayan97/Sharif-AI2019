@@ -9,7 +9,7 @@ public class Utility {
         if (check && (start.isWall() || end.isWall()))
             return -1;
         return Distance(start.getRow(), start.getColumn(), end.getRow(), end.getColumn());
-    } // checl that cells are an wall or not if be wall return -1
+    } // check that cells are an wall or not if be wall return -1
     static int Distance(Cell start,Cell end){
         return Distance(start,end,false);
     } // it's an fast method that not need to your boolean
