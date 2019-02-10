@@ -32,16 +32,18 @@ public class Utility {
     }
 
     private static final String OBJECTIVEZONE_SHAPE   = "#  ",
-            OPP_RESPAWNZONE_SHAPE = "+' ",
-            MY_RESPAWNZONE_SHAPE  = "+  ",
-            WALL_SHAPE            = "/\\ ",
-            NORMAL_CELL = "-- ";
+                                OPP_RESPAWNZONE_SHAPE = "+' ",
+                                MY_RESPAWNZONE_SHAPE  = "+  ",
+                                WALL_SHAPE            = "/\\ ",
+                                NORMAL_CELL           = "-- ";
     static void printMap(World world) {
         Cell[][] cells = world.getMap().getCells();
         for (int i = 0; i < world.getMap().getRowNum(); i++) {
             for (int j = 0; j < world.getMap().getColumnNum(); j++) {
                 Hero inThisCell = world.getMyHero(cells[i][j]);
+                Hero oppInThisCell = world.getOppHero(cells[i][j]);
                 System.out.print(
+                        oppInThisCell!=null?String.format(     "%s' ",oppInThisCell.getName().name().charAt(0)):
                         inThisCell!=null?String.format(     "%s  ",inThisCell.getName().name().charAt(0)):
                                 cells[i][j].isWall() ?              WALL_SHAPE:
                                         cells[i][j].isInMyRespawnZone() ?   MY_RESPAWNZONE_SHAPE :
