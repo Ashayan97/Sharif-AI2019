@@ -92,22 +92,23 @@ public class AI {
     }
 
     private void pickHeroInPhase(World world) {
+        System.out.println(PICK_PhASE_COUNTER);
         switch (PICK_PhASE_COUNTER) {
             case 0:
                 world.pickHero(HeroName.BLASTER);
-                histories[0] = new History(world.getMyHeroes()[0].getId());
+                histories[0] = new History(0);
                 break;
             case 1:
                 world.pickHero(HeroName.BLASTER);
-                histories[1] = new History(world.getMyHeroes()[1].getId());
+                histories[1] = new History(1);
                 break;
             case 2:
                 world.pickHero(HeroName.BLASTER);
-                histories[2] = new History(world.getMyHeroes()[2].getId());
+                histories[2] = new History(2);
                 break;
             case 3:
                 world.pickHero(HeroName.BLASTER);
-                histories[3] = new History(world.getMyHeroes()[3].getId());
+                histories[3] = new History(3);
                 break;
         }
     }
