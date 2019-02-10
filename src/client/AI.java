@@ -95,8 +95,22 @@ public class AI {
         }
     }
 
-    void BlasterDO(World world,Hero blaster){
-
+    private void BlasterDO(World world,Hero blaster){
+        Cell blasterCurrentCell = blaster.getCurrentCell();
+        if(herosInVision == null || herosInVision.length == 0){
+            int minDis = Utility.Distance(blasterCurrentCell,objectiveCells[0]);
+            int indexOfMinDisFromObjectiveZoneCell = 0;
+            for (int i = 1; i < objectiveCells.length; i++) {
+                int tmpDis = Utility.Distance(blasterCurrentCell, objectiveCells[i]);
+                if (minDis < tmpDis) {
+                    indexOfMinDisFromObjectiveZoneCell = i;
+                    minDis = tmpDis;
+                }
+            }
+            world.moveHero(blaster//this hero
+                    , world.getPathMoveDirections(blasterCurrentCell /*from here*/
+                            , objectiveCells[indexOfMinDisFromObjectiveZoneCell] /*to here*/)[0]/*get first suggest of paths*/);
+        }
     }
 
 }
