@@ -1,0 +1,69 @@
+package client;
+
+import client.model.*;
+
+import java.util.ArrayList;
+
+public class Utility {
+    static int Distance(Cell start, Cell end, boolean check) {
+        if (check && (start.isWall() || end.isWall()))
+            return -1;
+        return Distance(start.getRow(), start.getColumn(), end.getRow(), end.getColumn());
+    } // checl that cells are an wall or not if be wall return -1
+    static int Distance(Cell start,Cell end){
+        return Distance(start,end,false);
+    } // it's an fast method that not need to your boolean
+    static int Distance(int startRow, int startCol, int endRow, int endCol) {
+        return  Math.abs(startRow - endRow) +
+                Math.abs(startCol - endCol);
+    }
+
+    static Cell[] AvailableCells(Map map , int radius,Cell currentCell){
+        ArrayList<Cell> cells = new ArrayList<>();
+        int curRow = currentCell.getRow();
+        int curCol = currentCell.getColumn();
+        for (int tmpRow = -radius; tmpRow <=radius ; tmpRow++) {
+            for (int tmpCol = -radius; tmpCol <= radius; tmpCol++) {
+                if(Math.abs(tmpCol)+Math.abs(tmpRow)<=radius && map.isInMap(curRow+tmpRow,curCol+tmpCol))
+                    cells.add(map.getCells()[curRow+tmpRow][curCol+tmpCol]);
+            }
+        }
+        return cells.toArray(new Cell[]{});
+    }
+
+    private static final String OBJECTIVEZONE_SHAPE   = "#  ",
+            OPP_RESPAWNZONE_SHAPE = "+' ",
+            MY_RESPAWNZONE_SHAPE  = "+  ",
+            WALL_SHAPE            = "/\\ ",
+            NORMAL_CELL = "-- ";
+    static void printMap(World world) {
+        Cell[][] cells = world.getMap().getCells();
+        for (int i = 0; i < world.getMap().getRowNum(); i++) {
+            for (int j = 0; j < world.getMap().getColumnNum(); j++) {
+                Hero inThisCell = world.getMyHero(cells[i][j]);
+                System.out.print(
+                        inThisCell!=null?String.format(     "%s  ",inThisCell.getName().name().charAt(0)):
+                                cells[i][j].isWall() ?              WALL_SHAPE:
+                                        cells[i][j].isInMyRespawnZone() ?   MY_RESPAWNZONE_SHAPE :
+                                                cells[i][j].isInOppRespawnZone() ?  OPP_RESPAWNZONE_SHAPE :
+                                                        cells[i][j].isInObjectiveZone() ?   OBJECTIVEZONE_SHAPE :
+                                                                NORMAL_CELL);
+            }
+            System.out.println();
+        }
+    }
+
+    private void printInfo(Hero hero, Direction dir) {
+        System.out.println(hero.getName().name() + " CuCell [" + hero.getCurrentCell().getRow() +
+                "," + hero.getCurrentCell().getColumn() + "]");
+        System.out.println("dir " + dir.name());
+    }
+
+    void printHero(String str,Hero[] heroes) {
+        System.out.println(str);
+        for (int i = 0; i < heroes.length; i++)
+            System.out.print((i + 1) + " - " + heroes[i].getName().name() + " ");
+        System.out.println("==============================");
+    }
+
+}
