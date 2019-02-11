@@ -6,8 +6,6 @@ import client.model.Cell;
  * create by @omidekz
  * */
 public class Line {
-    //row is x
-    //col is y
     private float m;
     private int x0,y0;
 
@@ -78,6 +76,23 @@ public class Line {
         return y == (int)calcY(this,x);
     }
 
+    boolean isCollisionToWall(Cell cell){
+        return isCollisionToWall(getX(cell),getY(cell));
+    }
+    boolean isCollisionToWall(int x,int y){
+        Line perpendicularLine = perpendicularLine(x,y);
+        float   mp=perpendicularLine.m;
+        int     x0p=perpendicularLine.x0;
+        int     yp0=perpendicularLine.y0;
+
+        float   xBarkhord = ((m*x0 - mp*x0p + yp0 - y0)/(m-mp));
+        float   yBarkhord =   calcY((this),xBarkhord);
+        return yBarkhord <= y + .5f && yBarkhord >= y - .5f
+                && xBarkhord <= x + .5f && xBarkhord >= x - .5f;
+    }
+
+
+
     static float calcY(Line line,float x){
         // y = m(x1-x0) + y0
         return line.m * (x-line.x0) + line.y0;
@@ -105,6 +120,7 @@ public class Line {
     public static void main(String[] args) {
         Line line = Line.CREATOR(0,0,5,5);
         System.out.println(line.distanceFromLine(1,0));
+        System.out.println(line.distanceFromLine(-1,2));
     }
 
 }

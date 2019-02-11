@@ -99,6 +99,8 @@ public class AI {
         Utility.printMap(world);
 
         herosInVision = new ArrayList<>();
+        for (int i = 0; i < 4; i++)
+            histories[i].cleareSawHeroes();
         Hero[] oppHeroes = world.getOppHeroes();
         for (Hero oppHeroe : oppHeroes)
             if (oppHeroe.getCurrentCell().getColumn() != -1) {
@@ -121,7 +123,7 @@ public class AI {
         for (Hero myHeroe : myHeroes) {
             Line line = Line.CREATOR(myHeroe.getCurrentCell(), oppHeroCurrentCell);
             for (Cell aWallsCell : wallsCell)
-                if (line.distanceFromLine(aWallsCell) <= Utility.SECOND_ROOT_OF_2)
+                if (line.isCollisionToWall(aWallsCell))
                     heroes.add(myHeroe);
         }
         return heroes.toArray(new Hero[]{});
