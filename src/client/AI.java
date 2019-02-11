@@ -3,6 +3,7 @@ package client;
 import client.model.*;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class AI {
 
@@ -10,6 +11,7 @@ public class AI {
     private ArrayList<Hero> herosInVision;
     private Cell[] objectiveCells;
     private History[] histories;
+    private Cell[] wallsCell;
 
     //****************************************
     void preProcess(World world) {
@@ -79,17 +81,29 @@ public class AI {
     }
 
     private void init(World world) {
-        if (objectiveCells == null)
+        if (objectiveCells == null) {
+            System.out.println("-->ObjectiveCells not assign in PreProccess and init in moveTurn method");
             objectiveCells = world.getMap().getObjectiveZone();
-
+        }
         Utility.printMap(world);
 
         herosInVision = new ArrayList<>();
-        for (int i = 0; i < world.getOppHeroes().length; i++)
-            if (world.getOppHeroes()[i].getCurrentCell().getColumn() != -1)
-                herosInVision.add(world.getOppHeroes()[i]);
+        Hero[] oppHeroes = world.getOppHeroes();
+        for (int i = 0; i < oppHeroes.length; i++)
+            if (oppHeroes[i].getCurrentCell().getColumn() != -1) {
+                herosInVision.add(oppHeroes[i]);
+                Hero[] sawThisHero = whoSeeThisHero(world.getMyHeroes(),oppHeroes[i]);
+            }
 
         initHistorys(world.getMyHeroes());
+    }
+
+    private Hero[] whoSeeThisHero(Hero[] myHeroes, Hero oppHeroe) {
+        Vector<Hero> heroes = new Vector<>();
+        for (int i = 0; i < myHeroes.length; i++) {
+
+        }
+        return null;
     }
 
     private void initHistorys(Hero[] heroes) {
