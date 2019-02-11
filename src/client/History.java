@@ -48,9 +48,11 @@ public class History {
         return sawHeroes.indexOf(hero)!=-1;
     }
     void cleareSawHeroes(){
-        if(isEmptySawHero())
-            return;
-        sawHeroes.clear();
+        sawHeroes = new Vector<>();
+    }
+
+    Vector<Hero> getSawHeroes(){
+        return sawHeroes;
     }
 
     void setInScape(boolean inScape) {

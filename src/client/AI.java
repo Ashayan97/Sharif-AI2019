@@ -23,6 +23,7 @@ public class AI {
     }
 
     void moveTurn(World world) {
+        Utility.printMap(world);
         init(world);
         if (world.getMovePhaseNum() == 1)
             Utility.printMap(world);
@@ -88,15 +89,9 @@ public class AI {
             System.out.println("-->ObjectiveCells not assign in PreProccess and init in moveTurn method");
             objectiveCells = world.getMap().getObjectiveZone();
         }
-        if(wallsCell == null){
-            System.out.println("-->wallsCell not assign in PreProccess and init in moveTurn method");
-            wallsCell = new Vector<>();
-            for (Cell[] arryCell:world.getMap().getCells())
-                for (Cell cell:arryCell)
-                    if(cell.isWall())
-                        wallsCell.add(cell);
-        }
-        Utility.printMap(world);
+        initWallCell(world);
+
+        initHistorys(world.getMyHeroes());
 
         herosInVision = new ArrayList<>();
         for (int i = 0; i < 4; i++)
@@ -108,10 +103,19 @@ public class AI {
                 Hero[] sawThisHero = whoSeeThisHero(world.getMyHeroes(), oppHeroe);
                 for (Hero aSawThisHero : sawThisHero)
                     histories[indexOfHeroInHistory(aSawThisHero)].addHero(oppHeroe);
-
             }
 
-        initHistorys(world.getMyHeroes());
+    }
+
+    private void initWallCell(World world) {
+        if(wallsCell == null){
+            System.out.println("-->wallsCell not assign in PreProccess and init in moveTurn method");
+            wallsCell = new Vector<>();
+            for (Cell[] arryCell:world.getMap().getCells())
+                for (Cell cell:arryCell)
+                    if(cell.isWall())
+                        wallsCell.add(cell);
+        }
     }
 
     /**
@@ -188,6 +192,10 @@ public class AI {
     private void blasterSawAMotherFucker(World world, Cell blasterCurrentCell, History history) {
         System.out.println("=======================start of saw that motherFucker========================");
         Cell lastStep = history.getLastStep();
+        System.out.println("I Saw those MotherFuckers");
+        for (Hero mf:history.getSawHeroes()) {
+            System.out.println(mf.toString());
+        }
         if (lastStep == null) {
             System.out.println("=============LAST STEP WaS BE NULL====================");
             //todo fknm byd goriz bzne

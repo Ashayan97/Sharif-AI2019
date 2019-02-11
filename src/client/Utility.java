@@ -39,7 +39,17 @@ public class Utility {
                                 NORMAL_CELL           = "-- ";
     static void printMap(World world) {
         Cell[][] cells = world.getMap().getCells();
+        System.out.print("   ");
+        for (int i = 0; i < world.getMap().getColumnNum(); i++) {
+            String str = String.valueOf(i);
+            if(str.length() == 1)
+                System.out.print(str+"  ");
+            else
+                System.out.print(str+" ");
+        }
+        System.out.println();
         for (int i = 0; i < world.getMap().getRowNum(); i++) {
+            System.out.print(i+" ");
             for (int j = 0; j < world.getMap().getColumnNum(); j++) {
                 Hero inThisCell = world.getMyHero(cells[i][j]);
                 Hero oppInThisCell = world.getOppHero(cells[i][j]);
