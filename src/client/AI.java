@@ -124,11 +124,17 @@ public class AI {
     private Hero[] whoSeeThisHero(Hero[] myHeroes, Hero oppHeroe) {
         Vector<Hero> heroes = new Vector<>();
         Cell oppHeroCurrentCell = oppHeroe.getCurrentCell();
-        for (Hero myHeroe : myHeroes) {
-            Line line = Line.CREATOR(myHeroe.getCurrentCell(), oppHeroCurrentCell);
-            for (Cell aWallsCell : wallsCell)
-                if (line.isCollisionToWall(aWallsCell))
-                    heroes.add(myHeroe);
+        for (Hero myHero : myHeroes) {
+            Line line = Line.CREATOR(myHero.getCurrentCell(), oppHeroCurrentCell);
+            boolean isCollision = false;
+            for (Cell aWallsCell : wallsCell) {
+                if (line.isCollisionToWall(aWallsCell)) {
+                    isCollision = true;
+                    break;
+                }
+            }
+            if(!isCollision)
+                heroes.add(myHero);
         }
         return heroes.toArray(new Hero[]{});
     }
