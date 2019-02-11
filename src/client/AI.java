@@ -6,10 +6,10 @@ import java.util.ArrayList;
 
 public class AI {
 
-    private int PICK_PhASE_COUNTER = 0;
-    private ArrayList<Hero>  herosInVision;
+    private int PICK_PHASE_COUNTER = 0;
+    private ArrayList<Hero> herosInVision;
     private Cell[] objectiveCells;
-    private History[] histories = new History[4];
+    private History[] histories;
 
     //****************************************
     void preProcess(World world) {
@@ -18,17 +18,16 @@ public class AI {
 
     void pickTurn(World world) {
         pickHeroInPhase(world);
-        PICK_PhASE_COUNTER++;
     }
 
     void moveTurn(World world) {
         init(world);
-        if(world.getMovePhaseNum()==1)
+        if (world.getMovePhaseNum() == 1)
             Utility.printMap(world);
-        BlasterDO(world,world.getMyHeroes()[0]);
-        BlasterDO(world,world.getMyHeroes()[1]);
-        BlasterDO(world,world.getMyHeroes()[2]);
-        BlasterDO(world,world.getMyHeroes()[3]);
+        BlasterDO(world, world.getMyHeroes()[0]);
+        BlasterDO(world, world.getMyHeroes()[1]);
+        BlasterDO(world, world.getMyHeroes()[2]);
+        BlasterDO(world, world.getMyHeroes()[3]);
     }
 
     void actionTurn(World world) {
@@ -87,53 +86,104 @@ public class AI {
 
         herosInVision = new ArrayList<>();
         for (int i = 0; i < world.getOppHeroes().length; i++)
-            if(world.getOppHeroes()[i].getCurrentCell().getColumn()!=-1)
+            if (world.getOppHeroes()[i].getCurrentCell().getColumn() != -1)
                 herosInVision.add(world.getOppHeroes()[i]);
+
+        initHistorys(world.getMyHeroes());
+    }
+
+    private void initHistorys(Hero[] heroes) {
+        if (histories == null) {
+            histories = new History[4];
+            for (int i = 0; i < 4; i++)
+                histories[i] = new History(heroes[i].getId());
+        }
     }
 
     private void pickHeroInPhase(World world) {
-        System.out.println(PICK_PhASE_COUNTER);
-        switch (PICK_PhASE_COUNTER) {
+        switch (PICK_PHASE_COUNTER) {
             case 0:
                 world.pickHero(HeroName.BLASTER);
-                histories[0] = new History(0);
                 break;
             case 1:
                 world.pickHero(HeroName.BLASTER);
-                histories[1] = new History(1);
                 break;
             case 2:
                 world.pickHero(HeroName.BLASTER);
-                histories[2] = new History(2);
                 break;
             case 3:
                 world.pickHero(HeroName.BLASTER);
-                histories[3] = new History(3);
                 break;
+        }
+        PICK_PHASE_COUNTER++;
+
+    }
+
+    private void BlasterDO(World world, Hero blaster) {
+        Cell blasterCurrentCell = blaster.getCurrentCell();
+        int historyIndex = indexOfHeroInHistory(blaster);
+        if(historyIndex == -1) {
+            System.out.println("History Index was -1");
+            return;
+        }
+        History history = histories[historyIndex];
+
+        if (herosInVision == null || herosInVision.size() == 0) {
+            BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
+        } else /*if (herosInVision.size() == 1)*/{
+            blasterSawAMotherFucker(world, blasterCurrentCell, history);
         }
     }
 
-    private void BlasterDO(World world,Hero blaster) {
-        Cell blasterCurrentCell = blaster.getCurrentCell();
-        History history =histories[indexOfHeroInHistory(blaster)];
-        if (herosInVision == null || herosInVision.size() == 0) {
-            int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
-            if (indexOfMinDisFromObjectiveZoneCell == -1)
-                return;
-            world.moveHero(blaster//this hero
-                    , world.getPathMoveDirections(blasterCurrentCell /*from here*/
-                            , objectiveCells[indexOfMinDisFromObjectiveZoneCell] /*to here*/)[0]/*get first suggest of paths*/);
-            history.move(blaster.getCurrentCell());
-        } else {
-            System.out.println("=======================saw that motherFucker========================");
-            Cell lastStep = history.getLastStep();
-            world.moveHero(history.getHeroID(),world.getPathMoveDirections(blasterCurrentCell,lastStep)[0]);
+    private void blasterSawAMotherFucker(World world, Cell blasterCurrentCell, History history) {
+        System.out.println("=======================start of saw that motherFucker========================");
+        Cell lastStep = history.getLastStep();
+        if (lastStep == null) {
+            System.out.println("=============LAST STEP WaS BE NULL====================");
+            //todo fknm byd goriz bzne
         }
+        else if(lastStep.equals(blasterCurrentCell)){
+            //todo
+            System.out.println("LAST STEP EQUALS WITH CUSTEP");
+        }else {
+            printCell("in cell ", blasterCurrentCell);
+            printCell("last step ", lastStep);
+            Direction direction;
+            if(Math.abs(blasterCurrentCell.getColumn() - lastStep.getColumn()) == 1){
+                    direction = lastStep.getColumn() > blasterCurrentCell.getColumn() ?
+                            Direction.RIGHT :
+                            Direction.LEFT;
+                System.out.println("last step in first if , dir="+direction);
+            }else if(Math.abs(blasterCurrentCell.getRow() - lastStep.getRow()) == 1){
+                direction = lastStep.getRow() > blasterCurrentCell.getRow() ?
+                        Direction.DOWN :
+                        Direction.UP;
+                System.out.println("last step in second if , dir="+direction);
+            }else{
+                direction=Utility.pathTo(world,blasterCurrentCell,lastStep);
+                System.out.println("last step in second if , dir="+direction);
+            }
+            world.moveHero(history.getHeroID(),direction);
+        }
+        System.out.println("=======================end of saw that motherFucker========================");
+    }
+
+    private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
+        int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
+        if (indexOfMinDisFromObjectiveZoneCell == -1)
+            return;
+        world.moveHero(blaster,
+                Utility.pathTo(world,blasterCurrentCell,objectiveCells[indexOfMinDisFromObjectiveZoneCell]));
+        history.move(blasterCurrentCell);
+    }
+
+    private void printCell(String str, Cell cell) {
+        System.out.println(str+ cell.getRow()+"-"+ cell.getColumn());
     }
 
     private int getIndexOfMinDisFromObjectiveZoneCell(Cell blasterCurrentCell) {
         int indexOfMinDisFromObjectiveZoneCell = 0;
-        int minDis = Utility.Distance(blasterCurrentCell,objectiveCells[0]);
+        int minDis = Utility.Distance(blasterCurrentCell, objectiveCells[0]);
         for (int i = 1; i < objectiveCells.length; i++) {
             int tmpDis = Utility.Distance(blasterCurrentCell, objectiveCells[i]);
             if (minDis < tmpDis) {
@@ -141,16 +191,18 @@ public class AI {
                 minDis = tmpDis;
             }
         }
-        if(minDis == 0)
+        if (minDis == 0)
             return -1;
         return indexOfMinDisFromObjectiveZoneCell;
     }
-    private int indexOfHeroInHistory(Hero hero){
-        for (int i = 0; i <4 ; i++) {
-            if(histories[i].getHeroID() == hero.getId()){
+
+    private int indexOfHeroInHistory(Hero hero) {
+        for (int i = 0; i < 4; i++) {
+            if (histories[i].getHeroID() == hero.getId()) {
                 return i;
             }
         }
+        System.out.println(String.format("i:%d , HEREID:%d", -1, hero.getId()));
         return -1;
     }
 }

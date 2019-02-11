@@ -68,4 +68,11 @@ public class Utility {
         System.out.println("==============================");
     }
 
+    static Direction pathTo(World world,Cell start,Cell end){
+        return world.getPathMoveDirections(start.getRow(),start.getColumn(),end.getRow(),end.getColumn())[0];
+    }
+    static Direction[] pathTo(World world,Cell start,Cell end,boolean want){
+        return world.getPathMoveDirections(start.getRow(),start.getColumn(),end.getRow(),end.getColumn());
+    }
+
 }

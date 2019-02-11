@@ -1,19 +1,23 @@
 package client;
 
 import client.model.Cell;
+import client.model.Pair;
+
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 public class History {
     private boolean inScape=false;
     private boolean inAttack=false;
     private boolean inNormal=true;
-    private Cell lastStep=null;
+    private Stack<Cell> lastStep=new Stack<>();
     private int HeroID;
     History(int HEROID){
         HeroID = HEROID;
     }
 
     void move(Cell lastStep,boolean inScape,boolean inAttack,boolean inNormal){
-        this.lastStep = lastStep;
+        addLastStep(lastStep);
         this.inScape = inScape;
         this.inAttack=inAttack;
         this.inNormal=inNormal;
@@ -28,24 +32,32 @@ public class History {
         move(lastStep,false,false,true);
     }
 
-    public void setInScape(boolean inScape) {
+    void setInScape(boolean inScape) {
         this.inScape = inScape;
     }
-    public void setInAttack(boolean inAttack) {
+    void setInAttack(boolean inAttack) {
         this.inAttack = inAttack;
     }
-    public void setInNormal(boolean inNormal) {
+    void setInNormal(boolean inNormal) {
         this.inNormal = inNormal;
     }
-    public void setLastStep(Cell lastStep) {
-        this.lastStep = lastStep;
-    }
-    public void setHeroID(int heroID) {
+    void setHeroID(int heroID) {
         HeroID = heroID;
     }
 
-    Cell getLastStep(){
+    void addLastStep(Cell lastStep) {
+        this.lastStep.push(lastStep);
+    }
+    Stack<Cell> getLaststepsStack(){
         return lastStep;
+    }
+
+    Cell getLastStep(){
+        try {
+            return lastStep.pop();
+        }catch (EmptyStackException e){
+            return null;
+        }
     }
     boolean isInScape(){
         return inScape;
