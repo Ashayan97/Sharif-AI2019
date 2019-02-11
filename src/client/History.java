@@ -1,10 +1,12 @@
 package client;
 
 import client.model.Cell;
+import client.model.Hero;
 import client.model.Pair;
 
 import java.util.EmptyStackException;
 import java.util.Stack;
+import java.util.Vector;
 
 public class History {
     private boolean inScape=false;
@@ -12,6 +14,8 @@ public class History {
     private boolean inNormal=true;
     private Stack<Cell> lastStep=new Stack<>();
     private int HeroID;
+    private Vector<Hero> sawHeroes;
+
     History(int HEROID){
         HeroID = HEROID;
     }
@@ -30,6 +34,18 @@ public class History {
     }
     void move(Cell lastStep){
         move(lastStep,false,false,true);
+    }
+
+    boolean isEmptySawHero(){
+        return sawHeroes==null || sawHeroes.size() == 0;
+    }
+    void addHero(Hero hero){
+        if(isEmptySawHero())
+            sawHeroes = new Vector<>();
+        sawHeroes.add(hero);
+    }
+    boolean isISeeThisHero(Hero hero){
+        return sawHeroes.indexOf(hero)!=-1;
     }
 
     void setInScape(boolean inScape) {
