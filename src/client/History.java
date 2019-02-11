@@ -47,6 +47,11 @@ public class History {
     boolean isISeeThisHero(Hero hero){
         return sawHeroes.indexOf(hero)!=-1;
     }
+    void cleareSawHeroes(){
+        if(isEmptySawHero())
+            return;
+        sawHeroes.clear();
+    }
 
     void setInScape(boolean inScape) {
         this.inScape = inScape;

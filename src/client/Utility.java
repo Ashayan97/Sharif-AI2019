@@ -5,6 +5,7 @@ import client.model.*;
 import java.util.ArrayList;
 
 public class Utility {
+    public static final double SECOND_ROOT_OF_2=1.41421730950488016887/2;
     static int Distance(Cell start, Cell end, boolean check) {
         if (check && (start.isWall() || end.isWall()))
             return -1;

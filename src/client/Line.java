@@ -43,20 +43,22 @@ public class Line {
         return CREATOR(m,x0,y0);
     }
 
-    float distanceFromLine(Cell from,Line to){
-        return distanceFromLine(getX(from),getY(from),to);
+    float distanceFromLine(Cell from){
+        return distanceFromLine(getX(from),getY(from));
     }
-    float distanceFromLine(int x,int y,Line line){
-        Line perpendicularLine = line.perpendicularLine(x,y);
+    float distanceFromLine(int x,int y){
         // m(x1-x0)+y0 = m'(x1-x'0)+y'0
         // mx1-mx0+y0=m'x1-m'x'0+y'0
         // mx1-m'x1 = mx0-m'x'0 + y'0-y0
         // x1 = (mx0-m'x'0 + y'0-y0)/(m-m')
-        float m=line.m,mp=perpendicularLine.m;
-        int x0=line.x0,x0p=perpendicularLine.x0;
-        int y0=line.y0,yp0=perpendicularLine.y0;
-        float xBarkhord = ((m*x0 - mp*x0p + yp0 - y0)/(m-mp));
-        float yBarkhord =   calcY(line,xBarkhord);
+        Line perpendicularLine = perpendicularLine(x,y);
+        float   mp=perpendicularLine.m;
+        int     x0p=perpendicularLine.x0;
+        int     yp0=perpendicularLine.y0;
+
+        float   xBarkhord = ((m*x0 - mp*x0p + yp0 - y0)/(m-mp));
+        float   yBarkhord =   calcY((this),xBarkhord);
+
         return distance(x,y,xBarkhord,yBarkhord);
     }
 
@@ -102,7 +104,7 @@ public class Line {
 
     public static void main(String[] args) {
         Line line = Line.CREATOR(0,0,5,5);
-        System.out.println(line.distanceFromLine(1,0,line));
+        System.out.println(line.distanceFromLine(1,0));
     }
 
 }
