@@ -83,7 +83,7 @@ public class AI {
 
     /**
      * this method initialize our need across the phase or turn
-     * */
+     */
     private void init(World world) {
         if (objectiveCells == null) {
             System.out.println("-->ObjectiveCells not assign in PreProccess and init in moveTurn method");
@@ -108,12 +108,12 @@ public class AI {
     }
 
     private void initWallCell(World world) {
-        if(wallsCell == null){
+        if (wallsCell == null) {
             System.out.println("-->wallsCell not assign in PreProccess and init in moveTurn method");
             wallsCell = new Vector<>();
-            for (Cell[] arryCell:world.getMap().getCells())
-                for (Cell cell:arryCell)
-                    if(cell.isWall())
+            for (Cell[] arryCell : world.getMap().getCells())
+                for (Cell cell : arryCell)
+                    if (cell.isWall())
                         wallsCell.add(cell);
         }
     }
@@ -127,13 +127,26 @@ public class AI {
         for (Hero myHero : myHeroes) {
             Line line = Line.CREATOR(myHero.getCurrentCell(), oppHeroCurrentCell);
             boolean isCollision = false;
+            // this scope get up down right and left to consider only wall in this range [ up,down ][ left,right]
+            Cell up = oppHeroCurrentCell.getRow() >= myHero.getCurrentCell().getRow() ?
+                    myHero.getCurrentCell() : oppHeroCurrentCell;
+            Cell down = oppHeroCurrentCell.getRow() <= myHero.getCurrentCell().getRow() ?
+                    myHero.getCurrentCell() : oppHeroCurrentCell;
+            Cell right = oppHeroCurrentCell.getColumn() >= myHero.getCurrentCell().getColumn() ?
+                    oppHeroCurrentCell : myHero.getCurrentCell();
+            Cell left = oppHeroCurrentCell.getColumn() <= myHero.getCurrentCell().getColumn() ?
+                    oppHeroCurrentCell : myHero.getCurrentCell();
+            //***end scope******
             for (Cell aWallsCell : wallsCell) {
-                if (line.isCollisionToWall(aWallsCell)) {
-                    isCollision = true;
-                    break;
+                if (aWallsCell.getColumn() <= right.getColumn() && aWallsCell.getColumn() >= left.getColumn()
+                        && aWallsCell.getRow() >= up.getRow() && aWallsCell.getRow() <= down.getRow()) {
+                    if (line.isCollisionToWall(aWallsCell)) {
+                        isCollision = true;
+                        break;
+                    }
                 }
             }
-            if(!isCollision)
+            if (!isCollision)
                 heroes.add(myHero);
         }
         return heroes.toArray(new Hero[]{});
@@ -142,7 +155,7 @@ public class AI {
     /**
      * in method check migkone ke ag histories ma init nashode
      * initesh kone
-     * */
+     */
     private void initHistorys(Hero[] heroes) {
         if (histories == null) {
             histories = new History[4];
@@ -153,7 +166,7 @@ public class AI {
 
     /**
      * we pick our hero for game in this method
-     * */
+     */
     private void pickHeroInPhase(World world) {
         switch (PICK_PHASE_COUNTER) {
             case 0:
@@ -175,11 +188,11 @@ public class AI {
 
     /**
      * @Blaster charecter do this method across the game
-     * */
+     */
     private void BlasterDO(World world, Hero blaster) {
         Cell blasterCurrentCell = blaster.getCurrentCell();
         int historyIndex = indexOfHeroInHistory(blaster);
-        if(historyIndex == -1) {
+        if (historyIndex == -1) {
             System.out.println("History Index was -1");
             return;
         }
@@ -187,47 +200,46 @@ public class AI {
 
         if (herosInVision == null || herosInVision.size() == 0) {
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
-        } else /*if (herosInVision.size() == 1)*/{
+        } else /*if (herosInVision.size() == 1)*/ {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
         }
     }
 
     /**
      * when blaster see the an opp_hero do this metod
-     * */
+     */
     private void blasterSawAMotherFucker(World world, Cell blasterCurrentCell, History history) {
         System.out.println("=======================start of saw that motherFucker========================");
         Cell lastStep = history.getLastStep();
         System.out.println("I Saw those MotherFuckers");
-        for (Hero mf:history.getSawHeroes()) {
+        for (Hero mf : history.getSawHeroes()) {
             System.out.println(mf.toString());
         }
         if (lastStep == null) {
             System.out.println("=============LAST STEP WaS BE NULL====================");
             //todo fknm byd goriz bzne
-        }
-        else if(lastStep.equals(blasterCurrentCell)){
+        } else if (lastStep.equals(blasterCurrentCell)) {
             //todo
             System.out.println("LAST STEP EQUALS WITH CUSTEP");
-        }else {
+        } else {
             printCell("in cell ", blasterCurrentCell);
             printCell("last step ", lastStep);
             Direction direction;
-            if(Math.abs(blasterCurrentCell.getColumn() - lastStep.getColumn()) == 1){
-                    direction = lastStep.getColumn() > blasterCurrentCell.getColumn() ?
-                            Direction.RIGHT :
-                            Direction.LEFT;
-                System.out.println("last step in first if , dir="+direction);
-            }else if(Math.abs(blasterCurrentCell.getRow() - lastStep.getRow()) == 1){
+            if (Math.abs(blasterCurrentCell.getColumn() - lastStep.getColumn()) == 1) {
+                direction = lastStep.getColumn() > blasterCurrentCell.getColumn() ?
+                        Direction.RIGHT :
+                        Direction.LEFT;
+                System.out.println("last step in first if , dir=" + direction);
+            } else if (Math.abs(blasterCurrentCell.getRow() - lastStep.getRow()) == 1) {
                 direction = lastStep.getRow() > blasterCurrentCell.getRow() ?
                         Direction.DOWN :
                         Direction.UP;
-                System.out.println("last step in second if , dir="+direction);
-            }else{
-                direction=Utility.pathTo(world,blasterCurrentCell,lastStep);
-                System.out.println("last step in second if , dir="+direction);
+                System.out.println("last step in second if , dir=" + direction);
+            } else {
+                direction = Utility.pathTo(world, blasterCurrentCell, lastStep);
+                System.out.println("last step in second if , dir=" + direction);
             }
-            world.moveHero(history.getHeroID(),direction);
+            world.moveHero(history.getHeroID(), direction);
         }
         System.out.println("=======================end of saw that motherFucker========================");
     }
@@ -235,19 +247,19 @@ public class AI {
     /**
      * when blaster not see enemys
      * do this method
-     * */
+     */
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
         int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1)
             return;
         world.moveHero(blaster,
-                Utility.pathTo(world,blasterCurrentCell,objectiveCells[indexOfMinDisFromObjectiveZoneCell]));
+                Utility.pathTo(world, blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]));
         history.move(blasterCurrentCell);
     }
 
     /**
      * this method an cell and return the nearest objective cell
-     * */
+     */
     private int getIndexOfMinDisFromObjectiveZoneCell(Cell blasterCurrentCell) {
         int indexOfMinDisFromObjectiveZoneCell = 0;
         int minDis = Utility.Distance(blasterCurrentCell, objectiveCells[0]);
@@ -265,7 +277,7 @@ public class AI {
 
     /**
      * this method get an hero and return the index of he in histories array
-     * */
+     */
     private int indexOfHeroInHistory(Hero hero) {
         for (int i = 0; i < 4; i++) {
             if (histories[i].getHeroID() == hero.getId()) {
@@ -277,6 +289,6 @@ public class AI {
     }
 
     private void printCell(String str, Cell cell) {
-        System.out.println(str+ cell.getRow()+"-"+ cell.getColumn());
+        System.out.println(str + cell.getRow() + "-" + cell.getColumn());
     }
 }
