@@ -39,7 +39,7 @@ public class Utility {
                                 NORMAL_CELL           = "-- ";
     static void printMap(World world) {
         Cell[][] cells = world.getMap().getCells();
-        System.out.print("   ");
+        System.out.print("  ");
         for (int i = 0; i < world.getMap().getColumnNum(); i++) {
             String str = String.valueOf(i);
             if(str.length() == 1)
