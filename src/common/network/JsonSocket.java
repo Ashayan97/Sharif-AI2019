@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
  * <code>JsonSocket</code> to send and receive objects correctly.
  * <p>
  *
- * @see com.google.gson.Gson
+ * @see Gson
  * @see Socket
  */
 public class JsonSocket {
@@ -108,7 +108,7 @@ public class JsonSocket {
      *
      * @param obj the object to send.
      * @throws IOException if an I/O error occurs, e.g. when the socket is closed.
-     * @see com.google.gson.Gson#toJson(Object)
+     * @see Gson#toJson(Object)
      */
     public void send(Object obj) throws IOException {
         String json = mGson.toJson(obj);
@@ -124,7 +124,7 @@ public class JsonSocket {
      *
      * @return the received <code>JsonObject</code>
      * @throws IOException if an I/O error occurs, e.g. when the socket is closed.
-     * @see com.google.gson.Gson#fromJson(String, Class)
+     * @see Gson#fromJson(String, Class)
      * @see #get(Class)
      */
     public JsonObject get() throws IOException {
@@ -139,7 +139,7 @@ public class JsonSocket {
      * @param <T>          type
      * @return the received object
      * @throws IOException if an I/O error occurs, e.g. when the socket is closed.
-     * @see com.google.gson.Gson#fromJson(String, Class)
+     * @see Gson#fromJson(String, Class)
      * @see #get
      */
     public <T> T get(Class<T> classOfInput) throws IOException {
