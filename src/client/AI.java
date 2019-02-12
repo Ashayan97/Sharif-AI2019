@@ -248,6 +248,9 @@ public class AI {
             }
         }else if(state == ATTACK_STATE.TANBETAN){
             world.castAbility(mHeroID,AbilityName.BLASTER_ATTACK,enemyCurrentCell);
+        }else if(state == ATTACK_STATE.CANTATTACK){
+            world.moveHero(mHeroID,Utility.pathTo(world,blasterCurrentCell,enemyCurrentCell));
+            // shayad behtar bashe bere be objective zone
         }
         for (Hero mf : history.getSawHeroes()) {
             System.out.println(mf.toString());
