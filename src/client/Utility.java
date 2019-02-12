@@ -22,7 +22,7 @@ public class Utility {
     static enum ATTACK_STATE{
         TANBETAN,
         DORADOR,
-        CANTATTACK
+        CANTATTACK,
     }
 
     static Cell[] AvailableCells(Map map , int radius,Cell currentCell){
