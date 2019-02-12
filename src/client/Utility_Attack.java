@@ -38,7 +38,7 @@ public class Utility_Attack {
                 sHero.getAbility(AbilityName.SENTRY_RAY).isReady()) {
             return SCAPE;
         }
-        //check if we can hit enemy with bomb -->
+        //check if we can hit enemy with bomb -->hdt
         int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         if(fHero.getAbility(AbilityName.BLASTER_BOMB).isReady() &&
                 distance<=range_of_blaster_bomb+range_of_bomb){
