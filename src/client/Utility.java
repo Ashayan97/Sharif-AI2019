@@ -85,5 +85,35 @@ public class Utility {
     static Direction[] pathTo(World world,Cell start,Cell end,boolean want){
         return world.getPathMoveDirections(start.getRow(),start.getColumn(),end.getRow(),end.getColumn());
     }
+    static boolean CanAttack(Hero fHero,Hero sHero){
+        switch (fHero.getHeroConstants().getName()){
+            case BLASTER:
+                return CanAttack_Blaster(fHero,sHero);
+            case SENTRY:
+                return CanAttack_Sentry(fHero,sHero);
+            case HEALER:
+                return CanAttack_Healer(fHero,sHero);
+            case GUARDIAN:
+                return CanAttack_Guardian(fHero,sHero);
+        }
+        return false;
+    }
+
+    private static boolean CanAttack_Guardian(Hero fHero, Hero sHero) {
+        return false;
+    }
+
+    private static boolean CanAttack_Healer(Hero fHero, Hero sHero) {
+        return false;
+    }
+
+    private static boolean CanAttack_Sentry(Hero fHero, Hero sHero) {
+        return false;
+    }
+
+    private static boolean CanAttack_Blaster(Hero fHero, Hero sHero) {
+
+        return false;
+    }
 
 }
