@@ -200,7 +200,7 @@ public class AI {
 
         if (herosInVision == null ||
                 herosInVision.size() == 0 ||
-                history.getSawHeroes().size()==0) {
+                history.getSawHeroes().size()==0) { // check to bezani bomb
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
@@ -227,14 +227,25 @@ public class AI {
         Hero mHero = world.getHero(history.getHeroID());
         Hero enemy = history.getSawHeroes().lastElement();
         Cell enemyCurrentCell = enemy.getCurrentCell();
+        int mHeroID = mHero.getId();
 
         Cell lastStep = history.getLastStep();
         System.out.println("I Saw those MotherFuckers");
 
-        Utility.ATTACK_STATE state = Utility.CanAttack(mHero,enemy);
-        if(state == Utility.ATTACK_STATE.DORADOR){
-            int distanceFromEnemy = Utility.Distance(blasterCurrentCell,enemyCurrentCell);
-
+        ATTACK_STATE state = Utility.CanAttack(mHero,enemy);
+        if(state == ATTACK_STATE.DORADOR) {
+            int distanceFromEnemy = Utility.Distance(blasterCurrentCell, enemyCurrentCell);
+            if ((distanceFromEnemy < Utility_Attack.range_of_blaster_bomb)){
+                world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
+            }else {
+                Cell[] availavleCells = Utility.AvailableCells(world.getMap(),
+                        Utility_Attack.range_of_blaster_bomb,
+                        blasterCurrentCell);
+                for (Cell availavleCell : availavleCells)
+                    if (Utility.Distance(availavleCell,
+                                        enemyCurrentCell) <= Utility_Attack.range_of_bomb)
+                        world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
+            }
         }
         for (Hero mf : history.getSawHeroes()) {
             System.out.println(mf.toString());
