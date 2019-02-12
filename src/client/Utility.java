@@ -23,13 +23,6 @@ public class Utility {
         world.moveHero(hero, pathTo(world, src, dest));
     }
 
-    static enum ATTACK_STATE{
-        TANBETAN,
-        DORADOR,
-        CANTATTACK,
-        SCAPE
-    }
-
     static Cell[] AvailableCells(Map map , int radius,Cell currentCell){
         ArrayList<Cell> cells = new ArrayList<>();
         int curRow = currentCell.getRow();
