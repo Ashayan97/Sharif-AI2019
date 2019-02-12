@@ -106,15 +106,15 @@ public class Utility {
     }
 
     private static ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
-        return false;
+        return ATTACK_STATE.CANTATTACK;
     }
 
     private static ATTACK_STATE CanAttack_Healer(Hero fHero, Hero sHero) {
-        return false;
+        return ATTACK_STATE.CANTATTACK;
     }
 
     private static ATTACK_STATE CanAttack_Sentry(Hero fHero, Hero sHero) {
-        return false;
+        return ATTACK_STATE.CANTATTACK;
     }
 
     private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
