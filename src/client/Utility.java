@@ -118,9 +118,18 @@ public class Utility {
     }
 
     private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
-        // omidekz
-        // ajab
-        //ghjkl
+        //first Hero is Blaster
+        //detect second Hero -->
+        switch (sHero.getName()){
+            case HEALER:
+                return Utility_Attack.blasterAttackToHealer(fHero,sHero);
+            case SENTRY:
+                return Utility_Attack.blasterAttackToSentry(fHero,sHero);
+            case BLASTER:
+                return Utility_Attack.blasterAttackToBlaster(fHero,sHero);
+            case GUARDIAN:
+                return Utility_Attack.blasterAttackToGuardian(fHero,sHero);
+        }
         return ATTACK_STATE.CANTATTACK;
     }
 
