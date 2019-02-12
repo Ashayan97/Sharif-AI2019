@@ -28,7 +28,10 @@ public class Utility_Attack {
         //first Hero is Blaster and second Hero is Healer
         /** if distance is OK and blaster bomb is OK too @return : DORADOR */
         int distance =Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
-
+        //scape if our hero will be die !-->
+        if(fHero.getCurrentHP()<=damage_of_healer_attack){
+            return SCAPE;
+        }
         if(fHero.getAbility(AbilityName.BLASTER_BOMB ).isReady() && distance<=range_of_blaster_bomb+range_of_blaster_bomb ){
             return DORADOR;
         }
@@ -136,7 +139,6 @@ public class Utility_Attack {
         return  CANTATTACK;
     }
     //====================================================================================//
-
 
     static Utility.ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
         return Utility.ATTACK_STATE.CANTATTACK;
