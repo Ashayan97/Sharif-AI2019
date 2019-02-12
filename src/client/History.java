@@ -14,7 +14,7 @@ public class History {
     private boolean inNormal=true;
     private Stack<Cell> lastStep=new Stack<>();
     private int HeroID;
-    private Vector<Hero> sawHeroes;
+    private Vector<Hero> sawHeroes; // Hero haii ke in baba dide
 
     History(int HEROID){
         HeroID = HEROID;
