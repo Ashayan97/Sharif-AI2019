@@ -2,10 +2,10 @@ package client;
 import client.model.AbilityName;
 import client.model.Hero;
 
-import static client.Utility.ATTACK_STATE.DORADOR;
-import static client.Utility.ATTACK_STATE.TANBETAN;
-import static client.Utility.ATTACK_STATE.CANTATTACK;
-import static client.Utility.ATTACK_STATE.SCAPE;
+import static client.ATTACK_STATE.DORADOR;
+import static client.ATTACK_STATE.TANBETAN;
+import static client.ATTACK_STATE.CANTATTACK;
+import static client.ATTACK_STATE.SCAPE;
 
 /**
  * @author :  Amirhossein Azimyzadeh
@@ -24,7 +24,7 @@ public class Utility_Attack {
     public final static int damage_of_blaster_attack=30;
     //====================================================================================//
     //Blaster Attacks Methods
-    public static Utility.ATTACK_STATE blasterAttackToHealer(Hero fHero , Hero sHero){
+    public static ATTACK_STATE blasterAttackToHealer(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Healer
         /** if distance is OK and blaster bomb is OK too @return : DORADOR */
         int distance =Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
@@ -41,7 +41,7 @@ public class Utility_Attack {
         /**check distance*/
         return CANTATTACK;
     }
-    public static Utility.ATTACK_STATE blasterAttackToSentry(Hero fHero , Hero sHero){
+    public static ATTACK_STATE blasterAttackToSentry(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Sentry
         //check scape state --> 1- check current HP of our Blaster 2- check state of enemy ray
         int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
@@ -70,7 +70,7 @@ public class Utility_Attack {
         }
         return CANTATTACK;
     }
-    public static Utility.ATTACK_STATE blasterAttackToBlaster(Hero fHero , Hero sHero){
+    public static ATTACK_STATE blasterAttackToBlaster(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Blaster
         int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         int myHeroHP = fHero.getCurrentHP();
@@ -97,7 +97,7 @@ public class Utility_Attack {
         }
         return CANTATTACK;
     }
-    public static Utility.ATTACK_STATE blasterAttackToGuardian(Hero fHero , Hero sHero){
+    public static ATTACK_STATE blasterAttackToGuardian(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Guardian
         //TODO
         int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
@@ -140,19 +140,19 @@ public class Utility_Attack {
     }
     //====================================================================================//
 
-    static Utility.ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
-        return Utility.ATTACK_STATE.CANTATTACK;
+    static ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
+        return CANTATTACK;
     }
 
-     static Utility.ATTACK_STATE CanAttack_Healer(Hero fHero, Hero sHero) {
-        return Utility.ATTACK_STATE.CANTATTACK;
+     static ATTACK_STATE CanAttack_Healer(Hero fHero, Hero sHero) {
+        return CANTATTACK;
     }
 
-     static Utility.ATTACK_STATE CanAttack_Sentry(Hero fHero, Hero sHero) {
-        return Utility.ATTACK_STATE.CANTATTACK;
+     static ATTACK_STATE CanAttack_Sentry(Hero fHero, Hero sHero) {
+        return CANTATTACK;
     }
 
-     static Utility.ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
+     static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
         switch (sHero.getName()){
             case HEALER:
                 return Utility_Attack.blasterAttackToHealer(fHero,sHero);
@@ -163,6 +163,6 @@ public class Utility_Attack {
             case GUARDIAN:
                 return Utility_Attack.blasterAttackToGuardian(fHero,sHero);
         }
-        return Utility.ATTACK_STATE.CANTATTACK;
+        return CANTATTACK;
     }
 }
