@@ -1,11 +1,6 @@
 package client;
-
-import client.Utility;
-import client.model.Ability;
-import client.model.AbilityConstants;
 import client.model.AbilityName;
 import client.model.Hero;
-import client.Utility.ATTACK_STATE;
 
 import static client.Utility.ATTACK_STATE.DORADOR;
 import static client.Utility.ATTACK_STATE.TANBETAN;
