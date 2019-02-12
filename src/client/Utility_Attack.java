@@ -26,7 +26,7 @@ public class Utility_Attack {
         if(distance<=range_of_blaster_attack){
             return TANBETAN;
         }
-        /***/
+        /**check distance*/
         return CANTATTACK;
     }
     public static Utility.ATTACK_STATE blasterAttackToSentry(Hero fHero , Hero sHero){
