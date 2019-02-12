@@ -99,39 +99,13 @@ public class Utility {
     static ATTACK_STATE CanAttack(Hero fHero,Hero sHero){
         switch (fHero.getHeroConstants().getName()){
             case BLASTER:
-                return CanAttack_Blaster(fHero,sHero);
+                return Utility_Attack.CanAttack_Blaster(fHero,sHero);
             case SENTRY:
-                return CanAttack_Sentry(fHero,sHero);
+                return Utility_Attack.CanAttack_Sentry(fHero,sHero);
             case HEALER:
-                return CanAttack_Healer(fHero,sHero);
+                return Utility_Attack.CanAttack_Healer(fHero,sHero);
             case GUARDIAN:
-                return CanAttack_Guardian(fHero,sHero);
-        }
-        return ATTACK_STATE.CANTATTACK;
-    }
-
-    private static ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
-        return ATTACK_STATE.CANTATTACK;
-    }
-
-    private static ATTACK_STATE CanAttack_Healer(Hero fHero, Hero sHero) {
-        return ATTACK_STATE.CANTATTACK;
-    }
-
-    private static ATTACK_STATE CanAttack_Sentry(Hero fHero, Hero sHero) {
-        return ATTACK_STATE.CANTATTACK;
-    }
-
-    private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
-        switch (sHero.getName()){
-            case HEALER:
-                return Utility_Attack.blasterAttackToHealer(fHero,sHero);
-            case SENTRY:
-                return Utility_Attack.blasterAttackToSentry(fHero,sHero);
-            case BLASTER:
-                return Utility_Attack.blasterAttackToBlaster(fHero,sHero);
-            case GUARDIAN:
-                return Utility_Attack.blasterAttackToGuardian(fHero,sHero);
+                return Utility_Attack.CanAttack_Guardian(fHero,sHero);
         }
         return ATTACK_STATE.CANTATTACK;
     }
