@@ -19,6 +19,12 @@ public class Utility {
                 Math.abs(startCol - endCol);
     }
 
+    static enum ATTACK_STATE{
+        TANBETAN,
+        DORADOR,
+        CANTATTACK
+    }
+
     static Cell[] AvailableCells(Map map , int radius,Cell currentCell){
         ArrayList<Cell> cells = new ArrayList<>();
         int curRow = currentCell.getRow();
@@ -85,7 +91,7 @@ public class Utility {
     static Direction[] pathTo(World world,Cell start,Cell end,boolean want){
         return world.getPathMoveDirections(start.getRow(),start.getColumn(),end.getRow(),end.getColumn());
     }
-    static boolean CanAttack(Hero fHero,Hero sHero){
+    static ATTACK_STATE CanAttack(Hero fHero,Hero sHero){
         switch (fHero.getHeroConstants().getName()){
             case BLASTER:
                 return CanAttack_Blaster(fHero,sHero);
@@ -96,24 +102,24 @@ public class Utility {
             case GUARDIAN:
                 return CanAttack_Guardian(fHero,sHero);
         }
+        return ATTACK_STATE.CANTATTACK;
+    }
+
+    private static ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
         return false;
     }
 
-    private static boolean CanAttack_Guardian(Hero fHero, Hero sHero) {
+    private static ATTACK_STATE CanAttack_Healer(Hero fHero, Hero sHero) {
         return false;
     }
 
-    private static boolean CanAttack_Healer(Hero fHero, Hero sHero) {
+    private static ATTACK_STATE CanAttack_Sentry(Hero fHero, Hero sHero) {
         return false;
     }
 
-    private static boolean CanAttack_Sentry(Hero fHero, Hero sHero) {
-        return false;
-    }
+    private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
 
-    private static boolean CanAttack_Blaster(Hero fHero, Hero sHero) {
-
-        return false;
+        return ATTACK_STATE.CANTATTACK;
     }
 
 }
