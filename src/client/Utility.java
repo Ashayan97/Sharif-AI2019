@@ -118,7 +118,7 @@ public class Utility {
     }
 
     private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
-
+        // omidekz
         return ATTACK_STATE.CANTATTACK;
     }
 
