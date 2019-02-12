@@ -119,6 +119,18 @@ public class AI {
     }
 
     /**
+     * in method check migkone ke ag histories ma init nashode
+     * initesh kone
+     */
+    private void initHistorys(Hero[] heroes) {
+        if (histories == null) {
+            histories = new History[4];
+            for (int i = 0; i < 4; i++)
+                histories[i] = new History(heroes[i].getId());
+        }
+    }
+
+    /**
      * in method mige kodum az hero haye ma(@myHeroes), hero'ye doshman(oppHero) ro didan
      **/
     private Hero[] whoSeeThisHero(Hero[] myHeroes, Hero oppHeroe) {
@@ -150,18 +162,6 @@ public class AI {
                 heroes.add(myHero);
         }
         return heroes.toArray(new Hero[]{});
-    }
-
-    /**
-     * in method check migkone ke ag histories ma init nashode
-     * initesh kone
-     */
-    private void initHistorys(Hero[] heroes) {
-        if (histories == null) {
-            histories = new History[4];
-            for (int i = 0; i < 4; i++)
-                histories[i] = new History(heroes[i].getId());
-        }
     }
 
     /**
@@ -206,6 +206,18 @@ public class AI {
     }
 
     /**
+     * when blaster not see enemys
+     * do this method
+     */
+    private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
+        int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
+        if (indexOfMinDisFromObjectiveZoneCell == -1)
+            return;
+        Utility.move(world,blaster,blasterCurrentCell,objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
+        history.move(blasterCurrentCell);
+    }
+
+    /**
      * when blaster see the an opp_hero do this metod
      */
     private void blasterSawAMotherFucker(World world, Cell blasterCurrentCell, History history) {
@@ -242,19 +254,6 @@ public class AI {
             world.moveHero(history.getHeroID(), direction);
         }
         System.out.println("=======================end of saw that motherFucker========================");
-    }
-
-    /**
-     * when blaster not see enemys
-     * do this method
-     */
-    private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
-        int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
-        if (indexOfMinDisFromObjectiveZoneCell == -1)
-            return;
-        world.moveHero(blaster,
-                Utility.pathTo(world, blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]));
-        history.move(blasterCurrentCell);
     }
 
     /**

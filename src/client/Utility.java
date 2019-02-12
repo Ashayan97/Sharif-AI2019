@@ -19,6 +19,10 @@ public class Utility {
                 Math.abs(startCol - endCol);
     }
 
+    static void move(World world, Hero hero, Cell src, Cell dest) {
+        world.moveHero(hero, pathTo(world, src, dest));
+    }
+
     static enum ATTACK_STATE{
         TANBETAN,
         DORADOR,
@@ -118,8 +122,6 @@ public class Utility {
     }
 
     private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
-        // omidekz
-        // ajab
         return ATTACK_STATE.CANTATTACK;
     }
 
