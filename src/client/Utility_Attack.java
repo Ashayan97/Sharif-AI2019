@@ -64,8 +64,29 @@ public class Utility_Attack {
     }
     public static Utility.ATTACK_STATE blasterAttackToBlaster(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Blaster
-        //TODO
+        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int myHeroHP = fHero.getCurrentHP();
+        int enemyHeroHP = sHero.getCurrentHP();
 
+        if(myHeroHP>=enemyHeroHP&&
+                fHero.getAbility(AbilityName.BLASTER_BOMB).isReady()&&
+                distance<=range_of_blaster_bomb+range_of_bomb){
+            return DORADOR;
+        }
+        if(myHeroHP>=enemyHeroHP&&
+                distance<=range_of_blaster_attack){
+            return TANBETAN;
+        }
+        //check for scape -->
+        if(myHeroHP<enemyHeroHP&&
+                distance<=range_of_blaster_attack) {
+            return SCAPE;
+        }
+        if(myHeroHP<enemyHeroHP&&
+                sHero.getAbility(AbilityName.BLASTER_BOMB).isReady()&&
+                distance<=range_of_blaster_bomb) {
+            return SCAPE;
+        }
         return CANTATTACK;
     }
     public static Utility.ATTACK_STATE blasterAttackToGuardian(Hero fHero , Hero sHero){
