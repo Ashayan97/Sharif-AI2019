@@ -198,9 +198,11 @@ public class AI {
         }
         History history = histories[historyIndex];
 
-        if (herosInVision == null || herosInVision.size() == 0) {
+        if (herosInVision == null ||
+                herosInVision.size() == 0 ||
+                history.getSawHeroes().size()==0) {
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
-        } else /*if (herosInVision.size() == 1)*/ {
+        } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
         }
     }
@@ -222,8 +224,18 @@ public class AI {
      */
     private void blasterSawAMotherFucker(World world, Cell blasterCurrentCell, History history) {
         System.out.println("=======================start of saw that motherFucker========================");
+        Hero mHero = world.getHero(history.getHeroID());
+        Hero enemy = history.getSawHeroes().lastElement();
+        Cell enemyCurrentCell = enemy.getCurrentCell();
+
         Cell lastStep = history.getLastStep();
         System.out.println("I Saw those MotherFuckers");
+
+        Utility.ATTACK_STATE state = Utility.CanAttack(mHero,enemy);
+        if(state == Utility.ATTACK_STATE.DORADOR){
+            int distanceFromEnemy = Utility.Distance(blasterCurrentCell,enemyCurrentCell);
+
+        }
         for (Hero mf : history.getSawHeroes()) {
             System.out.println(mf.toString());
         }
