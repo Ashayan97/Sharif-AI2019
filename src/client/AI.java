@@ -246,6 +246,8 @@ public class AI {
                                         enemyCurrentCell) <= Utility_Attack.range_of_bomb)
                         world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
             }
+        }else if(state == ATTACK_STATE.TANBETAN){
+            world.castAbility(mHeroID,AbilityName.BLASTER_ATTACK,enemyCurrentCell);
         }
         for (Hero mf : history.getSawHeroes()) {
             System.out.println(mf.toString());
