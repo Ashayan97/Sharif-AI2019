@@ -122,9 +122,6 @@ public class Utility {
     }
 
     private static ATTACK_STATE CanAttack_Blaster(Hero fHero, Hero sHero) {
-<<<<<<<<< Temporary merge branch 1
-        //first Hero is Blaster
-        //detect second Hero -->
         switch (sHero.getName()){
             case HEALER:
                 return Utility_Attack.blasterAttackToHealer(fHero,sHero);
@@ -135,8 +132,6 @@ public class Utility {
             case GUARDIAN:
                 return Utility_Attack.blasterAttackToGuardian(fHero,sHero);
         }
-=========
->>>>>>>>> Temporary merge branch 2
         return ATTACK_STATE.CANTATTACK;
     }
 
