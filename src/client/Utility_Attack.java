@@ -16,7 +16,7 @@ public class Utility_Attack {
     public final static int range_of_blaster_attack = 4 ;
     public final static int range_of_bomb = 2;
     public final static int range_of_guardian_attack=1;
-
+    public final static int range_of_healer_attack=4;
 
     public final static int damage_of_healer_attack=20;
     public final static int damage_of_sentry_ray = 50;
@@ -31,6 +31,13 @@ public class Utility_Attack {
         //scape if our hero will be die !-->
         if(fHero.getCurrentHP()<=damage_of_healer_attack){
             return SCAPE;
+        }
+        //if we are too close to the
+        if(distance<=range_of_healer_attack){
+            int number_of_turn_needed_to_kill_enemy = sHero.getCurrentHP()/damage_of_blaster_attack;
+            int number_of_turn_needed_to_kill_me = fHero.getCurrentHP()/damage_of_healer_attack;
+            if(number_of_turn_needed_to_kill_enemy>number_of_turn_needed_to_kill_me)
+                return SCAPE;
         }
         if(fHero.getAbility(AbilityName.BLASTER_BOMB ).isReady() && distance<=range_of_blaster_bomb+range_of_blaster_bomb ){
             return DORADOR;
