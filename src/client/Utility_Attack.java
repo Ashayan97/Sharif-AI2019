@@ -146,16 +146,97 @@ public class Utility_Attack {
         return  CANTATTACK;
     }
     //====================================================================================//
+    //Sentry Attacks Methods
+    public static ATTACK_STATE sentryAttackToHealer(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE sentryAttackToSentry(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE sentryAttackToBlaster(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE sentryAttackToGuardian(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    //====================================================================================//
+    //Healer Attacks Methods
+    public static ATTACK_STATE healerAttackToHealer(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE healerAttackToSentry(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE healerAttackToBlaster(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE healerAttackToGuardian(Hero fHero , Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    //====================================================================================//
+    //Guardian Attack Methods
+    public static ATTACK_STATE guardianAttackToHealer(Hero fHero,Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE guardianAttackToSentry(Hero fHero,Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE guardianAttackToBlaster(Hero fHero,Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    public static ATTACK_STATE guardianAttackToGuardian(Hero fHero,Hero sHero){
+        //TODO
+        return CANTATTACK;
+    }
+    //====================================================================================//
+
 
     static ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
+        switch (sHero.getName()){
+            case HEALER:
+            case SENTRY:
+            case BLASTER:
+            case GUARDIAN:
+        }
         return CANTATTACK;
     }
 
      static ATTACK_STATE CanAttack_Healer(Hero fHero, Hero sHero) {
+        switch (sHero.getName()){
+            case HEALER:
+                return healerAttackToHealer(fHero,sHero);
+            case SENTRY:
+                return healerAttackToSentry(fHero,sHero);
+            case BLASTER:
+                return healerAttackToBlaster(fHero,sHero);
+            case GUARDIAN:
+                return healerAttackToGuardian(fHero,sHero);
+        }
         return CANTATTACK;
     }
 
      static ATTACK_STATE CanAttack_Sentry(Hero fHero, Hero sHero) {
+        switch (sHero.getName()){
+            case HEALER:
+                return sentryAttackToHealer(fHero,sHero);
+            case SENTRY:
+                return sentryAttackToSentry(fHero,sHero);
+            case BLASTER:
+                return sentryAttackToBlaster(fHero,sHero);
+            case GUARDIAN:
+                return sentryAttackToGuardian(fHero,sHero);
+        }
         return CANTATTACK;
     }
 
