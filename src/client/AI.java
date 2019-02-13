@@ -130,6 +130,12 @@ public class AI {
         }
     }
 
+    private boolean inVision(Cell src,Cell des){
+        Line line = Line.CREATOR(src,des);
+
+        return false;
+    }
+
     /**
      * in method mige kodum az hero haye ma(@myHeroes), hero'ye doshman(oppHero) ro didan
      **/
@@ -233,24 +239,26 @@ public class AI {
         System.out.println("I Saw those MotherFuckers");
 
         ATTACK_STATE state = Utility.CanAttack(mHero,enemy);
-        if(state == ATTACK_STATE.DORADOR) {
-            int distanceFromEnemy = Utility.Distance(blasterCurrentCell, enemyCurrentCell);
-            if ((distanceFromEnemy < Utility_Attack.range_of_blaster_bomb)){
-                world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
-            }else {
-                Cell[] availavleCells = Utility.AvailableCells(world.getMap(),
-                        Utility_Attack.range_of_blaster_bomb,
-                        blasterCurrentCell);
-                for (Cell availavleCell : availavleCells)
-                    if (Utility.Distance(availavleCell,
-                                        enemyCurrentCell) <= Utility_Attack.range_of_bomb)
-                        world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
-            }
-        }else if(state == ATTACK_STATE.TANBETAN){
-            world.castAbility(mHeroID,AbilityName.BLASTER_ATTACK,enemyCurrentCell);
-        }else if(state == ATTACK_STATE.CANTATTACK){
+        if(state == ATTACK_STATE.DORADOR
+        || state == ATTACK_STATE.TANBETAN
+        || state == ATTACK_STATE.CANTATTACK) {
+//            int distanceFromEnemy = Utility.Distance(blasterCurrentCell, enemyCurrentCell);
+//            if ((distanceFromEnemy < Utility_Attack.range_of_blaster_bomb)){
+//                world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
+//            }else {
+//                Cell[] availavleCells = Utility.AvailableCells(world.getMap(),
+//                        Utility_Attack.range_of_blaster_bomb,
+//                        blasterCurrentCell);
+//                for (Cell availavleCell : availavleCells)
+//                    if (Utility.Distance(availavleCell,
+//                                        enemyCurrentCell) <= Utility_Attack.range_of_bomb)
+//                        world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
+//            }
             world.moveHero(mHeroID,Utility.pathTo(world,blasterCurrentCell,enemyCurrentCell));
-            // shayad behtar bashe bere be objective zone
+            history.addLastStep(blasterCurrentCell);
+        }else if(state == ATTACK_STATE.SCAPE){
+            Cell lastCell = history.getLastStep();
+
         }
         for (Hero mf : history.getSawHeroes()) {
             System.out.println(mf.toString());
