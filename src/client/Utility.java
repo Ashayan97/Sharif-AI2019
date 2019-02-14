@@ -5,7 +5,7 @@ import client.model.*;
 import java.util.ArrayList;
 
 public class Utility {
-    public static final double SECOND_ROOT_OF_2=1.41421730950488016887/2;
+    final static int DODGE_RANGE = 4;
     static int distance(Cell start, Cell end, boolean check) {
         if (check && (start.isWall() || end.isWall()))
             return -1;

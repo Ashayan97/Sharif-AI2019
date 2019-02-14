@@ -37,30 +37,54 @@ public class AI {
         Hero[] myHero = world.getMyHeroes();
         initHistorys(myHero);
         initHeroInVision(world);
-        int heroHistoryIndex = indexOfHeroInHistory(myHero[0]);
+        test(world, myHero[0]);
+        test(world,myHero[1]);
+        test(world,myHero[2]);
+        test(world,myHero[3]);
+    }
+
+    private void test(World world, Hero myHero) {
+        int heroHistoryIndex = indexOfHeroInHistory(myHero);
         if(histories[heroHistoryIndex].getSawHeroes()!=null
                 &&histories[heroHistoryIndex].getSawHeroes().size()==1){
             Hero enemy = histories[heroHistoryIndex].getSawHeroes().lastElement();
             ATTACK_STATE state =
-                    Utility.canAttack(myHero[0],enemy);
+                    Utility.canAttack(myHero,enemy);
             if(state == ATTACK_STATE.TANBETAN){
-                world.castAbility(myHero[0].getId(),AbilityName.BLASTER_ATTACK,enemy.getCurrentCell());
+                world.castAbility(myHero.getId(), AbilityName.BLASTER_ATTACK,enemy.getCurrentCell());
             }else if(state == ATTACK_STATE.DORADOR){
-                int disFromEnemy = Utility.distance(myHero[0].getCurrentCell(),enemy.getCurrentCell());
+                int disFromEnemy = Utility.distance(myHero.getCurrentCell(),enemy.getCurrentCell());
                 if(disFromEnemy <= Utility_Attack.range_of_blaster_bomb)
-                    world.castAbility(myHero[0].getId(),AbilityName.BLASTER_BOMB,enemy.getCurrentCell());
+                    world.castAbility(myHero.getId(),AbilityName.BLASTER_BOMB,enemy.getCurrentCell());
                 else{
-                    Cell[] availableCell = Utility.availableCells(world.getMap(),Utility_Attack.range_of_blaster_bomb,myHero[0].getCurrentCell());
-                    for (int i = 0; i < availableCell.length; i++) {
-                        if(Utility.distance(enemy.getCurrentCell(),availableCell[i])<=Utility_Attack.radius_of_blaster_bomb){
-
+                    Cell[] availableCell = Utility.availableCells(world.getMap(),Utility_Attack.range_of_blaster_bomb, myHero.getCurrentCell());
+                    for (Cell anAvailableCell : availableCell)
+                        if (Utility.distance(enemy.getCurrentCell(), anAvailableCell) <= Utility_Attack.radius_of_blaster_bomb) {
+                            world.castAbility(myHero, AbilityName.BLASTER_BOMB, anAvailableCell);
+                            break;
                         }
+                }
+            }else if(state == ATTACK_STATE.SCAPE){
+                Cell[] around =
+                        Utility.availableCells(world.getMap(),Utility.DODGE_RANGE, myHero.getCurrentCell());
+                int max = Utility.distance(enemy.getCurrentCell(),around[0]);
+                int index = 0;
+                int flag = 0;
+                for (int i = 0;i<around.length;i++ ) {
+                    int tmp = Utility.distance(enemy.getCurrentCell(),around[i]);
+                    if(!world.isInVision(enemy.getCurrentCell(),around[i])){
+                        world.castAbility(myHero,AbilityName.BLASTER_DODGE,around[i]);
+                        flag = 1;
+                        break;
+                    }else if(tmp > max){
+                        max = tmp;
+                        index = i;
                     }
                 }
-            }else if(state == ATTACK_STATE.CANTATTACK){
-
-            }else{
-
+                if(flag == 1)
+                    return;
+                histories[heroHistoryIndex].addLastStep(myHero.getCurrentCell());
+                world.castAbility(myHero,AbilityName.BLASTER_DODGE,around[index]);
             }
         }
     }
@@ -293,7 +317,7 @@ public class AI {
                         flag = 1;
                         break;
                     }
-                if (flag == 0) {
+                if (flag == 0) { // cell'i ke tu didesh nbashe ham bayad check beshe todo
                         Cell[] around = Utility.availableCells(world.getMap(),4,blasterCurrentCell);
                         int max = Utility.distance(enemyCurrentCell,around[0]);
                         int indexOfMax = 0;
