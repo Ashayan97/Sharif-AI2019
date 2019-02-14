@@ -27,7 +27,7 @@ public class Utility_Attack {
     public static ATTACK_STATE blasterAttackToHealer(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Healer
         /** if distance is OK and blaster bomb is OK too @return : DORADOR */
-        int distance =Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int distance =Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         //scape if our hero will be die !-->
         if(fHero.getCurrentHP()<=damage_of_healer_attack){
             return SCAPE;
@@ -51,7 +51,7 @@ public class Utility_Attack {
     public static ATTACK_STATE blasterAttackToSentry(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Sentry
         //check scape state --> 1- check current HP of our Blaster 2- check state of enemy ray
-        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         //check if HP of enemy is less than blaster bomb
         if(fHero.getAbility(AbilityName.BLASTER_BOMB).isReady()&&
                 distance<=range_of_blaster_bomb+range_of_bomb &&
@@ -79,7 +79,7 @@ public class Utility_Attack {
     }
     public static ATTACK_STATE blasterAttackToBlaster(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Blaster
-        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         int myHeroHP = fHero.getCurrentHP();
         int enemyHeroHP = sHero.getCurrentHP();
 
@@ -107,7 +107,7 @@ public class Utility_Attack {
     public static ATTACK_STATE blasterAttackToGuardian(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Guardian
         //TODO
-        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         int myHeroHP = fHero.getCurrentHP();
         int enemyHeroHP = sHero.getCurrentHP();
 

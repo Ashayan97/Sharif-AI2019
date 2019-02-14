@@ -34,12 +34,6 @@ public class AI {
     }
 
     void actionTurn(World world) {
-//        Hero[] heros = world.getMyHeroes();
-
-//        Cell[] cells = Utility.AvailableCells(world.getMap(), 4, heros[0].getCurrentCell());
-
-//        world.castAbility(heros[0].getId(), heros[0].getDodgeAbilities()[0], objectiveCells[0]);
-
     }
 
     //****************************************
@@ -93,6 +87,11 @@ public class AI {
 
         initHistorys(world.getMyHeroes());
 
+        initHeroInVision(world);
+
+    }
+
+    private void initHeroInVision(World world) {
         herosInVision = new ArrayList<>();
         for (int i = 0; i < 4; i++)
             histories[i].cleareSawHeroes();
@@ -100,11 +99,10 @@ public class AI {
         for (Hero oppHeroe : oppHeroes)
             if (oppHeroe.getCurrentCell().getColumn() != -1) {
                 herosInVision.add(oppHeroe);
-                Hero[] sawThisHero = whoSeeThisHero(world.getMyHeroes(), oppHeroe);
+                Hero[] sawThisHero = whoSeeThisHero(world, oppHeroe);
                 for (Hero aSawThisHero : sawThisHero)
                     histories[indexOfHeroInHistory(aSawThisHero)].addHero(oppHeroe);
             }
-
     }
 
     private void initWallCell(World world) {
@@ -130,8 +128,8 @@ public class AI {
         }
     }
 
-    private boolean inVision(Cell src,Cell des){
-        Line line = Line.CREATOR(src,des);
+    private boolean inVision(Cell src, Cell des) {
+        Line line = Line.CREATOR(src, des);
 
         return false;
     }
@@ -139,33 +137,36 @@ public class AI {
     /**
      * in method mige kodum az hero haye ma(@myHeroes), hero'ye doshman(oppHero) ro didan
      **/
-    private Hero[] whoSeeThisHero(Hero[] myHeroes, Hero oppHeroe) {
+    private Hero[] whoSeeThisHero(World world, Hero oppHeroe) {
         Vector<Hero> heroes = new Vector<>();
+        Hero[] myHeroes = world.getMyHeroes();
         Cell oppHeroCurrentCell = oppHeroe.getCurrentCell();
         for (Hero myHero : myHeroes) {
-            Line line = Line.CREATOR(myHero.getCurrentCell(), oppHeroCurrentCell);
-            boolean isCollision = false;
-            // this scope get up down right and left to consider only wall in this range [ up,down ][ left,right]
-            Cell up = oppHeroCurrentCell.getRow() >= myHero.getCurrentCell().getRow() ?
-                    myHero.getCurrentCell() : oppHeroCurrentCell;
-            Cell down = oppHeroCurrentCell.getRow() <= myHero.getCurrentCell().getRow() ?
-                    myHero.getCurrentCell() : oppHeroCurrentCell;
-            Cell right = oppHeroCurrentCell.getColumn() >= myHero.getCurrentCell().getColumn() ?
-                    oppHeroCurrentCell : myHero.getCurrentCell();
-            Cell left = oppHeroCurrentCell.getColumn() <= myHero.getCurrentCell().getColumn() ?
-                    oppHeroCurrentCell : myHero.getCurrentCell();
-            //***end scope******
-            for (Cell aWallsCell : wallsCell) {
-                if (aWallsCell.getColumn() <= right.getColumn() && aWallsCell.getColumn() >= left.getColumn()
-                        && aWallsCell.getRow() >= up.getRow() && aWallsCell.getRow() <= down.getRow()) {
-                    if (line.isCollisionToWall(aWallsCell)) {
-                        isCollision = true;
-                        break;
-                    }
-                }
-            }
-            if (!isCollision)
+            if(world.isInVision(myHero.getCurrentCell(),oppHeroCurrentCell))
                 heroes.add(myHero);
+//            Line line = Line.CREATOR(myHero.getCurrentCell(), oppHeroCurrentCell);
+//            boolean isCollision = false;
+//            // this scope get up down right and left to consider only wall in this range [ up,down ][ left,right]
+//            Cell up = oppHeroCurrentCell.getRow() >= myHero.getCurrentCell().getRow() ?
+//                    myHero.getCurrentCell() : oppHeroCurrentCell;
+//            Cell down = oppHeroCurrentCell.getRow() <= myHero.getCurrentCell().getRow() ?
+//                    myHero.getCurrentCell() : oppHeroCurrentCell;
+//            Cell right = oppHeroCurrentCell.getColumn() >= myHero.getCurrentCell().getColumn() ?
+//                    oppHeroCurrentCell : myHero.getCurrentCell();
+//            Cell left = oppHeroCurrentCell.getColumn() <= myHero.getCurrentCell().getColumn() ?
+//                    oppHeroCurrentCell : myHero.getCurrentCell();
+//            //***end scope******
+//            for (Cell aWallsCell : wallsCell) {
+//                if (aWallsCell.getColumn() <= right.getColumn() && aWallsCell.getColumn() >= left.getColumn()
+//                        && aWallsCell.getRow() >= up.getRow() && aWallsCell.getRow() <= down.getRow()) {
+//                    if (line.isCollisionToWall(aWallsCell)) {
+//                        isCollision = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!isCollision)
+//                heroes.add(myHero);
         }
         return heroes.toArray(new Hero[]{});
     }
@@ -206,7 +207,7 @@ public class AI {
 
         if (herosInVision == null ||
                 herosInVision.size() == 0 ||
-                history.getSawHeroes().size()==0) { // check to bezani bomb
+                history.getSawHeroes().size() == 0) { // check to bezani bomb
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
@@ -221,75 +222,82 @@ public class AI {
         int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1)
             return;
-        Utility.move(world,blaster,blasterCurrentCell,objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
+        Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         history.move(blasterCurrentCell);
+        printCell("Blaster Cell ",blasterCurrentCell);
+        printCell("ObjectiveCell detected",objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
     }
 
     /**
      * when blaster see the an opp_hero do this metod
      */
     private void blasterSawAMotherFucker(World world, Cell blasterCurrentCell, History history) {
-        System.out.println("=======================start of saw that motherFucker========================");
+        System.out.println("=======================start of saw that motherFucker "+history.getHeroID()+" ========================");
         Hero mHero = world.getHero(history.getHeroID());
         Hero enemy = history.getSawHeroes().lastElement();
         Cell enemyCurrentCell = enemy.getCurrentCell();
-        int mHeroID = mHero.getId();
+        int mHeroID = history.getHeroID();
 
-        Cell lastStep = history.getLastStep();
         System.out.println("I Saw those MotherFuckers");
-
-        ATTACK_STATE state = Utility.CanAttack(mHero,enemy);
-        if(state == ATTACK_STATE.DORADOR
-        || state == ATTACK_STATE.TANBETAN
-        || state == ATTACK_STATE.CANTATTACK) {
-//            int distanceFromEnemy = Utility.Distance(blasterCurrentCell, enemyCurrentCell);
+        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) == 1
+                && mHero.getCurrentCell().isInObjectiveZone())
+            return;
+        ATTACK_STATE state = Utility.canAttack(mHero, enemy);
+        if (state == ATTACK_STATE.DORADOR
+                || state == ATTACK_STATE.TANBETAN
+                || state == ATTACK_STATE.CANTATTACK) {
+//            int distanceFromEnemy = Utility.distance(blasterCurrentCell, enemyCurrentCell);
 //            if ((distanceFromEnemy < Utility_Attack.range_of_blaster_bomb)){
 //                world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
 //            }else {
-//                Cell[] availavleCells = Utility.AvailableCells(world.getMap(),
+//                Cell[] availavleCells = Utility.availableCells(world.getMap(),
 //                        Utility_Attack.range_of_blaster_bomb,
 //                        blasterCurrentCell);
 //                for (Cell availavleCell : availavleCells)
-//                    if (Utility.Distance(availavleCell,
+//                    if (Utility.distance(availavleCell,
 //                                        enemyCurrentCell) <= Utility_Attack.range_of_bomb)
 //                        world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
 //            }
-            world.moveHero(mHeroID,Utility.pathTo(world,blasterCurrentCell,enemyCurrentCell));
+            int cellIndexMinDisToObjctibve=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
+            Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjctibve]);
+            int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
+            int dis2 = Utility.distance(blasterCurrentCell,enemyCurrentCell);
+            if(dis1 <= dis2)
+                Utility.move(world,mHeroID,blasterCurrentCell,nextToObjective);
+            else
+                Utility.move(world, mHeroID, blasterCurrentCell, enemyCurrentCell);
             history.addLastStep(blasterCurrentCell);
-        }else if(state == ATTACK_STATE.SCAPE){
+        } else if (state == ATTACK_STATE.SCAPE) {
             Cell lastCell = history.getLastStep();
-
-        }
-        for (Hero mf : history.getSawHeroes()) {
-            System.out.println(mf.toString());
-        }
-        if (lastStep == null) {
-            System.out.println("=============LAST STEP WaS BE NULL====================");
-            //todo fknm byd goriz bzne
-        } else if (lastStep.equals(blasterCurrentCell)) {
-            //todo
-            System.out.println("LAST STEP EQUALS WITH CUSTEP");
-        } else {
-            printCell("in cell ", blasterCurrentCell);
-            printCell("last step ", lastStep);
-            Direction direction;
-            if (Math.abs(blasterCurrentCell.getColumn() - lastStep.getColumn()) == 1) {
-                direction = lastStep.getColumn() > blasterCurrentCell.getColumn() ?
-                        Direction.RIGHT :
-                        Direction.LEFT;
-                System.out.println("last step in first if , dir=" + direction);
-            } else if (Math.abs(blasterCurrentCell.getRow() - lastStep.getRow()) == 1) {
-                direction = lastStep.getRow() > blasterCurrentCell.getRow() ?
-                        Direction.DOWN :
-                        Direction.UP;
-                System.out.println("last step in second if , dir=" + direction);
-            } else {
-                direction = Utility.pathTo(world, blasterCurrentCell, lastStep);
-                System.out.println("last step in second if , dir=" + direction);
+            if (!world.isInVision(lastCell, enemyCurrentCell)) {
+                Utility.move(world, mHeroID, blasterCurrentCell, lastCell);
+                history.addLastStep(blasterCurrentCell);
+            }else {
+                Cell[] cells = Utility.availableCells(world.getMap(), 2, blasterCurrentCell);
+                int flag = 0;
+                for (Cell cell : cells)
+                    if (!world.isInVision(blasterCurrentCell, cell)) {
+                        Utility.move(world, mHeroID, blasterCurrentCell, cell);
+                        history.addLastStep(blasterCurrentCell);
+                        flag = 1;
+                        break;
+                    }
+                if (flag == 0) {
+                        Cell[] around = Utility.availableCells(world.getMap(),4,blasterCurrentCell);
+                        int max = Utility.distance(enemyCurrentCell,around[0]);
+                        int indexOfMax = 0;
+                    for (int i = 1; i < around.length; i++) {
+                        int tmp = Utility.distance(enemyCurrentCell,around[i]);
+                        if(tmp>max){
+                            indexOfMax = i;
+                            max = tmp;
+                        }
+                    }
+                    Utility.move(world,mHeroID,blasterCurrentCell,around[indexOfMax]);
+                    history.addLastStep(blasterCurrentCell);
+                }
             }
-            world.moveHero(history.getHeroID(), direction);
         }
-        System.out.println("=======================end of saw that motherFucker========================");
     }
 
     /**
@@ -297,9 +305,9 @@ public class AI {
      */
     private int getIndexOfMinDisFromObjectiveZoneCell(Cell blasterCurrentCell) {
         int indexOfMinDisFromObjectiveZoneCell = 0;
-        int minDis = Utility.Distance(blasterCurrentCell, objectiveCells[0]);
+        int minDis = Utility.distance(blasterCurrentCell, objectiveCells[0]);
         for (int i = 1; i < objectiveCells.length; i++) {
-            int tmpDis = Utility.Distance(blasterCurrentCell, objectiveCells[i]);
+            int tmpDis = Utility.distance(blasterCurrentCell, objectiveCells[i]);
             if (minDis < tmpDis) {
                 indexOfMinDisFromObjectiveZoneCell = i;
                 minDis = tmpDis;
