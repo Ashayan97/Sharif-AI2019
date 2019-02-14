@@ -160,7 +160,7 @@ public class Utility_Attack {
     //Sentry Attacks Methods
     public static ATTACK_STATE sentryAttackToHealer(Hero fHero , Hero sHero){
         //init data
-        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         int enemyHP = sHero.getCurrentHP();
         int myHeroHP = fHero.getCurrentHP();
         //scape if our hero will be die !
@@ -191,7 +191,7 @@ public class Utility_Attack {
     }
     public static ATTACK_STATE sentryAttackToSentry(Hero fHero , Hero sHero){
         //init data
-        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         int enemyHP = sHero.getCurrentHP();
         int myHeroHP = fHero.getCurrentHP();
         //scape if we will die !!
