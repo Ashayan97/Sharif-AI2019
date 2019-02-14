@@ -249,7 +249,7 @@ public class AI {
 //                        blasterCurrentCell);
 //                for (Cell availavleCell : availavleCells)
 //                    if (Utility.distance(availavleCell,
-//                                        enemyCurrentCell) <= Utility_Attack.range_of_bomb)
+//                                        enemyCurrentCell) <= Utility_Attack.radius_of_blaster_bomb)
 //                        world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
 //            }
             int cellIndexMinDisToObjctibve=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);

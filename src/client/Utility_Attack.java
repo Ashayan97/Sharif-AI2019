@@ -2,8 +2,6 @@ package client;
 import client.model.AbilityName;
 import client.model.Hero;
 
-import java.io.RandomAccessFile;
-
 import static client.ATTACK_STATE.DORADOR;
 import static client.ATTACK_STATE.TANBETAN;
 import static client.ATTACK_STATE.CANTATTACK;
@@ -18,7 +16,7 @@ public class Utility_Attack {
 
     public final static int range_of_blaster_bomb = 5;
     public final static int range_of_blaster_attack = 4 ;
-    public final static int range_of_bomb = 2;
+    public final static int radius_of_blaster_bomb = 2;
     public final static int range_of_guardian_attack=1;
     public final static int range_of_healer_attack=4;
     public final static int range_of_sentry_attack=7;
@@ -65,7 +63,7 @@ public class Utility_Attack {
         int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         //check if HP of enemy is less than blaster bomb
         if(fHero.getAbility(AbilityName.BLASTER_BOMB).isReady()&&
-                distance<=range_of_blaster_bomb+range_of_bomb &&
+                distance<=range_of_blaster_bomb+ radius_of_blaster_bomb &&
                 sHero.getCurrentHP()<=damage_of_blaster_bomb){
             return DORADOR;
         }
@@ -79,7 +77,7 @@ public class Utility_Attack {
         }
         //check if we can hit enemy with bomb -->hdt
         if(fHero.getAbility(AbilityName.BLASTER_BOMB).isReady() &&
-                distance<=range_of_blaster_bomb+range_of_bomb){
+                distance<=range_of_blaster_bomb+ radius_of_blaster_bomb){
             return DORADOR;
         }
         //check if we can attack with blaster attack
@@ -96,7 +94,7 @@ public class Utility_Attack {
 
         if(myHeroHP>=enemyHeroHP&&
                 fHero.getAbility(AbilityName.BLASTER_BOMB).isReady()&&
-                distance<=range_of_blaster_bomb+range_of_bomb){
+                distance<=range_of_blaster_bomb+ radius_of_blaster_bomb){
             return DORADOR;
         }
         if(myHeroHP>=enemyHeroHP&&
@@ -129,7 +127,7 @@ public class Utility_Attack {
             return TANBETAN;
         }
         if(fHero.getAbility(AbilityName.BLASTER_BOMB).isReady() &&
-                distance<=range_of_blaster_bomb+range_of_bomb &&
+                distance<=range_of_blaster_bomb+ radius_of_blaster_bomb &&
                 enemyHeroHP<=damage_of_blaster_bomb &&
                 !sHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady()){
             return DORADOR;
