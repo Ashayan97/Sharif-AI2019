@@ -2,6 +2,8 @@ package client;
 import client.model.AbilityName;
 import client.model.Hero;
 
+import java.io.RandomAccessFile;
+
 import static client.ATTACK_STATE.DORADOR;
 import static client.ATTACK_STATE.TANBETAN;
 import static client.ATTACK_STATE.CANTATTACK;
@@ -13,6 +15,7 @@ import static client.ATTACK_STATE.SCAPE;
  * */
 
 public class Utility_Attack {
+
     public final static int range_of_blaster_bomb = 5;
     public final static int range_of_blaster_attack = 4 ;
     public final static int range_of_bomb = 2;
@@ -187,7 +190,26 @@ public class Utility_Attack {
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToSentry(Hero fHero , Hero sHero){
-        //TODO
+        //init data
+        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        //scape if we will die !!
+        if(sHero.getAbility(AbilityName.SENTRY_RAY).isReady()
+                && myHeroHP<=damage_of_sentry_ray){
+            return SCAPE;
+        }
+        if(distance<=range_of_sentry_attack && myHeroHP<=damage_of_sentry_attack){
+            return SCAPE;
+        }
+        //kill with one attack or ray
+        if(enemyHP<=damage_of_sentry_ray
+                && fHero.getAbility(AbilityName.SENTRY_RAY).isReady()){
+            return DORADOR;
+        }
+        if(distance<=range_of_sentry_attack && enemyHP<=damage_of_sentry_attack){
+            return TANBETAN;
+        }
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToBlaster(Hero fHero , Hero sHero){
