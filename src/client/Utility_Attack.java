@@ -2,6 +2,8 @@ package client;
 import client.model.AbilityName;
 import client.model.Hero;
 
+import java.io.RandomAccessFile;
+
 import static client.ATTACK_STATE.DORADOR;
 import static client.ATTACK_STATE.TANBETAN;
 import static client.ATTACK_STATE.CANTATTACK;
@@ -9,15 +11,18 @@ import static client.ATTACK_STATE.SCAPE;
 
 /**
  * @author :  Amirhossein Azimyzadeh
+ * @NOTE :  REVIEW NEEDED !!
  * */
 
 public class Utility_Attack {
+
     public final static int range_of_blaster_bomb = 5;
     public final static int range_of_blaster_attack = 4 ;
     public final static int range_of_bomb = 2;
     public final static int range_of_guardian_attack=1;
     public final static int range_of_healer_attack=4;
-
+    public final static int range_of_sentry_attack=7;
+    public final static int damage_of_sentry_attack = 30;
     public final static int damage_of_healer_attack=20;
     public final static int damage_of_sentry_ray = 50;
     public final static int damage_of_blaster_bomb=40;
@@ -36,8 +41,14 @@ public class Utility_Attack {
         if(distance<=range_of_healer_attack){
             int number_of_turn_needed_to_kill_enemy = sHero.getCurrentHP()/damage_of_blaster_attack;
             int number_of_turn_needed_to_kill_me = fHero.getCurrentHP()/damage_of_healer_attack;
-            if(number_of_turn_needed_to_kill_enemy>number_of_turn_needed_to_kill_me)
+            if(number_of_turn_needed_to_kill_enemy>number_of_turn_needed_to_kill_me) {
                 return SCAPE;
+            }else {
+                if(fHero.getAbility(AbilityName.BLASTER_BOMB).isReady())
+                    return DORADOR;
+                else
+                    return TANBETAN;
+            }
         }
         if(fHero.getAbility(AbilityName.BLASTER_BOMB ).isReady() && distance<=range_of_blaster_bomb+range_of_blaster_bomb ){
             return DORADOR;
@@ -148,11 +159,57 @@ public class Utility_Attack {
     //====================================================================================//
     //Sentry Attacks Methods
     public static ATTACK_STATE sentryAttackToHealer(Hero fHero , Hero sHero){
-        //TODO
+        //init data
+        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        //scape if our hero will be die !
+        if(myHeroHP<=damage_of_healer_attack && distance<=range_of_healer_attack){
+            return SCAPE;
+        }
+        //scape if we are too close
+        if(distance<=range_of_healer_attack){
+            int number_of_turn_needed_to_kill_enemy = enemyHP/damage_of_sentry_attack;
+            int number_of_turn_needed_to_die =  myHeroHP/damage_of_healer_attack;
+            if(number_of_turn_needed_to_die<number_of_turn_needed_to_kill_enemy){
+                return SCAPE;
+            }else {
+                if(fHero.getAbility(AbilityName.SENTRY_RAY).isReady())
+                    return DORADOR;
+                else
+                    return TANBETAN;
+            }
+        }
+        //if we can kill enemy in one Attack
+        if(fHero.getAbility(AbilityName.SENTRY_RAY).isReady() && enemyHP<=damage_of_sentry_ray){
+            return DORADOR;
+        }
+        if(enemyHP<=damage_of_sentry_attack && distance<=range_of_sentry_attack ){
+            return TANBETAN;
+        }
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToSentry(Hero fHero , Hero sHero){
-        //TODO
+        //init data
+        int distance = Utility.Distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        //scape if we will die !!
+        if(sHero.getAbility(AbilityName.SENTRY_RAY).isReady()
+                && myHeroHP<=damage_of_sentry_ray){
+            return SCAPE;
+        }
+        if(distance<=range_of_sentry_attack && myHeroHP<=damage_of_sentry_attack){
+            return SCAPE;
+        }
+        //kill with one attack or ray
+        if(enemyHP<=damage_of_sentry_ray
+                && fHero.getAbility(AbilityName.SENTRY_RAY).isReady()){
+            return DORADOR;
+        }
+        if(distance<=range_of_sentry_attack && enemyHP<=damage_of_sentry_attack){
+            return TANBETAN;
+        }
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToBlaster(Hero fHero , Hero sHero){
