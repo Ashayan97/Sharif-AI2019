@@ -34,6 +34,35 @@ public class AI {
     }
 
     void actionTurn(World world) {
+        Hero[] myHero = world.getMyHeroes();
+        initHistorys(myHero);
+        initHeroInVision(world);
+        int heroHistoryIndex = indexOfHeroInHistory(myHero[0]);
+        if(histories[heroHistoryIndex].getSawHeroes()!=null
+                &&histories[heroHistoryIndex].getSawHeroes().size()==1){
+            Hero enemy = histories[heroHistoryIndex].getSawHeroes().lastElement();
+            ATTACK_STATE state =
+                    Utility.canAttack(myHero[0],enemy);
+            if(state == ATTACK_STATE.TANBETAN){
+                world.castAbility(myHero[0].getId(),AbilityName.BLASTER_ATTACK,enemy.getCurrentCell());
+            }else if(state == ATTACK_STATE.DORADOR){
+                int disFromEnemy = Utility.distance(myHero[0].getCurrentCell(),enemy.getCurrentCell());
+                if(disFromEnemy <= Utility_Attack.range_of_blaster_bomb)
+                    world.castAbility(myHero[0].getId(),AbilityName.BLASTER_BOMB,enemy.getCurrentCell());
+                else{
+                    Cell[] availableCell = Utility.availableCells(world.getMap(),Utility_Attack.range_of_blaster_bomb,myHero[0].getCurrentCell());
+                    for (int i = 0; i < availableCell.length; i++) {
+                        if(Utility.distance(enemy.getCurrentCell(),availableCell[i])<=Utility_Attack.radius_of_blaster_bomb){
+
+                        }
+                    }
+                }
+            }else if(state == ATTACK_STATE.CANTATTACK){
+
+            }else{
+
+            }
+        }
     }
 
     //****************************************
@@ -120,11 +149,11 @@ public class AI {
      * in method check migkone ke ag histories ma init nashode
      * initesh kone
      */
-    private void initHistorys(Hero[] heroes) {
+    private void initHistorys(Hero[] myHero) {
         if (histories == null) {
             histories = new History[4];
             for (int i = 0; i < 4; i++)
-                histories[i] = new History(heroes[i].getId());
+                histories[i] = new History(myHero[i].getId());
         }
     }
 
@@ -240,18 +269,6 @@ public class AI {
         if (state == ATTACK_STATE.DORADOR
                 || state == ATTACK_STATE.TANBETAN
                 || state == ATTACK_STATE.CANTATTACK) {
-//            int distanceFromEnemy = Utility.distance(blasterCurrentCell, enemyCurrentCell);
-//            if ((distanceFromEnemy < Utility_Attack.range_of_blaster_bomb)){
-//                world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
-//            }else {
-//                Cell[] availavleCells = Utility.availableCells(world.getMap(),
-//                        Utility_Attack.range_of_blaster_bomb,
-//                        blasterCurrentCell);
-//                for (Cell availavleCell : availavleCells)
-//                    if (Utility.distance(availavleCell,
-//                                        enemyCurrentCell) <= Utility_Attack.radius_of_blaster_bomb)
-//                        world.castAbility(mHeroID, AbilityName.BLASTER_BOMB, enemyCurrentCell);
-//            }
             int cellIndexMinDisToObjctibve=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
             Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjctibve]);
             int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
