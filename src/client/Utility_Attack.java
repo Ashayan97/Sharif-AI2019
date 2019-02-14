@@ -211,7 +211,41 @@ public class Utility_Attack {
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToBlaster(Hero fHero , Hero sHero){
-        //TODO
+        //init data:
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        //if enemy can't damage us :
+        if(distance>range_of_blaster_bomb + radius_of_blaster_bomb
+                && fHero.getAbility(AbilityName.SENTRY_RAY).isReady()){
+            return DORADOR;
+        }
+        //scape if we will die !!
+        if(sHero.getAbility(AbilityName.BLASTER_BOMB).isReady() &&
+                distance<=range_of_blaster_bomb+radius_of_blaster_bomb
+                && myHeroHP<=damage_of_blaster_bomb){
+            return SCAPE;
+        }
+        if(distance<=range_of_blaster_attack && myHeroHP <= damage_of_blaster_attack){
+            return SCAPE;
+        }
+        //calc turn to die :
+        if(distance<=range_of_blaster_attack){
+            int number_of_turn_needed_to_kill_enemy = enemyHP/damage_of_sentry_attack;
+            int number_of_turn_needed_to_die =  myHeroHP/damage_of_healer_attack;
+            if(number_of_turn_needed_to_die<number_of_turn_needed_to_kill_enemy){
+                return SCAPE;
+            }else {
+                if(!fHero.getAbility(AbilityName.SENTRY_RAY).isReady())
+                    return TANBETAN;
+                else
+                    return DORADOR;
+            }
+        }
+        // if enough close to attack :
+        if(distance<range_of_sentry_attack){
+            return TANBETAN;
+        }
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToGuardian(Hero fHero , Hero sHero){
