@@ -128,12 +128,6 @@ public class AI {
         }
     }
 
-    private boolean inVision(Cell src, Cell des) {
-        Line line = Line.CREATOR(src, des);
-
-        return false;
-    }
-
     /**
      * in method mige kodum az hero haye ma(@myHeroes), hero'ye doshman(oppHero) ro didan
      **/
