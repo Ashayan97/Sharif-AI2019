@@ -205,9 +205,13 @@ public class Utility_Attack {
     static ATTACK_STATE CanAttack_Guardian(Hero fHero, Hero sHero) {
         switch (sHero.getName()){
             case HEALER:
+                return guardianAttackToHealer(fHero,sHero);
             case SENTRY:
+                return guardianAttackToSentry(fHero,sHero);
             case BLASTER:
+                return guardianAttackToBlaster(fHero,sHero);
             case GUARDIAN:
+                return guardianAttackToGuardian(fHero,sHero);
         }
         return CANTATTACK;
     }
