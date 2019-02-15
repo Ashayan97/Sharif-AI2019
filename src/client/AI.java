@@ -16,6 +16,7 @@ public class AI {
     //****************************************
     void preProcess(World world) {
         objectiveCells = world.getMap().getObjectiveZone();
+        initWallCell(world);
     }
 
     void pickTurn(World world) {
@@ -121,7 +122,6 @@ public class AI {
 
     private void initWallCell(World world) {
         if (wallsCell == null) {
-            System.out.println("-->wallsCell not assign in PreProccess and init in moveTurn method");
             wallsCell = new Vector<>();
             for (Cell[] arryCell : world.getMap().getCells())
                 for (Cell cell : arryCell)
