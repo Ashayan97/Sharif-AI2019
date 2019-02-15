@@ -1,7 +1,7 @@
 package client;
+
 import client.model.AbilityName;
 import client.model.Hero;
-
 import static client.ATTACK_STATE.DORADOR;
 import static client.ATTACK_STATE.TANBETAN;
 import static client.ATTACK_STATE.CANTATTACK;
@@ -331,7 +331,38 @@ public class Utility_Attack {
         return CANTATTACK;
     }
     public static ATTACK_STATE guardianAttackToSentry(Hero fHero,Hero sHero){
-        //TODO
+        //init data :
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        int number_of_turn_needed_to_kill_sentry = enemyHP/damage_of_guardian_attack;
+        int number_of_turn_needed_to_die =  myHeroHP/damage_of_sentry_attack;
+        boolean isFortifyReady =  fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady();
+        //scape if we will die :
+        if(sHero.getAbility(AbilityName.SENTRY_RAY).isReady() &&
+                myHeroHP<=damage_of_sentry_ray){
+            if(isFortifyReady)
+                return DORADOR; //mean FORTIFY
+            return SCAPE;
+        }
+        if(distance<=range_of_sentry_attack && myHeroHP<=damage_of_sentry_attack){
+            if(isFortifyReady)
+                return DORADOR; //FORTIFY
+            return SCAPE;
+        }
+        if(number_of_turn_needed_to_die<number_of_turn_needed_to_kill_sentry){
+            if(distance<=range_of_sentry_attack){
+                if(isFortifyReady)
+                    return DORADOR;
+                else
+                    return SCAPE;
+            }
+        }else {
+            if(isFortifyReady)
+                return DORADOR;
+            if(distance<=range_of_guardian_attack)
+                return TANBETAN;
+        }
         return CANTATTACK;
     }
     public static ATTACK_STATE guardianAttackToBlaster(Hero fHero,Hero sHero){
