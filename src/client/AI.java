@@ -25,8 +25,6 @@ public class AI {
     void moveTurn(World world) {
         Utility.printMap(world);
         init(world);
-        if (world.getMovePhaseNum() == 1)
-            Utility.printMap(world);
         BlasterDO(world, world.getMyHeroes()[0]);
         BlasterDO(world, world.getMyHeroes()[1]);
         BlasterDO(world, world.getMyHeroes()[2]);
@@ -254,7 +252,7 @@ public class AI {
 
         if (herosInVision == null ||
                 herosInVision.size() == 0 ||
-                history.getSawHeroes().size() == 0) { // check to bezani bomb
+                history.getSawHeroes().size() == 0) {
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
@@ -266,13 +264,12 @@ public class AI {
      * do this method
      */
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
-        int indexOfMinDisFromObjectiveZoneCell = getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
+        int indexOfMinDisFromObjectiveZoneCell =
+                getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1)
             return;
         Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         history.move(blasterCurrentCell);
-        printCell("Blaster Cell ",blasterCurrentCell);
-        printCell("ObjectiveCell detected",objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
     }
 
     /**
