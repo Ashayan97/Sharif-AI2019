@@ -94,17 +94,16 @@ public class AI {
      * this method initialize our need across the phase or turn
      */
     private void init(World world) {
-        if (objectiveCells == null) {
-            System.out.println("-->ObjectiveCells not assign in PreProccess and init in moveTurn method");
-            objectiveCells = world.getMap().getObjectiveZone();
-        }
-        initWallCell(world);
-
         initHistorys(world.getMyHeroes());
-
         initHeroInVision(world);
-
     }
+//    ina tuye init budan
+//        if (objectiveCells == null) {
+//            System.out.println("-->ObjectiveCells not assign in PreProccess and init in moveTurn method");
+//            objectiveCells = world.getMap().getObjectiveZone();
+//        }
+//        initWallCell(world);
+//
 
     private void initHeroInVision(World world) {
         herosInVision = new ArrayList<>();
