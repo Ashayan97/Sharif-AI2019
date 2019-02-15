@@ -239,7 +239,7 @@ public class AI {
     }
 
     /**
-     * @Blaster charecter do this method across the game
+     * #Blaster charecter do this method across the game
      */
     private void BlasterDO(World world, Hero blaster) {
         Cell blasterCurrentCell = blaster.getCurrentCell();
