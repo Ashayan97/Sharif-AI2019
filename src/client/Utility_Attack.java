@@ -25,6 +25,8 @@ public class Utility_Attack {
     public final static int damage_of_sentry_ray = 50;
     public final static int damage_of_blaster_bomb=40;
     public final static int damage_of_blaster_attack=30;
+    public final static int damage_of_guardian_attack=25;
+    public final static int radius_of_guardian_attack=1;
     //====================================================================================//
     //Blaster Attacks Methods
     public static ATTACK_STATE blasterAttackToHealer(Hero fHero , Hero sHero){
@@ -249,7 +251,35 @@ public class Utility_Attack {
         return CANTATTACK;
     }
     public static ATTACK_STATE sentryAttackToGuardian(Hero fHero , Hero sHero){
-        //TODO
+        //init data :
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        // if enemy can't attack us :
+        if(distance> range_of_guardian_attack){
+            if(fHero.getAbility(AbilityName.SENTRY_RAY).isReady())
+                return DORADOR;
+            else if(distance<range_of_sentry_attack)
+                return TANBETAN;
+        }
+        //scape if we will die
+        if(distance<= range_of_guardian_attack &&
+                myHeroHP<=damage_of_guardian_attack){
+            return SCAPE;
+        }
+        //calc turn to die :
+        int number_of_turn_needed_to_kill_enemy = enemyHP/damage_of_sentry_attack;
+        int number_of_turn_needed_to_kill_us =  myHeroHP/damage_of_healer_attack;
+        if(distance<=range_of_guardian_attack){
+            if(number_of_turn_needed_to_kill_us<=number_of_turn_needed_to_kill_enemy){
+                return SCAPE;
+            }else {
+                if(fHero.getAbility(AbilityName.SENTRY_RAY).isReady())
+                    return DORADOR;
+                else
+                    return TANBETAN;
+            }
+        }
         return CANTATTACK;
     }
     //====================================================================================//
