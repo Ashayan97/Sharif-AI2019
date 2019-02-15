@@ -27,9 +27,9 @@ public class AI {
         Utility.printMap(world);
         init(world);
         BlasterDO(world, world.getMyHeroes()[0]);
+        BlasterDO(world, world.getMyHeroes()[3]);
         BlasterDO(world, world.getMyHeroes()[1]);
         BlasterDO(world, world.getMyHeroes()[2]);
-        BlasterDO(world, world.getMyHeroes()[3]);
     }
 
     void actionTurn(World world) {
@@ -200,10 +200,18 @@ public class AI {
 
     }
 
+    static int id=-1;
+    static int counter = 0;
     /**
      * #Blaster charecter do this method across the game
      */
     private void BlasterDO(World world, Hero blaster) {
+        if(id==-1 && ++counter==2)
+            id = blaster.getId();
+
+        boolean f = blaster.getId() == id;
+        if(f)
+            System.out.println();
         Cell blasterCurrentCell = blaster.getCurrentCell();
         int historyIndex = indexOfHeroInHistory(blaster);
         if (historyIndex == -1) {
@@ -218,6 +226,8 @@ public class AI {
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
+        }else{
+            blasterSawAMotherFucker(world,blasterCurrentCell,history);
         }
     }
 
@@ -228,8 +238,10 @@ public class AI {
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
         int indexOfMinDisFromObjectiveZoneCell =
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
-        if (indexOfMinDisFromObjectiveZoneCell == -1)
+        if (indexOfMinDisFromObjectiveZoneCell == -1) {
+            System.out.println("index of dis from objone was -1");
             return;
+        }
         Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         history.move(blasterCurrentCell);
     }
