@@ -290,6 +290,8 @@ public class AI {
         if (state == ATTACK_STATE.DORADOR
                 || state == ATTACK_STATE.TANBETAN
                 || state == ATTACK_STATE.CANTATTACK) {
+            // check mikone k ag mishe bere be samt objective ama distance'esh ba enemy taqiir nakone ya kamtar beshe
+            // ag halat'e bala rokh nadad mire be samte enemy
             int cellIndexMinDisToObjective=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
             Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjective]);
             int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
@@ -302,32 +304,29 @@ public class AI {
         } else if (state == ATTACK_STATE.SCAPE) {
             Cell lastCell = history.getLastStep();
             if (!world.isInVision(lastCell, enemyCurrentCell)) {
+                // ag last step az did enemy kharej bashe mirim unja
                 Utility.move(world, mHeroID, blasterCurrentCell, lastCell);
                 history.addLastStep(blasterCurrentCell);
             }else {
-                Cell[] cells = Utility.availableCells(world.getMap(), 2, blasterCurrentCell);
-                int flag = 0;
-                for (Cell cell : cells)
-                    if (!world.isInVision(blasterCurrentCell, cell)) {
-                        Utility.move(world, mHeroID, blasterCurrentCell, cell);
+                Cell[] cells = Utility.availableCells(world.getMap(), Utility.DODGE_RANGE, blasterCurrentCell); // tamame khune ha be radius'e DODGE_RANGE  = 4
+                int maxDistance = Utility.distance(enemyCurrentCell,cells[0]);
+                Cell maxDistanceCell = cells[0];
+                for(Cell i:cells){
+                    if(!world.isInVision(i,enemyCurrentCell)){
+                        // ag y khune az didesh khareje mirim unja
+                        world.castAbility(mHeroID,AbilityName.BLASTER_DODGE,i);
                         history.addLastStep(blasterCurrentCell);
-                        flag = 1;
-                        break;
+                        return;
                     }
-                if (flag == 0) { // cell'i ke tu didesh nbashe ham bayad check beshe todo
-                        Cell[] around = Utility.availableCells(world.getMap(),4,blasterCurrentCell);
-                        int max = Utility.distance(enemyCurrentCell,around[0]);
-                        int indexOfMax = 0;
-                    for (int i = 1; i < around.length; i++) {
-                        int tmp = Utility.distance(enemyCurrentCell,around[i]);
-                        if(tmp>max){
-                            indexOfMax = i;
-                            max = tmp;
-                        }
+                    // dar qeyre in surat say mikonim khuneii ro peyda konim k faselash max bashe
+                    int tmp = Utility.distance(i,enemyCurrentCell);
+                    if(tmp>maxDistance){
+                        maxDistance = tmp;
+                        maxDistanceCell = i;
                     }
-                    Utility.move(world,mHeroID,blasterCurrentCell,around[indexOfMax]);
-                    history.addLastStep(blasterCurrentCell);
                 }
+                world.castAbility(mHeroID,AbilityName.BLASTER_DODGE,maxDistanceCell);
+                history.addLastStep(blasterCurrentCell);
             }
         }
     }
