@@ -303,7 +303,31 @@ public class Utility_Attack {
     //====================================================================================//
     //Guardian Attack Methods
     public static ATTACK_STATE guardianAttackToHealer(Hero fHero,Hero sHero){
-        //TODO
+        //init data :
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+
+        //scape if we will die !!
+        if(myHeroHP <= damage_of_healer_attack && distance<=range_of_healer_attack){
+            if(fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady())
+                return DORADOR; // dorador in this case meaning --> FORTIFYING
+            return SCAPE;
+        }
+        // final calc:
+        int number_of_turn_needed_to_kill_healer = enemyHP/damage_of_guardian_attack;
+        int number_of_turn_needed_to_die_guardian = myHeroHP/damage_of_guardian_attack;
+        if(number_of_turn_needed_to_die_guardian<number_of_turn_needed_to_kill_healer){
+            if(distance<=range_of_healer_attack &&
+                    fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady()){
+                return DORADOR; //// dorador in this case meaning --> FORTIFYING
+            } else
+                return SCAPE;
+        }else {
+            if(distance<=range_of_guardian_attack)
+                return TANBETAN;
+        }
+
         return CANTATTACK;
     }
     public static ATTACK_STATE guardianAttackToSentry(Hero fHero,Hero sHero){
