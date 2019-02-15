@@ -65,14 +65,12 @@ public class Utility {
         System.out.print("  ");
         for (int i = 0; i < world.getMap().getColumnNum(); i++) {
             String str = String.valueOf(i);
-            if(str.length() == 1)
-                System.out.print(str+"  ");
-            else
-                System.out.print(str+" ");
+            System.out.print(str+(str.length()==1?"  ":" "));
         }
         System.out.println();
         for (int i = 0; i < world.getMap().getRowNum(); i++) {
-            System.out.print(i+" ");
+            String str=String.valueOf(i);
+            System.out.print(str+(str.length()==1?" ":""));
             for (int j = 0; j < world.getMap().getColumnNum(); j++) {
                 Hero inThisCell = world.getMyHero(cells[i][j]);
                 Hero oppInThisCell = world.getOppHero(cells[i][j]);
