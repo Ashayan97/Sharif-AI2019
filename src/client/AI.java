@@ -290,8 +290,8 @@ public class AI {
         if (state == ATTACK_STATE.DORADOR
                 || state == ATTACK_STATE.TANBETAN
                 || state == ATTACK_STATE.CANTATTACK) {
-            int cellIndexMinDisToObjctibve=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
-            Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjctibve]);
+            int cellIndexMinDisToObjective=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
+            Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjective]);
             int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
             int dis2 = Utility.distance(blasterCurrentCell,enemyCurrentCell);
             if(dis1 <= dis2)
