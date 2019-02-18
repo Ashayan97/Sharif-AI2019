@@ -52,10 +52,13 @@ public class AI {
             if(state == ATTACK_STATE.TANBETAN){
                 world.castAbility(myHero.getId(), AbilityName.BLASTER_ATTACK,enemy.getCurrentCell());
             }else if(state == ATTACK_STATE.DORADOR){
+                System.out.println("DORADOOR");
                 int disFromEnemy = Utility.distance(myHero.getCurrentCell(),enemy.getCurrentCell());
-                if(disFromEnemy <= Utility_Attack.range_of_blaster_bomb)
-                    world.castAbility(myHero.getId(),AbilityName.BLASTER_BOMB,enemy.getCurrentCell());
-                else{
+                if(disFromEnemy <= Utility_Attack.range_of_blaster_bomb) {
+                    world.castAbility(myHero.getId(), AbilityName.BLASTER_BOMB, enemy.getCurrentCell());
+                    System.out.println("<=");
+                }else{
+                    System.out.println(">=");
                     Cell[] availableCell = Utility.availableCells(world.getMap(),Utility_Attack.range_of_blaster_bomb, myHero.getCurrentCell());
                     for (Cell anAvailableCell : availableCell)
                         if (Utility.distance(enemy.getCurrentCell(), anAvailableCell) <= Utility_Attack.radius_of_blaster_bomb) {
@@ -206,12 +209,6 @@ public class AI {
      * #Blaster charecter do this method across the game
      */
     private void BlasterDO(World world, Hero blaster) {
-        if(id==-1 && ++counter==2)
-            id = blaster.getId();
-
-        boolean f = blaster.getId() == id;
-        if(f)
-            System.out.println();
         Cell blasterCurrentCell = blaster.getCurrentCell();
         int historyIndex = indexOfHeroInHistory(blaster);
         if (historyIndex == -1) {
@@ -227,6 +224,7 @@ public class AI {
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
         }else{
+            System.out.println("else blaster");
             blasterSawAMotherFucker(world,blasterCurrentCell,history);
         }
     }
@@ -236,12 +234,16 @@ public class AI {
      * do this method
      */
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
+        System.out.println("id: "+blaster.getId());
+        printCell("blaster cell " , blasterCurrentCell);
+        System.out.println();
         int indexOfMinDisFromObjectiveZoneCell =
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1) {
             System.out.println("index of dis from objone was -1");
             return;
         }
+        printCell("blaster des : ",objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         history.move(blasterCurrentCell);
     }
@@ -267,6 +269,11 @@ public class AI {
             // check mikone k ag mishe bere be samt objective ama distance'esh ba enemy taqiir nakone ya kamtar beshe
             // ag halat'e bala rokh nadad mire be samte enemy
             int cellIndexMinDisToObjective=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
+            if(cellIndexMinDisToObjective == -1){
+                Utility.move(world,mHeroID,blasterCurrentCell,enemyCurrentCell);
+                history.addLastStep(blasterCurrentCell);
+                return;
+            }
             Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjective]);
             int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
             int dis2 = Utility.distance(blasterCurrentCell,enemyCurrentCell);
@@ -313,7 +320,7 @@ public class AI {
         int minDis = Utility.distance(blasterCurrentCell, objectiveCells[0]);
         for (int i = 1; i < objectiveCells.length; i++) {
             int tmpDis = Utility.distance(blasterCurrentCell, objectiveCells[i]);
-            if (minDis < tmpDis) {
+            if (tmpDis < minDis) {
                 indexOfMinDisFromObjectiveZoneCell = i;
                 minDis = tmpDis;
             }
