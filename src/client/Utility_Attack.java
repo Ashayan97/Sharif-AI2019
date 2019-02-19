@@ -21,11 +21,11 @@ public class Utility_Attack {
     public final static int range_of_healer_attack=4;
     public final static int range_of_sentry_attack=7;
     public final static int damage_of_sentry_attack = 30;
-    public final static int damage_of_healer_attack=20;
+    public final static int damage_of_healer_attack=25;
     public final static int damage_of_sentry_ray = 50;
     public final static int damage_of_blaster_bomb=40;
-    public final static int damage_of_blaster_attack=30;
-    public final static int damage_of_guardian_attack=25;
+    public final static int damage_of_blaster_attack=20;
+    public final static int damage_of_guardian_attack=40;
     public final static int radius_of_guardian_attack=1;
     //====================================================================================//
     //Blaster Attacks Methods
