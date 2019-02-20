@@ -206,8 +206,7 @@ public class AI {
         if (indexOfMinDisFromObjectiveZoneCell == -1) {
             return;
         }
-        Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
-        history.move(blasterCurrentCell);
+        move(world, blaster.getId(),blasterCurrentCell,objectiveCells[indexOfMinDisFromObjectiveZoneCell],history);
     }
 
     /**
@@ -232,24 +231,21 @@ public class AI {
             // ag halat'e bala rokh nadad mire be samte enemy
             int cellIndexMinDisToObjective=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
             if(cellIndexMinDisToObjective == -1){
-                Utility.move(world,mHeroID,blasterCurrentCell,enemyCurrentCell);
-                history.addLastStep(blasterCurrentCell);
+                move(world,mHeroID,blasterCurrentCell,enemyCurrentCell,history);
                 return;
             }
             Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjective]);
             int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
             int dis2 = Utility.distance(blasterCurrentCell,enemyCurrentCell);
             if(dis1 <= dis2)
-                Utility.move(world,mHeroID,blasterCurrentCell,nextToObjective);
+                move(world,mHeroID,blasterCurrentCell,nextToObjective,history);
             else
-                Utility.move(world, mHeroID, blasterCurrentCell, enemyCurrentCell);
-            history.addLastStep(blasterCurrentCell);
+                move(world, mHeroID, blasterCurrentCell, enemyCurrentCell,history);
         } else if (state == ATTACK_STATE.SCAPE) {
             Cell lastCell = history.getLastStep();
             if (!world.isInVision(lastCell, enemyCurrentCell)) {
                 // ag last step az did enemy kharej bashe mirim unja
-                Utility.move(world, mHeroID, blasterCurrentCell, lastCell);
-                history.addLastStep(blasterCurrentCell);
+                move(world, mHeroID, blasterCurrentCell, lastCell,history);
             }else {
                 Cell[] cells = Utility.availableCells(world.getMap(), Utility.DODGE_RANGE, blasterCurrentCell); // tamame khune ha be radius'e DODGE_RANGE  = 4
                 int maxDistance = Utility.distance(enemyCurrentCell,cells[0]);
