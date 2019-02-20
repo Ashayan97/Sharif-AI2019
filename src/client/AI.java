@@ -219,7 +219,8 @@ public class AI {
         Cell enemyCurrentCell = enemy.getCurrentCell();
         int mHeroID = history.getHeroID();
 
-        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) == Utility_Attack.range_of_blaster_attack-1
+        //ag tuye objzone bud va distance'sh ba enemy <= range attackesh bud lazem nist kari bokone
+        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) <= Utility_Attack.range_of_blaster_attack-1
                 && mHero.getCurrentCell().isInObjectiveZone())
             return;
         ATTACK_STATE state = Utility.canAttack(mHero, enemy);
