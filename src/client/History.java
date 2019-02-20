@@ -11,7 +11,6 @@ import java.util.Vector;
 public class History {
     private boolean inScape=false;
     private boolean inAttack=false;
-    private boolean inNormal=true;
     private Stack<Cell> lastStep=new Stack<>();
     private int HeroID;
     private Vector<Hero> sawHeroes; // Hero haii ke in baba dide
