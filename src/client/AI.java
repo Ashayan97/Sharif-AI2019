@@ -231,6 +231,8 @@ public class AI {
             // ag halat'e bala rokh nadad mire be samte enemy
             int cellIndexMinDisToObjective=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
             if(cellIndexMinDisToObjective == -1){
+                if(!Utility.nextCell(world,blasterCurrentCell,enemyCurrentCell).isInObjectiveZone())
+                    return;
                 move(world,mHeroID,blasterCurrentCell,enemyCurrentCell,history);
                 return;
             }
