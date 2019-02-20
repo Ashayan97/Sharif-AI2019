@@ -177,7 +177,7 @@ public class AI {
      */
     private void BlasterDO(World world, Hero blaster) {
         Cell blasterCurrentCell = blaster.getCurrentCell();
-        int historyIndex = indexOfHeroInHistory(blaster);
+        int historyIndex = indexOfHeroInHistory(blaster); // if heroID not be in history this method return -1
         if (historyIndex == -1) {
             System.out.println("History Index was -1");
             return;
@@ -200,10 +200,9 @@ public class AI {
      * do this method
      */
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
-        int indexOfMinDisFromObjectiveZoneCell =
+        int indexOfMinDisFromObjectiveZoneCell = // if blaster was in objzone this method return -1
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1) {
-            System.out.println("index of dis from objone was -1");
             return;
         }
         Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
@@ -276,6 +275,7 @@ public class AI {
 
     /**
      * this method an cell and return the nearest objective cell
+     * if blaster was in objzone this method return -1
      */
     private int getIndexOfMinDisFromObjectiveZoneCell(Cell blasterCurrentCell) {
         int indexOfMinDisFromObjectiveZoneCell = 0;
@@ -294,6 +294,7 @@ public class AI {
 
     /**
      * this method get an hero and return the index of he in histories array
+     * if heroID not be in history this method return -1
      */
     private int indexOfHeroInHistory(Hero hero) {
         for (int i = 0; i < 4; i++) {
