@@ -1,6 +1,7 @@
 package client;
 
 import client.model.*;
+import javafx.beans.value.WritableObjectValue;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -304,6 +305,15 @@ public class AI {
         }
         System.out.println(String.format("i:%d , HEREID:%d", -1, hero.getId()));
         return -1;
+    }
+
+    private void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell){
+        Utility.move(world,HEROID,src,dst);
+        if(saveCell)
+            history.addLastStep(src);
+    }
+    private void move(World world,int HERODID,Cell src,Cell dest,History history){
+        move(world,HERODID,src,dest,history,true);
     }
 
     private void printCell(String str, Cell cell) {
