@@ -309,7 +309,6 @@ public class AI {
         if(forceMove){
             Cell nextCell = Utility.nextCell(world,src,dst);
             if(world.getMyHero(nextCell) != null){
-                System.out.println("Next cell was full");
                 Cell firstCell=null;
                 Cell secondCell=null;
                 if(nextCell.getColumn() == src.getColumn()){

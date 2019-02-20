@@ -40,8 +40,12 @@ public class Utility {
         int col = src.getColumn();
         return world.getMap()
                 .getCells()
-                [row+(dir==Direction.DOWN?-1:dir==Direction.UP?1:0)]
-                [col+(dir==Direction.RIGHT?1:dir==Direction.LEFT?-1:0)];
+                [row+(  dir==Direction.DOWN?1:
+                        dir==Direction.UP?-1:
+                        0)]
+                [col+(  dir==Direction.RIGHT?1:
+                        dir==Direction.LEFT?-1:
+                        0)];
     }
 
     static Cell[] availableCells(Map map , int radius, Cell currentCell){
