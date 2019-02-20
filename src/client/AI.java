@@ -219,7 +219,6 @@ public class AI {
         Cell enemyCurrentCell = enemy.getCurrentCell();
         int mHeroID = history.getHeroID();
 
-        System.out.println("I Saw those MotherFuckers");
         if(Utility.distance(blasterCurrentCell,enemyCurrentCell) == Utility_Attack.range_of_blaster_attack-1
                 && mHero.getCurrentCell().isInObjectiveZone())
             return;
