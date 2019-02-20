@@ -27,12 +27,37 @@ public class AI {
         Utility.printMap(world);
         init(world);
         BlasterDO(world, world.getMyHeroes()[0]);
-        BlasterDO(world, world.getMyHeroes()[3]);
         BlasterDO(world, world.getMyHeroes()[1]);
         BlasterDO(world, world.getMyHeroes()[2]);
+        BlasterDO(world, world.getMyHeroes()[3]);
     }
 
     void actionTurn(World world) {
+        init(world);
+        Hero[] myHeros = world.getMyHeroes();
+        Hero[] oppHero = world.getOppHeroes();
+        for (int j = 0; j < myHeros.length; j++) {
+            for (int i = 0; i < oppHero.length; i++) {
+            if(world.isInVision(myHeros[j].getCurrentCell(),oppHero[i].getCurrentCell())){
+                ATTACK_STATE state = Utility.canAttack(myHeros[j],oppHero[i]);
+                if(state == ATTACK_STATE.DORADOR){
+                    world.castAbility(myHeros[j].getId(),
+                            AbilityName.BLASTER_BOMB,
+                            oppHero[i].getCurrentCell());
+                    System.out.println("ACTION TURN DORADOR DONE!");
+                    return;
+                }else if(state == ATTACK_STATE.TANBETAN){
+                    world.castAbility(myHeros[j].getId(),
+                            AbilityName.BLASTER_BOMB,
+                            oppHero[i].getCurrentCell());
+                    System.out.println("ACTION TURN ATTACK DONE!");
+                    return;
+                }
+            }
+        }
+        }
+
+        System.out.println("ACTION TURN NOT WORK ON MOTHER FUCKERS");
     }
 
     //****************************************
@@ -147,8 +172,6 @@ public class AI {
 
     }
 
-    static int id=-1;
-    static int counter = 0;
     /**
      * #Blaster charecter do this method across the game
      */
@@ -167,8 +190,7 @@ public class AI {
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
-        }else{
-            System.out.println("else blaster");
+        }else {
             blasterSawAMotherFucker(world,blasterCurrentCell,history);
         }
     }
@@ -178,16 +200,12 @@ public class AI {
      * do this method
      */
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
-        System.out.println("id: "+blaster.getId());
-        printCell("blaster cell " , blasterCurrentCell);
-        System.out.println();
         int indexOfMinDisFromObjectiveZoneCell =
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1) {
             System.out.println("index of dis from objone was -1");
             return;
         }
-        printCell("blaster des : ",objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
         history.move(blasterCurrentCell);
     }
@@ -203,7 +221,7 @@ public class AI {
         int mHeroID = history.getHeroID();
 
         System.out.println("I Saw those MotherFuckers");
-        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) == 1
+        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) == Utility_Attack.range_of_blaster_attack-1
                 && mHero.getCurrentCell().isInObjectiveZone())
             return;
         ATTACK_STATE state = Utility.canAttack(mHero, enemy);
