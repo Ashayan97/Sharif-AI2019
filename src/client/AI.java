@@ -1,6 +1,7 @@
 package client;
 
 import client.model.*;
+import javafx.beans.value.WritableObjectValue;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -27,12 +28,37 @@ public class AI {
         Utility.printMap(world);
         init(world);
         BlasterDO(world, world.getMyHeroes()[0]);
-        BlasterDO(world, world.getMyHeroes()[3]);
         BlasterDO(world, world.getMyHeroes()[1]);
         BlasterDO(world, world.getMyHeroes()[2]);
+        BlasterDO(world, world.getMyHeroes()[3]);
     }
 
     void actionTurn(World world) {
+        init(world);
+        Hero[] myHeros = world.getMyHeroes();
+        Hero[] oppHero = world.getOppHeroes();
+        for (int j = 0; j < myHeros.length; j++) {
+            for (int i = 0; i < oppHero.length; i++) {
+            if(world.isInVision(myHeros[j].getCurrentCell(),oppHero[i].getCurrentCell())){
+                ATTACK_STATE state = Utility.canAttack(myHeros[j],oppHero[i]);
+                if(state == ATTACK_STATE.DORADOR){
+                    world.castAbility(myHeros[j].getId(),
+                            AbilityName.BLASTER_BOMB,
+                            oppHero[i].getCurrentCell());
+                    System.out.println("ACTION TURN DORADOR DONE!");
+                    return;
+                }else if(state == ATTACK_STATE.TANBETAN){
+                    world.castAbility(myHeros[j].getId(),
+                            AbilityName.BLASTER_BOMB,
+                            oppHero[i].getCurrentCell());
+                    System.out.println("ACTION TURN ATTACK DONE!");
+                    return;
+                }
+            }
+        }
+        }
+
+        System.out.println("ACTION TURN NOT WORK ON MOTHER FUCKERS");
     }
 
     //****************************************
@@ -147,14 +173,12 @@ public class AI {
 
     }
 
-    static int id=-1;
-    static int counter = 0;
     /**
      * #Blaster charecter do this method across the game
      */
     private void BlasterDO(World world, Hero blaster) {
         Cell blasterCurrentCell = blaster.getCurrentCell();
-        int historyIndex = indexOfHeroInHistory(blaster);
+        int historyIndex = indexOfHeroInHistory(blaster); // if heroID not be in history this method return -1
         if (historyIndex == -1) {
             System.out.println("History Index was -1");
             return;
@@ -167,8 +191,7 @@ public class AI {
             BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
-        }else{
-            System.out.println("else blaster");
+        }else {
             blasterSawAMotherFucker(world,blasterCurrentCell,history);
         }
     }
@@ -178,18 +201,12 @@ public class AI {
      * do this method
      */
     private void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
-        System.out.println("id: "+blaster.getId());
-        printCell("blaster cell " , blasterCurrentCell);
-        System.out.println();
-        int indexOfMinDisFromObjectiveZoneCell =
+        int indexOfMinDisFromObjectiveZoneCell = // if blaster was in objzone this method return -1
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
         if (indexOfMinDisFromObjectiveZoneCell == -1) {
-            System.out.println("index of dis from objone was -1");
             return;
         }
-        printCell("blaster des : ",objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
-        Utility.move(world, blaster.getId(), blasterCurrentCell, objectiveCells[indexOfMinDisFromObjectiveZoneCell]);
-        history.move(blasterCurrentCell);
+        move(world, blaster.getId(),blasterCurrentCell,objectiveCells[indexOfMinDisFromObjectiveZoneCell],history);
     }
 
     /**
@@ -202,8 +219,8 @@ public class AI {
         Cell enemyCurrentCell = enemy.getCurrentCell();
         int mHeroID = history.getHeroID();
 
-        System.out.println("I Saw those MotherFuckers");
-        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) == 1
+        //ag tuye objzone bud va distance'sh ba enemy <= range attackesh bud lazem nist kari bokone
+        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) <= Utility_Attack.range_of_blaster_attack-2
                 && mHero.getCurrentCell().isInObjectiveZone())
             return;
         ATTACK_STATE state = Utility.canAttack(mHero, enemy);
@@ -214,24 +231,23 @@ public class AI {
             // ag halat'e bala rokh nadad mire be samte enemy
             int cellIndexMinDisToObjective=getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
             if(cellIndexMinDisToObjective == -1){
-                Utility.move(world,mHeroID,blasterCurrentCell,enemyCurrentCell);
-                history.addLastStep(blasterCurrentCell);
+                if(!Utility.nextCell(world,blasterCurrentCell,enemyCurrentCell).isInObjectiveZone())
+                    return;
+                move(world,mHeroID,blasterCurrentCell,enemyCurrentCell,history);
                 return;
             }
             Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjective]);
-            int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
-            int dis2 = Utility.distance(blasterCurrentCell,enemyCurrentCell);
-            if(dis1 <= dis2)
-                Utility.move(world,mHeroID,blasterCurrentCell,nextToObjective);
+            int disToObjzone = Utility.distance(nextToObjective,enemyCurrentCell);
+            int disToEnemy = Utility.distance(blasterCurrentCell,enemyCurrentCell);
+            if(disToObjzone <= disToEnemy)
+                move(world,mHeroID,blasterCurrentCell,nextToObjective,history);
             else
-                Utility.move(world, mHeroID, blasterCurrentCell, enemyCurrentCell);
-            history.addLastStep(blasterCurrentCell);
+                move(world, mHeroID, blasterCurrentCell, enemyCurrentCell,history);
         } else if (state == ATTACK_STATE.SCAPE) {
             Cell lastCell = history.getLastStep();
             if (!world.isInVision(lastCell, enemyCurrentCell)) {
                 // ag last step az did enemy kharej bashe mirim unja
-                Utility.move(world, mHeroID, blasterCurrentCell, lastCell);
-                history.addLastStep(blasterCurrentCell);
+                move(world, mHeroID, blasterCurrentCell, lastCell,history);
             }else {
                 Cell[] cells = Utility.availableCells(world.getMap(), Utility.DODGE_RANGE, blasterCurrentCell); // tamame khune ha be radius'e DODGE_RANGE  = 4
                 int maxDistance = Utility.distance(enemyCurrentCell,cells[0]);
@@ -258,6 +274,7 @@ public class AI {
 
     /**
      * this method an cell and return the nearest objective cell
+     * if blaster was in objzone this method return -1
      */
     private int getIndexOfMinDisFromObjectiveZoneCell(Cell blasterCurrentCell) {
         int indexOfMinDisFromObjectiveZoneCell = 0;
@@ -276,6 +293,7 @@ public class AI {
 
     /**
      * this method get an hero and return the index of he in histories array
+     * if heroID not be in history this method return -1
      */
     private int indexOfHeroInHistory(Hero hero) {
         for (int i = 0; i < 4; i++) {
@@ -285,6 +303,38 @@ public class AI {
         }
         System.out.println(String.format("i:%d , HEREID:%d", -1, hero.getId()));
         return -1;
+    }
+
+    private void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell,boolean forceMove){
+        if(forceMove){
+            Cell nextCell = Utility.nextCell(world,src,dst);
+            if(world.getMyHero(nextCell) != null){
+                Cell firstCell=null;
+                Cell secondCell=null;
+                if(nextCell.getColumn() == src.getColumn()){
+                    // tuye ye sotun hastan v niaz dare az chap ya raste un bere
+
+                    if(world.getMap().isInMap(nextCell.getRow(),nextCell.getColumn()+1))
+                        secondCell = world.getMap().getCell(nextCell.getRow(),nextCell.getColumn()+1);
+
+                    if(world.getMap().isInMap(nextCell.getRow(),nextCell.getColumn()-1))
+                        firstCell = world.getMap().getCell(nextCell.getRow(),nextCell.getColumn()-1);
+                }else{
+                    // tuye ye radif hastan v niaz dre az bala ya paein bere
+                    if(world.getMap().isInMap(nextCell.getRow()-1,nextCell.getColumn()))
+                        firstCell = world.getMap().getCell(nextCell.getRow()-1,nextCell.getColumn());
+                    if(world.getMap().isInMap(nextCell.getRow()+1,nextCell.getColumn()))
+                        secondCell = world.getMap().getCell(nextCell.getRow()+1,nextCell.getColumn());
+                }
+                dst = Utility.distance(secondCell,dst)<=Utility.distance(firstCell,dst)?secondCell:firstCell;
+            }
+        }
+        Utility.move(world,HEROID,src,dst);
+        if(saveCell)
+            history.addLastStep(src);
+    }
+    private void move(World world,int HERODID,Cell src,Cell dest,History history){
+        move(world,HERODID,src,dest,history,true,true);
     }
 
     private void printCell(String str, Cell cell) {
