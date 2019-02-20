@@ -237,9 +237,9 @@ public class AI {
                 return;
             }
             Cell nextToObjective = Utility.nextCell(world,blasterCurrentCell,objectiveCells[cellIndexMinDisToObjective]);
-            int dis1 = Utility.distance(nextToObjective,enemyCurrentCell);
-            int dis2 = Utility.distance(blasterCurrentCell,enemyCurrentCell);
-            if(dis1 <= dis2)
+            int disToObjzone = Utility.distance(nextToObjective,enemyCurrentCell);
+            int disToEnemy = Utility.distance(blasterCurrentCell,enemyCurrentCell);
+            if(disToObjzone <= disToEnemy)
                 move(world,mHeroID,blasterCurrentCell,nextToObjective,history);
             else
                 move(world, mHeroID, blasterCurrentCell, enemyCurrentCell,history);
