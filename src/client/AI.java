@@ -220,7 +220,7 @@ public class AI {
         int mHeroID = history.getHeroID();
 
         //ag tuye objzone bud va distance'sh ba enemy <= range attackesh bud lazem nist kari bokone
-        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) <= Utility_Attack.range_of_blaster_attack-1
+        if(Utility.distance(blasterCurrentCell,enemyCurrentCell) <= Utility_Attack.range_of_blaster_attack-2
                 && mHero.getCurrentCell().isInObjectiveZone())
             return;
         ATTACK_STATE state = Utility.canAttack(mHero, enemy);
@@ -305,13 +305,37 @@ public class AI {
         return -1;
     }
 
-    private void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell){
+    private void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell,boolean forceMove){
+        if(forceMove){
+            Cell nextCell = Utility.nextCell(world,src,dst);
+            if(world.getMyHero(nextCell) != null){
+                System.out.println("Next cell was full");
+                Cell firstCell=null;
+                Cell secondCell=null;
+                if(nextCell.getColumn() == src.getColumn()){
+                    // tuye ye sotun hastan v niaz dare az chap ya raste un bere
+
+                    if(world.getMap().isInMap(nextCell.getRow(),nextCell.getColumn()+1))
+                        secondCell = world.getMap().getCell(nextCell.getRow(),nextCell.getColumn()+1);
+
+                    if(world.getMap().isInMap(nextCell.getRow(),nextCell.getColumn()-1))
+                        firstCell = world.getMap().getCell(nextCell.getRow(),nextCell.getColumn()-1);
+                }else{
+                    // tuye ye radif hastan v niaz dre az bala ya paein bere
+                    if(world.getMap().isInMap(nextCell.getRow()-1,nextCell.getColumn()))
+                        firstCell = world.getMap().getCell(nextCell.getRow()-1,nextCell.getColumn());
+                    if(world.getMap().isInMap(nextCell.getRow()+1,nextCell.getColumn()))
+                        secondCell = world.getMap().getCell(nextCell.getRow()+1,nextCell.getColumn());
+                }
+                dst = Utility.distance(secondCell,dst)<=Utility.distance(firstCell,dst)?secondCell:firstCell;
+            }
+        }
         Utility.move(world,HEROID,src,dst);
         if(saveCell)
             history.addLastStep(src);
     }
     private void move(World world,int HERODID,Cell src,Cell dest,History history){
-        move(world,HERODID,src,dest,history,true);
+        move(world,HERODID,src,dest,history,true,true);
     }
 
     private void printCell(String str, Cell cell) {

@@ -12,6 +12,8 @@ public class Utility {
         return distance(start.getRow(), start.getColumn(), end.getRow(), end.getColumn());
     } // check that cells are an wall or not if be wall return -1
     static int distance(Cell start, Cell end){
+        if(start == null || end==null)
+            return -1;
         return distance(start,end,false);
     } // it's an fast method that not need to your boolean
     static int distance(int startRow, int startCol, int endRow, int endCol) {
