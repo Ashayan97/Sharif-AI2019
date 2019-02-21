@@ -117,10 +117,4 @@ public class Line {
     // moshkeli ndasht
     // ishala k ok test krde basham :]
 
-    public static void main(String[] args) {
-        Line line = Line.CREATOR(0,0,5,5);
-        System.out.println(line.distanceFromLine(1,0));
-        System.out.println(line.distanceFromLine(-1,2));
-    }
-
 }

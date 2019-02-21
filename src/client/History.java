@@ -11,7 +11,6 @@ import java.util.Vector;
 public class History {
     private boolean inScape=false;
     private boolean inAttack=false;
-    private boolean inNormal=true;
     private Stack<Cell> lastStep=new Stack<>();
     private int HeroID;
     private Vector<Hero> sawHeroes; // Hero haii ke in baba dide
@@ -20,20 +19,16 @@ public class History {
         HeroID = HEROID;
     }
 
-    void move(Cell lastStep,boolean inScape,boolean inAttack,boolean inNormal){
+    void move(Cell lastStep,boolean inScape,boolean inAttack){
         addLastStep(lastStep);
         this.inScape = inScape;
         this.inAttack=inAttack;
-        this.inNormal=inNormal;
-    }
-    void move(Cell lastStep,boolean inScape,boolean inAttack){
-        move(lastStep,inScape,inAttack,false);
     }
     void move(Cell lastStep,boolean inScape){
-            move(lastStep,inScape,false,false);
+            move(lastStep,inScape,false);
     }
     void move(Cell lastStep){
-        move(lastStep,false,false,true);
+        move(lastStep,false,false);
     }
 
     boolean isEmptySawHero(){
@@ -61,9 +56,6 @@ public class History {
     void setInAttack(boolean inAttack) {
         this.inAttack = inAttack;
     }
-    void setInNormal(boolean inNormal) {
-        this.inNormal = inNormal;
-    }
     void setHeroID(int heroID) {
         HeroID = heroID;
     }
@@ -87,9 +79,6 @@ public class History {
     }
     boolean isInAttack(){
         return inAttack;
-    }
-    boolean isInNormal(){
-        return inNormal;
     }
 
     public int getHeroID(){
