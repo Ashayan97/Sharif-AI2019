@@ -93,6 +93,34 @@ public class Utility {
         }
     }
 
+    public static void sortOnDistance(Cell cell,Hero[] heros) {
+        for (int i = 1; i <heros.length ; i++) {
+            int j=i;
+            while (j>=1){
+                if(distance(cell,heros[j].getCurrentCell())<distance(cell,heros[j-1].getCurrentCell()))
+                    swap(j,j-1,heros);
+                j--;
+            }
+        }
+    }
+
+    private static void swap(int i, int j,Hero[] heroes) {
+        Hero tmp = heroes[i];
+        heroes[i] = heroes[j];
+        heroes[j]=tmp;
+    }
+
+    public static void sortOnHP(Hero[] heros) {
+        for (int i = 1; i < heros.length; i++) {
+            int j = i;
+            while (j>=1){
+                if(heros[j].getCurrentHP()<heros[j-1].getCurrentHP())
+                    swap(j,j-1,heros);
+            j--;
+            }
+        }
+    }
+
     private void printInfo(Hero hero, Direction dir) {
         System.out.println(hero.getName().name() + " CuCell [" + hero.getCurrentCell().getRow() +
                 "," + hero.getCurrentCell().getColumn() + "]");
