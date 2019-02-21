@@ -13,6 +13,8 @@ public class AI {
     private Cell[] objectiveCells;
     private History[] histories;
     private Vector<Cell> wallsCell;
+    private Vector<Hero> atttackTo;
+    private int whoAttackID;
 
     //****************************************
     void preProcess(World world) {
@@ -192,7 +194,13 @@ public class AI {
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
         }else {
-            blasterSawAMotherFucker(world,blasterCurrentCell,history);
+            whoAttackID = blaster.getId();
+            atttackTo = new Vector<>();
+            atttackTo.addAll(history.getSawHeroes());
+
+            Hero[] heros = atttackTo.toArray(new Hero[]{});
+            Utility.sortOnHP(heros);
+            Utility.sortOnDistance(blasterCurrentCell, heros);
         }
     }
 
