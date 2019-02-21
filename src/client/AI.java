@@ -4,6 +4,7 @@ import client.model.*;
 import javafx.beans.value.WritableObjectValue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
 
 public class AI {
@@ -194,13 +195,10 @@ public class AI {
         } else if (herosInVision.size() == 1) {
             blasterSawAMotherFucker(world, blasterCurrentCell, history);
         }else {
-            whoAttackID = blaster.getId();
-            atttackTo = new Vector<>();
-            atttackTo.addAll(history.getSawHeroes());
-
             Hero[] heros = atttackTo.toArray(new Hero[]{});
             Utility.sortOnHP(heros);
             Utility.sortOnDistance(blasterCurrentCell, heros);
+            setGpAttack(blaster,history.getSawHeroes());
         }
     }
 
@@ -343,6 +341,15 @@ public class AI {
     }
     private void move(World world,int HERODID,Cell src,Cell dest,History history){
         move(world,HERODID,src,dest,history,true,true);
+    }
+
+    private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack){
+        this.atttackTo.addAll(toAttack);
+        this.whoAttackID = whoAttack.getId();
+    }
+    private void clearGpAttack(){
+        whoAttackID = -1;
+        atttackTo = null;
     }
 
     private void printCell(String str, Cell cell) {
