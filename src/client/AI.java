@@ -16,6 +16,7 @@ public class AI {
     private Vector<Cell> wallsCell;
     private Vector<Hero> atttackTo;
     private int whoAttackID;
+    private boolean inAttack=false;
 
     //****************************************
     void preProcess(World world) {
@@ -38,30 +39,44 @@ public class AI {
 
     void actionTurn(World world) {
         init(world);
-        Hero[] myHeros = world.getMyHeroes();
-        Hero[] oppHero = world.getOppHeroes();
-        for (int j = 0; j < myHeros.length; j++) {
-            for (int i = 0; i < oppHero.length; i++) {
-            if(world.isInVision(myHeros[j].getCurrentCell(),oppHero[i].getCurrentCell())){
-                ATTACK_STATE state = Utility.canAttack(myHeros[j],oppHero[i]);
-                if(state == ATTACK_STATE.DORADOR){
-                    world.castAbility(myHeros[j].getId(),
-                            AbilityName.BLASTER_BOMB,
-                            oppHero[i].getCurrentCell());
-                    System.out.println("ACTION TURN DORADOR DONE!");
-                    return;
-                }else if(state == ATTACK_STATE.TANBETAN){
-                    world.castAbility(myHeros[j].getId(),
-                            AbilityName.BLASTER_BOMB,
-                            oppHero[i].getCurrentCell());
-                    System.out.println("ACTION TURN ATTACK DONE!");
-                    return;
-                }
-            }
-        }
-        }
+        blasterAttack(world,world.getMyHeroes()[0]);
+        blasterAttack(world,world.getMyHeroes()[1]);
+        blasterAttack(world,world.getMyHeroes()[2]);
+        blasterAttack(world,world.getMyHeroes()[3]);
+    }
 
-        System.out.println("ACTION TURN NOT WORK ON MOTHER FUCKERS");
+    private void blasterAttack(World world, Hero myHero) {
+        AbilityName abilityName = myHero.getAbility(AbilityName.BLASTER_BOMB).isReady()?
+                AbilityName.BLASTER_BOMB:
+                AbilityName.BLASTER_ATTACK;
+        Hero[] inMyAttckRange = getInAttackRange(world,myHero,abilityName);
+        if(inMyAttckRange.length == 0)
+            return;
+        Cell whereShouldIAttcka = getBestForBlasterAttack(inMyAttckRange,abilityName); // todo :(
+        world.castAbility(myHero.getId(),abilityName,whereShouldIAttcka);
+    }
+
+    private Cell getBestForBlasterAttack(Hero[] inMyAttckRange,AbilityName abilityName) {
+        Utility.sortOnHP(inMyAttckRange);
+        return inMyAttckRange[0].getCurrentCell();
+    }
+
+
+    private Hero[] getInAttackRange(World world,Hero hero,AbilityName... abilityNames) {
+        int radius = hero.getAbility(abilityNames[0]).getRange();
+        Cell[] available = Utility.availableCells(world.getMap(),radius,hero.getCurrentCell());
+        Vector<Hero> heroes = new Vector<>();
+        Cell heroCell = hero.getCurrentCell();
+        for (Cell anAvailable : available) {
+            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.isInVision(heroCell, anAvailable) &&
+                    world.getOppHero(anAvailable) != null)
+                heroes.add(world.getOppHero(anAvailable));
+            else if (hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.getOppHero(anAvailable) != null)
+                heroes.add(world.getOppHero(anAvailable));
+        }
+        return heroes.toArray(new Hero[]{});
     }
 
     //****************************************
@@ -188,18 +203,33 @@ public class AI {
         }
         History history = histories[historyIndex];
 
-        if (herosInVision == null ||
-                herosInVision.size() == 0 ||
-                history.getSawHeroes().size() == 0) {
-            BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
-        } else if (herosInVision.size() == 1) {
-            blasterSawAMotherFucker(world, blasterCurrentCell, history);
-        }else {
-            Hero[] heros = atttackTo.toArray(new Hero[]{});
-            Utility.sortOnHP(heros);
-            Utility.sortOnDistance(blasterCurrentCell, heros);
-            setGpAttack(blaster,history.getSawHeroes());
-        }
+        BlasterNotSeeAnyOne(world,blaster,blasterCurrentCell,history);
+
+//        if(inAttack){
+//            int distance = Utility.distance(blasterCurrentCell,)
+//            if() {
+//                int remMovePhase = world.getMovePhaseNum();
+//            }
+//        }
+//
+//        if (herosInVision == null ||
+//                herosInVision.size() == 0 ||
+//                history.getSawHeroes().size() == 0) {
+//            BlasterNotSeeAnyOne(world, blaster, blasterCurrentCell, history);
+//        } else if (herosInVision.size() == 1) {
+//            blasterSawAMotherFucker(world, blasterCurrentCell, history);
+//        }else {
+//            Hero[] heros = atttackTo.toArray(new Hero[]{});
+//            Utility.sortOnHP(heros);
+//            Utility.sortOnDistance(blasterCurrentCell, heros);
+//            int distance = Utility.distance(blasterCurrentCell,heros[0].getCurrentCell());
+//            if(distance<=Utility_Attack.range_of_blaster_attack||
+//                    (blaster.getAbilities()[0].isReady() &&
+//                            distance<=Utility_Attack.range_of_blaster_bomb+Utility_Attack.radius_of_blaster_bomb)) {
+//                setGpAttack(blaster, history.getSawHeroes());
+//            } else
+//                BlasterNotSeeAnyOne(world,blaster,blasterCurrentCell,history);
+//        }
     }
 
     /**
@@ -340,16 +370,18 @@ public class AI {
             history.addLastStep(src);
     }
     private void move(World world,int HERODID,Cell src,Cell dest,History history){
-        move(world,HERODID,src,dest,history,true,true);
+        move(world,HERODID,src,dest,history,true,false);
     }
 
     private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack){
         this.atttackTo.addAll(toAttack);
         this.whoAttackID = whoAttack.getId();
+        inAttack = true;
     }
     private void clearGpAttack(){
         whoAttackID = -1;
         atttackTo = null;
+        inAttack = false;
     }
 
     private void printCell(String str, Cell cell) {

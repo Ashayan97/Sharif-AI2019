@@ -25,7 +25,11 @@ public class Utility {
         move(world,hero.getId(),src,dest);
     }
     static void move(World world,int heroID,Cell src,Cell des){
-        Direction dir[] = world.getPathMoveDirections(src,des);
+        Cell[] blockCells = new Cell[3];
+        int k = 0;
+        for (Hero h : world.getMyHeroes())
+            if(h.getId()!=heroID) blockCells[k++] = h.getCurrentCell();
+        Direction dir[] = world.getPathMoveDirections(src,des,blockCells);
         if(dir.length == 0)
             return;
         move(world,heroID,dir[0]);
@@ -104,8 +108,8 @@ public class Utility {
         }
     }
 
-    private static void swap(int i, int j,Hero[] heroes) {
-        Hero tmp = heroes[i];
+    private static void swap(int i, int j,Object[] heroes) {
+        Object tmp = heroes[i];
         heroes[i] = heroes[j];
         heroes[j]=tmp;
     }
@@ -132,6 +136,19 @@ public class Utility {
         for (int i = 0; i < heroes.length; i++)
             System.out.print((i + 1) + " - " + heroes[i].getName().name() + " ");
         System.out.println("==============================");
+    }
+
+    Cell getDOWN(Cell src,Cell dst){
+        return src.getRow()>=dst.getRow()?src:dst;
+    }
+    Cell getUP(Cell src,Cell dst){
+        return src.getRow()<=dst.getRow()?src:dst;
+    }
+    Cell getRIGHT(Cell src,Cell dst){
+        return src.getColumn()>=dst.getColumn()?src:dst;
+    }
+    Cell getLEFT(Cell src,Cell dst){
+        return src.getColumn()<=dst.getColumn()?src:dst;
     }
 
     static Direction pathTo(World world,Cell start,Cell end){
