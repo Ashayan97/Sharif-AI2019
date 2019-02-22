@@ -23,11 +23,22 @@ public class Range_fight {
         this.OppHero = world.getOppHeroes();
         this.OurHero = world.getMyHeroes();
     }
+    
+    public Cell NearstEnemy(Cell us,Hero[] heroes){
+        Cell min=null;
+        for (int i = 0; i < heroes.length; i++) {
+            if (min==null)
+                min=heroes[i].getCurrentCell();
+            else
+                if (world.manhattanDistance(us,heroes[i].getCurrentCell())<world.manhattanDistance(us,min))
+                    min=heroes[i].getCurrentCell();
 
-
+        }
+        return min;
+    }
 
     // Atk with best distance from single to single enemy
-    public Cell[] SingleToSingleAtkRange(Hero hero, int throwRange, Cell center, int OurDistance, int effRange) {
+    public Cell[] SingleToSingleAtkRange(Hero hero, int throwRange, Cell center, int effRange) {
         int shotRange = effRange + throwRange;
         ArrayList<Cell> cells = new ArrayList<>();
         ArrayList<Cell> ThrowCells = new ArrayList<>();
@@ -36,12 +47,12 @@ public class Range_fight {
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 if (!map.getCell(center.getRow() - j, center.getColumn() - shotRange + j).isWall() &&
                         map.isInMap(center.getRow() - j, center.getColumn() - shotRange + j) &&
-                        !world.getMyHero(center.getRow() - j, center.getColumn() - shotRange + j).equals(null)
-                        && !world.getOppHero(center.getRow() - j, center.getColumn() - shotRange + j).equals(null) &&
+                        world.getMyHero(center.getRow() - j, center.getColumn() - shotRange + j)==null
+                        && world.getOppHero(center.getRow() - j, center.getColumn() - shotRange + j)==null &&
                         !map.getCell(center.getRow() + j, center.getColumn() - shotRange + j).isWall() &&
                         map.isInMap(center.getRow() + j, center.getColumn() - shotRange + j) &&
-                        !world.getMyHero(center.getRow() + j, center.getColumn() - shotRange + j).equals(null)
-                        && !world.getOppHero(center.getRow() + j, center.getColumn() - shotRange + j).equals(null)) {
+                        world.getMyHero(center.getRow() + j, center.getColumn() - shotRange + j)==null
+                        && world.getOppHero(center.getRow() + j, center.getColumn() - shotRange + j)==null) {
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     cells.add(map.getCell(center.getRow() + j, center.getColumn() - shotRange + j));
                     cells.add(map.getCell(center.getRow() - j, center.getColumn() - shotRange + j));
@@ -49,12 +60,12 @@ public class Range_fight {
                     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     if (!map.getCell(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j).isWall() &&
                             map.isInMap(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) &&
-                            !world.getMyHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j).equals(null)
-                            && !world.getOppHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j).equals(null) &&
+                            world.getMyHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j)==null
+                            && world.getOppHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j)==null &&
                             !map.getCell(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j).isWall() &&
                             map.isInMap(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) &&
-                            !world.getMyHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j).equals(null)
-                            && !world.getOppHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j).equals(null)) {
+                            world.getMyHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j)==null
+                            && world.getOppHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j)==null) {
                         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                         cells.add(map.getCell(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j));
                         cells.add(map.getCell(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j));
@@ -84,7 +95,7 @@ public class Range_fight {
 
         /////////////////////////////////////////////
         for (int i = 0; i < cells.size(); i++) {
-            if (min.equals(null)) {
+            if (min==null) {
                 for (int j = 0; j < ThrowCells.size(); j++) {
                     if (LocalMinThrow.equals(null))
                         LocalMinThrow = ThrowCells.get(i);
@@ -96,7 +107,7 @@ public class Range_fight {
                 LocalMinThrow=null;
             } else
                 for (int j = 0; j < ThrowCells.size(); j++) {
-                    if (LocalMinThrow.equals(null))
+                    if (LocalMinThrow==null)
                         LocalMinThrow = ThrowCells.get(i);
                     else if (world.manhattanDistance(ThrowCells.get(i), cells.get(i)) < world.manhattanDistance(LocalMinThrow, cells.get(i)))
                         LocalMinThrow = ThrowCells.get(i);
@@ -138,11 +149,11 @@ public class Range_fight {
         Cell min=null;
         int minLen=Integer.MAX_VALUE;
         for (int i = 0; i <cells.length ; i++) {
-            if(min.equals(null) && world.getMyHero(cells[i]).equals(null) && world.getOppHero(cells[i]).equals(null)){
+            if(min==null && world.getMyHero(cells[i])==null && world.getOppHero(cells[i])==null){
                 min=cells[i];
                 minLen=world.manhattanDistance(start,min);
             }
-            else if (world.getMyHero(cells[i]).equals(null) && world.getOppHero(cells[i]).equals(null) && world.manhattanDistance(cells[i],start)<minLen)
+            else if (world.getMyHero(cells[i])==null && world.getOppHero(cells[i])==null && world.manhattanDistance(cells[i],start)<minLen)
             {
                 min=cells[i];
                 minLen=world.manhattanDistance(start,min);
@@ -151,12 +162,13 @@ public class Range_fight {
         return min;
     }
 
-    public int avgDistance(Hero[] inRange,Cell cell){
-        int avg=0;
+    public float avgDistance(Hero[] inRange,Cell cell){
+        float avg=0;
         for (int i = 0; i < inRange.length; i++) {
             avg += world.manhattanDistance(cell,inRange[i].getCurrentCell());
         }
-        return avg/inRange.length;
+
+        return avg/Float.valueOf(inRange.length);
     }
 
 }
