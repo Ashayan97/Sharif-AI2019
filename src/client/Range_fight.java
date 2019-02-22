@@ -114,4 +114,49 @@ public class Range_fight {
     }
 
 
+    public boolean isSafe(Hero hero,int range){
+        Hero[] OppHero = world.getOppHeroes();
+        for (int i = 0; i < OppHero.length; i++) {
+            if(world.manhattanDistance(hero.getCurrentCell(),OppHero[i].getCurrentCell())<range)
+                return false;
+        }
+        return true;
+    }
+
+    public Hero[] InRangeAtk(Hero hero,int range){
+        ArrayList<Hero> heroes=new ArrayList<>();
+        Hero[] Opp=world.getOppHeroes();
+        for (int i = 0; i <Opp.length ; i++) {
+            if(world.manhattanDistance(hero.getCurrentCell(),OppHero[i].getCurrentCell())<=range)
+                heroes.add(Opp[i]);
+        }
+        return heroes.toArray(new Hero[heroes.size()]);
+    }
+
+    public Cell findNearestZoneCell(Cell start){
+        Cell[] cells=map.getObjectiveZone();
+        Cell min=null;
+        int minLen=Integer.MAX_VALUE;
+        for (int i = 0; i <cells.length ; i++) {
+            if(min.equals(null) && world.getMyHero(cells[i]).equals(null) && world.getOppHero(cells[i]).equals(null)){
+                min=cells[i];
+                minLen=world.manhattanDistance(start,min);
+            }
+            else if (world.getMyHero(cells[i]).equals(null) && world.getOppHero(cells[i]).equals(null) && world.manhattanDistance(cells[i],start)<minLen)
+            {
+                min=cells[i];
+                minLen=world.manhattanDistance(start,min);
+            }
+        }
+        return min;
+    }
+
+    public int avgDistance(Hero[] inRange,Cell cell){
+        int avg=0;
+        for (int i = 0; i < inRange.length; i++) {
+            avg += world.manhattanDistance(cell,inRange[i].getCurrentCell());
+        }
+        return avg/inRange.length;
+    }
+
 }
