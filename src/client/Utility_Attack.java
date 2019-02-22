@@ -27,6 +27,7 @@ public class Utility_Attack {
     public final static int damage_of_blaster_attack=20;
     public final static int damage_of_guardian_attack=40;
     public final static int radius_of_guardian_attack=1;
+
     //====================================================================================//
     //Blaster Attacks Methods
     public static ATTACK_STATE blasterAttackToHealer(Hero fHero , Hero sHero){

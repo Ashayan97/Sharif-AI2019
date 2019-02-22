@@ -138,16 +138,16 @@ public class Utility {
         System.out.println("==============================");
     }
 
-    Cell getDOWN(Cell src,Cell dst){
+    public static Cell getDOWN(Cell src,Cell dst){
         return src.getRow()>=dst.getRow()?src:dst;
     }
-    Cell getUP(Cell src,Cell dst){
+    public static Cell getUP(Cell src,Cell dst){
         return src.getRow()<=dst.getRow()?src:dst;
     }
-    Cell getRIGHT(Cell src,Cell dst){
+    public static Cell getRIGHT(Cell src,Cell dst){
         return src.getColumn()>=dst.getColumn()?src:dst;
     }
-    Cell getLEFT(Cell src,Cell dst){
+    public static Cell getLEFT(Cell src,Cell dst){
         return src.getColumn()<=dst.getColumn()?src:dst;
     }
 
@@ -169,6 +169,39 @@ public class Utility {
                 return Utility_Attack.CanAttack_Guardian(fHero,sHero);
         }
         return ATTACK_STATE.CANTATTACK;
+    }
+
+    public static Cell[] effectiveCells(World world, Cell firstCell , Cell secondCell){
+        Cell results[] =null;
+        if(firstCell.getRow() == secondCell.getRow()){
+            results =  new Cell[1];
+            results[0]=world.getMap().getCell(firstCell.getRow(),
+                    (firstCell.getColumn()+secondCell.getColumn())/2);
+        }else if(firstCell.getColumn() == secondCell.getColumn()){
+            results =  new Cell[1];
+            results[0]=world.getMap().getCell((firstCell.getRow()+secondCell.getRow())/2,
+                    firstCell.getColumn());
+        } else {
+            Cell upCell = getUP(firstCell,secondCell);
+            Cell downCell =  getDOWN(firstCell,secondCell);
+            Cell aimCell1=null , aimCell2=null;
+            if(world.getMap().isInMap(upCell.getRow(),downCell.getColumn()))
+                aimCell1 = world.getMap().getCell(upCell.getRow(),downCell.getColumn());
+            if(world.getMap().isInMap(downCell.getRow(),upCell.getColumn()))
+                aimCell2 = world.getMap().getCell(downCell.getRow(),upCell.getColumn());
+            if(aimCell1!=null && aimCell2!=null){
+                results =  new Cell[2];
+                results[0]=aimCell1;
+                results[1]=aimCell2;
+            }else if(aimCell2!=null){
+                results = new Cell[1];
+                results[0]=aimCell2;
+            }else if(aimCell1!=null){
+                results = new Cell[1];
+                results[0]=aimCell1;
+            }
+        }
+        return results;
     }
 
 }
