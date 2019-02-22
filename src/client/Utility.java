@@ -25,7 +25,11 @@ public class Utility {
         move(world,hero.getId(),src,dest);
     }
     static void move(World world,int heroID,Cell src,Cell des){
-        Direction dir[] = world.getPathMoveDirections(src,des);
+        Cell[] blockCells = new Cell[3];
+        int k = 0;
+        for (Hero h : world.getMyHeroes())
+            if(h.getId()!=heroID) blockCells[k++] = h.getCurrentCell();
+        Direction dir[] = world.getPathMoveDirections(src,des,blockCells);
         if(dir.length == 0)
             return;
         move(world,heroID,dir[0]);
@@ -93,6 +97,34 @@ public class Utility {
         }
     }
 
+    public static void sortOnDistance(Cell cell,Hero[] heros) {
+        for (int i = 1; i <heros.length ; i++) {
+            int j=i;
+            while (j>=1){
+                if(distance(cell,heros[j].getCurrentCell())<distance(cell,heros[j-1].getCurrentCell()))
+                    swap(j,j-1,heros);
+                j--;
+            }
+        }
+    }
+
+    private static void swap(int i, int j,Object[] heroes) {
+        Object tmp = heroes[i];
+        heroes[i] = heroes[j];
+        heroes[j]=tmp;
+    }
+
+    public static void sortOnHP(Hero[] heros) {
+        for (int i = 1; i < heros.length; i++) {
+            int j = i;
+            while (j>=1){
+                if(heros[j].getCurrentHP()<heros[j-1].getCurrentHP())
+                    swap(j,j-1,heros);
+            j--;
+            }
+        }
+    }
+
     private void printInfo(Hero hero, Direction dir) {
         System.out.println(hero.getName().name() + " CuCell [" + hero.getCurrentCell().getRow() +
                 "," + hero.getCurrentCell().getColumn() + "]");
@@ -104,6 +136,19 @@ public class Utility {
         for (int i = 0; i < heroes.length; i++)
             System.out.print((i + 1) + " - " + heroes[i].getName().name() + " ");
         System.out.println("==============================");
+    }
+
+    Cell getDOWN(Cell src,Cell dst){
+        return src.getRow()>=dst.getRow()?src:dst;
+    }
+    Cell getUP(Cell src,Cell dst){
+        return src.getRow()<=dst.getRow()?src:dst;
+    }
+    Cell getRIGHT(Cell src,Cell dst){
+        return src.getColumn()>=dst.getColumn()?src:dst;
+    }
+    Cell getLEFT(Cell src,Cell dst){
+        return src.getColumn()<=dst.getColumn()?src:dst;
     }
 
     static Direction pathTo(World world,Cell start,Cell end){
