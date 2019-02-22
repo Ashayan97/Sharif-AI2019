@@ -97,7 +97,7 @@ public class Range_fight {
         for (int i = 0; i < cells.size(); i++) {
             if (min==null) {
                 for (int j = 0; j < ThrowCells.size(); j++) {
-                    if (LocalMinThrow.equals(null))
+                    if (LocalMinThrow==null)
                         LocalMinThrow = ThrowCells.get(i);
                     else if (world.manhattanDistance(ThrowCells.get(i), cells.get(i)) < world.manhattanDistance(LocalMinThrow, cells.get(i)))
                         LocalMinThrow = ThrowCells.get(i);

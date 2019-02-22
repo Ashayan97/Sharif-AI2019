@@ -29,9 +29,13 @@ public class Sentry_AI {
         heroes = world.getMyHeroes();
     }
 
+//    public Ability actionPhase(){
+//       if (needToDodge())
+//
+//    }
 
     public boolean isNeedToMove() {
-        Hero[] heroes = rangeFight.InRangeAtk(hero, 6);
+        Hero[] heroes = rangeFight.InRangeAtk(hero, 5);
         if (heroes.length == 0)
             return true;
         else return false;
@@ -59,20 +63,18 @@ public class Sentry_AI {
     public Direction SentryMove() {
         Hero[] heroes = world.getOppHeroes();
         if (atkMode == true && heroes.length != 0) {
-           // Direction[] dir=world.getPathMoveDirections(rangeFight.SingleToSingleAtkRange(hero,7)[0]);
+           Direction[] dir=world.getPathMoveDirections(hero.getCurrentCell(),rangeFight.SingleToSingleAtkRange(hero,7,rangeFight.NearstEnemy(hero.getCurrentCell(),heroes),0)[0]);
+           return dir[0];
+
         } else {
             if (rangeFight.isSafe(hero, 7)) {
                 return ObjectMove();
             } else {
-
-                Hero[] AtkInRange = rangeFight.InRangeAtk(hero, 7);
-                for (int i = 0; i < AtkInRange.length; i++) {
-                    //TODO
-                }
-
+                if (!isNeedToMove())
+                    return ObjectMove();
+                return EscapeDirection(rangeFight.InRangeAtk(hero, 7));
             }
         }
-        return null;
     }
 
     public void setAtkMode(boolean atkMode) {
