@@ -15,7 +15,7 @@ public class Ability {
         return this.remCooldown == 0;
     }
 
-    AbilityConstants getAbilityConstants() {
+    public AbilityConstants getAbilityConstants() {
         return abilityConstants;
     }
 
