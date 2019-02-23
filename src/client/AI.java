@@ -2,9 +2,12 @@ package client;
 
 import client.model.*;
 import javafx.beans.value.WritableObjectValue;
+import javafx.scene.effect.BlurType;
 
+import java.time.chrono.MinguoChronology;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 import java.util.Vector;
 
 public class AI {
@@ -50,13 +53,32 @@ public class AI {
                 AbilityName.BLASTER_BOMB:
                 AbilityName.BLASTER_ATTACK;
         Hero[] inMyAttckRange = getInAttackRange(world,myHero,abilityName);
-        if(inMyAttckRange.length == 0)
+        if(inMyAttckRange.length == 0){
+            world.castAbility(myHero,AbilityName.BLASTER_DODGE,objectiveCells[new Random().nextInt(objectiveCells.length)]);
             return;
-        Cell whereShouldIAttcka = getBestForBlasterAttack(inMyAttckRange,abilityName); // todo :(
+        }
+        Cell whereShouldIAttcka = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName); // todo :(
         world.castAbility(myHero.getId(),abilityName,whereShouldIAttcka);
     }
 
-    private Cell getBestForBlasterAttack(Hero[] inMyAttckRange,AbilityName abilityName) {
+    private Cell getBestForBlasterAttack(World world,Hero mhero,Hero[] inMyAttckRange,AbilityName abilityName) {
+        if(inMyAttckRange.length == 1)
+            return inMyAttckRange[0].getCurrentCell();
+        if(abilityName == AbilityName.BLASTER_BOMB
+        && inMyAttckRange.length == 2){
+            if(Utility.distance(inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell())
+                    <=
+                    2*Utility_Attack.radius_of_blaster_bomb) {
+                Cell[] effectiveCells = Utility.effectiveCells(world,inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell());
+                if(effectiveCells.length == 1)
+                    return effectiveCells[0];
+                return Utility.distance(mhero.getCurrentCell(),effectiveCells[0])
+                        <=
+                        Utility.distance(mhero.getCurrentCell(),effectiveCells[1])?
+                        effectiveCells[0]:
+                        effectiveCells[1];
+            }
+        }
         Utility.sortOnHP(inMyAttckRange);
         return inMyAttckRange[0].getCurrentCell();
     }
