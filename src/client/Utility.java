@@ -12,6 +12,8 @@ public class Utility {
         return distance(start.getRow(), start.getColumn(), end.getRow(), end.getColumn());
     } // check that cells are an wall or not if be wall return -1
     static int distance(Cell start, Cell end){
+        if(start == null || end==null)
+            return -1;
         return distance(start,end,false);
     } // it's an fast method that not need to your boolean
     static int distance(int startRow, int startCol, int endRow, int endCol) {
@@ -23,7 +25,11 @@ public class Utility {
         move(world,hero.getId(),src,dest);
     }
     static void move(World world,int heroID,Cell src,Cell des){
-        Direction dir[] = world.getPathMoveDirections(src,des);
+        Cell[] blockCells = new Cell[3];
+        int k = 0;
+        for (Hero h : world.getMyHeroes())
+            if(h.getId()!=heroID) blockCells[k++] = h.getCurrentCell();
+        Direction dir[] = world.getPathMoveDirections(src,des,blockCells);
         if(dir.length == 0)
             return;
         move(world,heroID,dir[0]);
@@ -38,8 +44,12 @@ public class Utility {
         int col = src.getColumn();
         return world.getMap()
                 .getCells()
-                [row+(dir==Direction.DOWN?-1:dir==Direction.UP?1:0)]
-                [col+(dir==Direction.RIGHT?1:dir==Direction.LEFT?-1:0)];
+                [row+(  dir==Direction.DOWN?1:
+                        dir==Direction.UP?-1:
+                        0)]
+                [col+(  dir==Direction.RIGHT?1:
+                        dir==Direction.LEFT?-1:
+                        0)];
     }
 
     static Cell[] availableCells(Map map , int radius, Cell currentCell){
@@ -65,14 +75,12 @@ public class Utility {
         System.out.print("  ");
         for (int i = 0; i < world.getMap().getColumnNum(); i++) {
             String str = String.valueOf(i);
-            if(str.length() == 1)
-                System.out.print(str+"  ");
-            else
-                System.out.print(str+" ");
+            System.out.print(str+(str.length()==1?"  ":" "));
         }
         System.out.println();
         for (int i = 0; i < world.getMap().getRowNum(); i++) {
-            System.out.print(i+" ");
+            String str=String.valueOf(i);
+            System.out.print(str+(str.length()==1?" ":""));
             for (int j = 0; j < world.getMap().getColumnNum(); j++) {
                 Hero inThisCell = world.getMyHero(cells[i][j]);
                 Hero oppInThisCell = world.getOppHero(cells[i][j]);
@@ -89,6 +97,34 @@ public class Utility {
         }
     }
 
+    public static void sortOnDistance(Cell cell,Hero[] heros) {
+        for (int i = 1; i <heros.length ; i++) {
+            int j=i;
+            while (j>=1){
+                if(distance(cell,heros[j].getCurrentCell())<distance(cell,heros[j-1].getCurrentCell()))
+                    swap(j,j-1,heros);
+                j--;
+            }
+        }
+    }
+
+    private static void swap(int i, int j,Object[] heroes) {
+        Object tmp = heroes[i];
+        heroes[i] = heroes[j];
+        heroes[j]=tmp;
+    }
+
+    public static void sortOnHP(Hero[] heros) {
+        for (int i = 1; i < heros.length; i++) {
+            int j = i;
+            while (j>=1){
+                if(heros[j].getCurrentHP()<heros[j-1].getCurrentHP())
+                    swap(j,j-1,heros);
+            j--;
+            }
+        }
+    }
+
     private void printInfo(Hero hero, Direction dir) {
         System.out.println(hero.getName().name() + " CuCell [" + hero.getCurrentCell().getRow() +
                 "," + hero.getCurrentCell().getColumn() + "]");
@@ -100,6 +136,19 @@ public class Utility {
         for (int i = 0; i < heroes.length; i++)
             System.out.print((i + 1) + " - " + heroes[i].getName().name() + " ");
         System.out.println("==============================");
+    }
+
+    public static Cell getDOWN(Cell src,Cell dst){
+        return src.getRow()>=dst.getRow()?src:dst;
+    }
+    public static Cell getUP(Cell src,Cell dst){
+        return src.getRow()<=dst.getRow()?src:dst;
+    }
+    public static Cell getRIGHT(Cell src,Cell dst){
+        return src.getColumn()>=dst.getColumn()?src:dst;
+    }
+    public static Cell getLEFT(Cell src,Cell dst){
+        return src.getColumn()<=dst.getColumn()?src:dst;
     }
 
     static Direction pathTo(World world,Cell start,Cell end){
@@ -120,6 +169,39 @@ public class Utility {
                 return Utility_Attack.CanAttack_Guardian(fHero,sHero);
         }
         return ATTACK_STATE.CANTATTACK;
+    }
+
+    public static Cell[] effectiveCells(World world, Cell firstCell , Cell secondCell){
+        Cell results[] =null;
+        if(firstCell.getRow() == secondCell.getRow()){
+            results =  new Cell[1];
+            results[0]=world.getMap().getCell(firstCell.getRow(),
+                    (firstCell.getColumn()+secondCell.getColumn())/2);
+        }else if(firstCell.getColumn() == secondCell.getColumn()){
+            results =  new Cell[1];
+            results[0]=world.getMap().getCell((firstCell.getRow()+secondCell.getRow())/2,
+                    firstCell.getColumn());
+        } else {
+            Cell upCell = getUP(firstCell,secondCell);
+            Cell downCell =  getDOWN(firstCell,secondCell);
+            Cell aimCell1=null , aimCell2=null;
+            if(world.getMap().isInMap(upCell.getRow(),downCell.getColumn()))
+                aimCell1 = world.getMap().getCell(upCell.getRow(),downCell.getColumn());
+            if(world.getMap().isInMap(downCell.getRow(),upCell.getColumn()))
+                aimCell2 = world.getMap().getCell(downCell.getRow(),upCell.getColumn());
+            if(aimCell1!=null && aimCell2!=null){
+                results =  new Cell[2];
+                results[0]=aimCell1;
+                results[1]=aimCell2;
+            }else if(aimCell2!=null){
+                results = new Cell[1];
+                results[0]=aimCell2;
+            }else if(aimCell1!=null){
+                results = new Cell[1];
+                results[0]=aimCell1;
+            }
+        }
+        return results;
     }
 
 }

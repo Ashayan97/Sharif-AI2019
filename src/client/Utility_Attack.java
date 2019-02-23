@@ -1,7 +1,7 @@
 package client;
+
 import client.model.AbilityName;
 import client.model.Hero;
-
 import static client.ATTACK_STATE.DORADOR;
 import static client.ATTACK_STATE.TANBETAN;
 import static client.ATTACK_STATE.CANTATTACK;
@@ -21,12 +21,13 @@ public class Utility_Attack {
     public final static int range_of_healer_attack=4;
     public final static int range_of_sentry_attack=7;
     public final static int damage_of_sentry_attack = 30;
-    public final static int damage_of_healer_attack=20;
+    public final static int damage_of_healer_attack=25;
     public final static int damage_of_sentry_ray = 50;
     public final static int damage_of_blaster_bomb=40;
-    public final static int damage_of_blaster_attack=30;
-    public final static int damage_of_guardian_attack=25;
+    public final static int damage_of_blaster_attack=20;
+    public final static int damage_of_guardian_attack=40;
     public final static int radius_of_guardian_attack=1;
+
     //====================================================================================//
     //Blaster Attacks Methods
     public static ATTACK_STATE blasterAttackToHealer(Hero fHero , Hero sHero){
@@ -34,6 +35,7 @@ public class Utility_Attack {
         /** if distance is OK and blaster bomb is OK too @return : DORADOR */
         int distance =Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         //scape if our hero will be die !-->
+        //TODO check Points -->
         if(fHero.getCurrentHP()<=damage_of_healer_attack){
             return SCAPE;
         }
@@ -94,12 +96,12 @@ public class Utility_Attack {
         int myHeroHP = fHero.getCurrentHP();
         int enemyHeroHP = sHero.getCurrentHP();
 
-        if(myHeroHP>=enemyHeroHP&&
+        if(myHeroHP>=enemyHeroHP &&
                 fHero.getAbility(AbilityName.BLASTER_BOMB).isReady()&&
                 distance<=range_of_blaster_bomb+ radius_of_blaster_bomb){
             return DORADOR;
         }
-        if(myHeroHP>=enemyHeroHP&&
+        if(myHeroHP>=enemyHeroHP &&
                 distance<=range_of_blaster_attack){
             return TANBETAN;
         }
@@ -117,7 +119,6 @@ public class Utility_Attack {
     }
     public static ATTACK_STATE blasterAttackToGuardian(Hero fHero , Hero sHero){
         //first Hero is Blaster and second Hero is Guardian
-        //TODO
         int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
         int myHeroHP = fHero.getCurrentHP();
         int enemyHeroHP = sHero.getCurrentHP();
@@ -303,15 +304,86 @@ public class Utility_Attack {
     //====================================================================================//
     //Guardian Attack Methods
     public static ATTACK_STATE guardianAttackToHealer(Hero fHero,Hero sHero){
-        //TODO
+        //init data :
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+
+        //scape if we will die !!
+        if(myHeroHP <= damage_of_healer_attack && distance<=range_of_healer_attack){
+            if(fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady())
+                return DORADOR; // dorador in this case meaning --> FORTIFYING
+            return SCAPE;
+        }
+        // final calc:
+        int number_of_turn_needed_to_kill_healer = enemyHP/damage_of_guardian_attack;
+        int number_of_turn_needed_to_die_guardian = myHeroHP/damage_of_guardian_attack;
+        if(number_of_turn_needed_to_die_guardian<number_of_turn_needed_to_kill_healer){
+            if(distance<=range_of_healer_attack &&
+                    fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady()){
+                return DORADOR; //// dorador in this case meaning --> FORTIFYING
+            } else
+                return SCAPE;
+        }else {
+            if(distance<=range_of_guardian_attack)
+                return TANBETAN;
+        }
+
         return CANTATTACK;
     }
     public static ATTACK_STATE guardianAttackToSentry(Hero fHero,Hero sHero){
-        //TODO
+        //init data :
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        int number_of_turn_needed_to_kill_sentry = enemyHP/damage_of_guardian_attack;
+        int number_of_turn_needed_to_die =  myHeroHP/damage_of_sentry_attack;
+        boolean isFortifyReady =  fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady();
+        //scape if we will die :
+        if(sHero.getAbility(AbilityName.SENTRY_RAY).isReady() &&
+                myHeroHP<=damage_of_sentry_ray){
+            if(isFortifyReady)
+                return DORADOR; //mean FORTIFY
+            return SCAPE;
+        }
+        if(distance<=range_of_sentry_attack && myHeroHP<=damage_of_sentry_attack){
+            if(isFortifyReady)
+                return DORADOR; //FORTIFY
+            return SCAPE;
+        }
+        if(number_of_turn_needed_to_die<number_of_turn_needed_to_kill_sentry){
+            if(distance<=range_of_sentry_attack){
+                if(isFortifyReady)
+                    return DORADOR;
+                else
+                    return SCAPE;
+            }
+        }else {
+            if(isFortifyReady)
+                return DORADOR;
+            if(distance<=range_of_guardian_attack)
+                return TANBETAN;
+        }
         return CANTATTACK;
     }
     public static ATTACK_STATE guardianAttackToBlaster(Hero fHero,Hero sHero){
-        //TODO
+        //init data :
+        int distance = Utility.distance(fHero.getCurrentCell(),sHero.getCurrentCell());
+        int enemyHP = sHero.getCurrentHP();
+        int myHeroHP = fHero.getCurrentHP();
+        int number_of_turn_needed_to_kill_sentry = enemyHP/damage_of_guardian_attack;
+        int number_of_turn_needed_to_die =  myHeroHP/damage_of_sentry_attack;
+        boolean enemySpecialAbility =  sHero.getAbility(AbilityName.BLASTER_BOMB).isReady();
+        boolean myHeroSpecialAbility =  fHero.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady();
+        if(enemySpecialAbility && distance<=range_of_blaster_bomb+radius_of_blaster_bomb &&
+                myHeroHP <= damage_of_blaster_bomb ){
+            if(myHeroSpecialAbility)
+                return DORADOR ; //Fortify
+            else
+                return  SCAPE;
+        }
+        //scape if we will die -->
+
         return CANTATTACK;
     }
     public static ATTACK_STATE guardianAttackToGuardian(Hero fHero,Hero sHero){
