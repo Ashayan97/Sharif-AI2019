@@ -9,7 +9,7 @@ import java.util.Vector;
 public class AI {
 
     private int PICK_PHASE_COUNTER = 0;
-    private ArrayList<Hero> herosInVision;
+    private Hero[] herosInVision;
     private Cell[] objectiveCells;
     private History[] histories;
     private Vector<Cell> wallsCell;
@@ -55,19 +55,8 @@ public class AI {
         initHeroInVision(world);
     }
 
-    private void initHeroInVision(World world)
-    {
-        herosInVision = new ArrayList<>();
-        for (int i = 0; i < 4; i++)
-            histories[i].cleareSawHeroes();
-        Hero[] oppHeroes = world.getOppHeroes();
-        for (Hero oppHeroe : oppHeroes)
-            if (oppHeroe.getCurrentCell().getColumn() != -1) {
-                herosInVision.add(oppHeroe);
-                Hero[] sawThisHero = whoSeeThisHero(world, oppHeroe);
-                for (Hero aSawThisHero : sawThisHero)
-                    histories[indexOfHeroInHistory(aSawThisHero)].addHero(oppHeroe);
-            }
+    private void initHeroInVision(World world) {
+        herosInVision = Utility.getSawHero(world);
     }
 
     private void initWallCell(World world) {
