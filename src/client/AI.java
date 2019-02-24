@@ -161,33 +161,9 @@ public class AI {
         Vector<Hero> heroes = new Vector<>();
         Hero[] myHeroes = world.getMyHeroes();
         Cell oppHeroCurrentCell = oppHeroe.getCurrentCell();
-        for (Hero myHero : myHeroes) {
+        for (Hero myHero : myHeroes)
             if(world.isInVision(myHero.getCurrentCell(),oppHeroCurrentCell))
                 heroes.add(myHero);
-//            Line line = Line.CREATOR(myHero.getCurrentCell(), oppHeroCurrentCell);
-//            boolean isCollision = false;
-//            // this scope get up down right and left to consider only wall in this range [ up,down ][ left,right]
-//            Cell up = oppHeroCurrentCell.getRow() >= myHero.getCurrentCell().getRow() ?
-//                    myHero.getCurrentCell() : oppHeroCurrentCell;
-//            Cell down = oppHeroCurrentCell.getRow() <= myHero.getCurrentCell().getRow() ?
-//                    myHero.getCurrentCell() : oppHeroCurrentCell;
-//            Cell right = oppHeroCurrentCell.getColumn() >= myHero.getCurrentCell().getColumn() ?
-//                    oppHeroCurrentCell : myHero.getCurrentCell();
-//            Cell left = oppHeroCurrentCell.getColumn() <= myHero.getCurrentCell().getColumn() ?
-//                    oppHeroCurrentCell : myHero.getCurrentCell();
-//            //***end scope******
-//            for (Cell aWallsCell : wallsCell) {
-//                if (aWallsCell.getColumn() <= right.getColumn() && aWallsCell.getColumn() >= left.getColumn()
-//                        && aWallsCell.getRow() >= up.getRow() && aWallsCell.getRow() <= down.getRow()) {
-//                    if (line.isCollisionToWall(aWallsCell)) {
-//                        isCollision = true;
-//                        break;
-//                    }
-//                }
-//            }
-//            if (!isCollision)
-//                heroes.add(myHero);
-        }
         return heroes.toArray(new Hero[]{});
     }
 
