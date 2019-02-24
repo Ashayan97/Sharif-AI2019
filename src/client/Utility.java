@@ -45,10 +45,10 @@ public class Utility {
         return world.getMap()
                 .getCells()
                 [row+(  dir==Direction.DOWN?1:
-                        dir==Direction.UP?-1:
+                dir==Direction.UP?-1:
                         0)]
                 [col+(  dir==Direction.RIGHT?1:
-                        dir==Direction.LEFT?-1:
+                dir==Direction.LEFT?-1:
                         0)];
     }
     static Cell nextCell(World world,Cell src,Cell des,Cell[] blockCells){
@@ -73,10 +73,10 @@ public class Utility {
     }
 
     private static final String OBJECTIVEZONE_SHAPE   = "#  ",
-                                OPP_RESPAWNZONE_SHAPE = "+' ",
-                                MY_RESPAWNZONE_SHAPE  = "+  ",
-                                WALL_SHAPE            = "/\\ ",
-                                NORMAL_CELL           = "-- ";
+            OPP_RESPAWNZONE_SHAPE = "+' ",
+            MY_RESPAWNZONE_SHAPE  = "+  ",
+            WALL_SHAPE            = "/\\ ",
+            NORMAL_CELL           = "-- ";
     static void printMap(World world) {
         Cell[][] cells = world.getMap().getCells();
         System.out.print("  ");
@@ -93,12 +93,12 @@ public class Utility {
                 Hero oppInThisCell = world.getOppHero(cells[i][j]);
                 System.out.print(
                         oppInThisCell!=null?String.format(     "%s' ",oppInThisCell.getName().name().charAt(0)):
-                        inThisCell!=null?String.format(     "%s  ",inThisCell.getName().name().charAt(0)):
-                                cells[i][j].isWall() ?              WALL_SHAPE:
-                                        cells[i][j].isInMyRespawnZone() ?   MY_RESPAWNZONE_SHAPE :
-                                                cells[i][j].isInOppRespawnZone() ?  OPP_RESPAWNZONE_SHAPE :
-                                                        cells[i][j].isInObjectiveZone() ?   OBJECTIVEZONE_SHAPE :
-                                                                NORMAL_CELL);
+                                inThisCell!=null?String.format(     "%s  ",inThisCell.getName().name().charAt(0)):
+                                        cells[i][j].isWall() ?              WALL_SHAPE:
+                                                cells[i][j].isInMyRespawnZone() ?   MY_RESPAWNZONE_SHAPE :
+                                                        cells[i][j].isInOppRespawnZone() ?  OPP_RESPAWNZONE_SHAPE :
+                                                                cells[i][j].isInObjectiveZone() ?   OBJECTIVEZONE_SHAPE :
+                                                                        NORMAL_CELL);
             }
             System.out.println();
         }
@@ -127,7 +127,7 @@ public class Utility {
             while (j>=1){
                 if(heros[j].getCurrentHP()<heros[j-1].getCurrentHP())
                     swap(j,j-1,heros);
-            j--;
+                j--;
             }
         }
     }
