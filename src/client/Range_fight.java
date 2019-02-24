@@ -22,6 +22,7 @@ public class Range_fight {
         map = world.getMap();
         this.OppHero = world.getOppHeroes();
         this.OurHero = world.getMyHeroes();
+        this.world=world;
     }
 
     public Cell NearstEnemy(Cell us, Hero[] heroes) {
@@ -128,7 +129,8 @@ public class Range_fight {
     public boolean isSafe(Hero hero, int range) {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
-            if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
+            if (OppHero[i].getCurrentCell().getColumn()!=-1)
+                if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
                 return false;
         }
         return true;
@@ -222,6 +224,10 @@ public class Range_fight {
                 inVision.add(heroes[i]);
         }
         return inVision.toArray(new Hero[inVision.size()]);
+    }
+
+    public boolean isInVision(Hero us,Hero enemy){
+        return world.isInVision(us.getCurrentCell(),enemy.getCurrentCell());
     }
 
 }
