@@ -115,7 +115,7 @@ public class Sentry_AI {
 
 
     public boolean isNeedToMove() {
-        Hero[] heroes = rangeFight.InRangeAtk(hero, 5);
+        Hero[] heroes = rangeFight.InRangeAtk(hero, 6);
         if (heroes.length == 0)
             return true;
         else return false;
@@ -146,19 +146,27 @@ public class Sentry_AI {
         return false;
     }
 
-    public Direction SentryMove() {
+    public void SentryMove() {
         Hero[] heroes = world.getOppHeroes();
         if (atkMode == true && heroes.length != 0) {
-            Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), rangeFight.SingleToSingleAtkRange(hero, 7, rangeFight.NearstEnemy(hero.getCurrentCell(), heroes), 0)[0]);
-            return dir[0];
+            Cell des=rangeFight.SingleToSingleAtkRange(hero, 7, rangeFight.NearstEnemy(hero.getCurrentCell(), heroes), 0)[0];
+            Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(),des);
+            world.moveHero(hero,dir[0]);
 
         } else {
             if (rangeFight.isSafe(hero, 7)) {
-                return ObjectMove();
+                if (!hero.getCurrentCell().isInObjectiveZone()) {
+                    //ObjectMove()
+                   // Cell nextCell = Utility.nextCell(world,hero.getCurrentCell(),des);
+                   // world.moveHero(hero, );
+                }
             } else {
                 if (!isNeedToMove())
-                    return ObjectMove();
-                return EscapeDirection(rangeFight.InRangeAtk(hero, 7));
+                    if (!hero.getCurrentCell().isInObjectiveZone()) {
+                        world.moveHero(hero, ObjectMove());
+                        return;
+                    }
+                world.moveHero(hero,EscapeDirection(rangeFight.InRangeAtk(hero, 7)));
             }
         }
     }
@@ -172,7 +180,9 @@ public class Sentry_AI {
         for (int i = 0; i < 4; i++) {
             cells[i] = heroes[i].getCurrentCell();
         }
-        Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()), cells);
+        Cell des=rangeFight.findNearestZoneCell(hero.getCurrentCell());
+        Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(),des , cells);
+        Utility.nextCell(world,hero.getCurrentCell(),des);
         return dir[0];
     }
 
