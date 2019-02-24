@@ -180,22 +180,7 @@ public class Range_fight {
     }
 
     public Cell[] cellsOfArea(Cell center, int Range) {
-        ArrayList<Cell> cellArray = new ArrayList<>();
-        for (int k = 0; k < 2; k++)
-            for (int i = 0; i <= Range; i++)
-                for (int j = 0; j <= 2 * i; j++)
-                    if (k == 0)
-                        if (!map.getCell(center.getRow() - Range + i, center.getColumn() - i + j).isWall() &&
-                                map.isInMap(center.getRow() - Range + i, center.getColumn() - i + j)) {
-                            cellArray.add(map.getCell(center.getRow() - Range + i, center.getColumn() - i + j));
-                        } else {
-                            if (!map.getCell(center.getRow() + Range - i, center.getColumn() - i + j).isWall() &&
-                                    map.isInMap(center.getRow() + Range - i, center.getColumn() - i + j)) {
-                                cellArray.add(map.getCell(center.getRow() + Range - i, center.getColumn() - i + j));
-                            }
-                        }
-        return cellArray.toArray(new Cell[cellArray.size()]);
-
+        return Utility.availableCells(world.getMap(),Range,center);
     }
 
     public Cell bestDodge(Cell center,int Range,int safeRange){
