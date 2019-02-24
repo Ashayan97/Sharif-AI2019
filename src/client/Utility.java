@@ -222,5 +222,12 @@ public class Utility {
         return heroes.toArray(new Hero[]{});
     }
 
-
+    static Hero[] getSawHero(World world){
+        Vector<Hero> hs = new Vector<>();
+        Hero oppHs[] = world.getOppHeroes();
+        for (Hero oppH : oppHs)
+            if (oppH.getCurrentCell().getColumn() != -1)
+                hs.add(oppH);
+        return hs.toArray(new Hero[0]);
+    }
 }
