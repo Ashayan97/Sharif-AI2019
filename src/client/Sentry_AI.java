@@ -23,7 +23,7 @@ public class Sentry_AI {
 
 
     public Sentry_AI(Hero hero, World world) {
-        if(world==null)
+        if (world == null)
             throw new RuntimeException("NULL WORLD");
         this.hero = hero;
         this.world = world;
@@ -33,17 +33,18 @@ public class Sentry_AI {
     }
 
     public void actionPhase() {
+
         Hero[] inVision = rangeFight.inVisionEnemy(hero);
         Hero[] heroes = rangeFight.InRangeAtk(hero, 7);
-        if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost() == world.getAP()) {
+        if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost() <= world.getAP()) {
             for (int i = 0; i < heroes.length; i++) {
-                if (heroes[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_ATTACK).getPower() <= 0 && rangeFight.isInVision(hero,heroes[i])) {
+                if (heroes[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_ATTACK).getPower() <= 0 && rangeFight.isInVision(hero, heroes[i])) {
                     world.castAbility(hero, AbilityName.SENTRY_ATTACK, heroes[i].getCurrentCell());
                     return;
                 }
             }
         }
-        if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() == world.getAP()) {
+        if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() <= world.getAP()) {
             if (hero.getAbility(AbilityName.SENTRY_RAY).isReady())
                 for (int i = 0; i < inVision.length; i++) {
                     if (inVision[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_RAY).getPower() <= 0) {
@@ -59,7 +60,7 @@ public class Sentry_AI {
                     }
                 }
         }
-        if (hero.getAbility(AbilityName.SENTRY_DODGE).getAPCost()==world.getAP()) {
+        if (hero.getAbility(AbilityName.SENTRY_DODGE).getAPCost() <= world.getAP()) {
             if (needToDodge()) {
                 Cell Des = rangeFight.bestDodge(hero.getCurrentCell(), 3, 6);
                 if (!hero.getCurrentCell().equals(Des)) {
@@ -68,7 +69,7 @@ public class Sentry_AI {
                 }
             }
         }
-        if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost()==world.getAP()) {
+        if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() <= world.getAP()) {
             if (hero.getAbility(AbilityName.SENTRY_RAY).isReady()) {
                 for (int i = 0; i < inVision.length; i++) {
                     if (inVision[i].getName().equals(HeroName.SENTRY)) {
@@ -97,17 +98,19 @@ public class Sentry_AI {
                 }
             }
         }
-        if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost()==world.getAP()) {
+        if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost() <= world.getAP()) {
             Hero inAtk = null;
             for (int i = 0; i < heroes.length; i++) {
-                if (inAtk == null&&rangeFight.isInVision(hero,heroes[i]))
+                if (inAtk == null)// && rangeFight.isInVision(hero, heroes[i]))
                     inAtk = heroes[i];
-                else if (inAtk.getCurrentHP() > heroes[i].getCurrentHP()&&rangeFight.isInVision(hero,heroes[i]))
-                    inAtk = heroes[i];
+                else if (inAtk != null)
+                    if (inAtk.getCurrentHP() >= heroes[i].getCurrentHP() && rangeFight.isInVision(hero, heroes[i]))
+                        inAtk = heroes[i];
             }
             if (inAtk != null)
                 world.castAbility(hero, AbilityName.SENTRY_ATTACK, inAtk.getCurrentCell());
         }
+
     }
 
 
