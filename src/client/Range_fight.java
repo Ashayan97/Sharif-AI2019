@@ -22,6 +22,7 @@ public class Range_fight {
         map = world.getMap();
         this.OppHero = world.getOppHeroes();
         this.OurHero = world.getMyHeroes();
+        this.world = world;
     }
 
     public Cell NearstEnemy(Cell us, Hero[] heroes) {

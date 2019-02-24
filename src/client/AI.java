@@ -15,8 +15,11 @@ public class AI {
     private Vector<Cell> wallsCell;
     private Vector<Hero> atttackTo;
     private int whoAttackID;
-    private boolean inAttack=false;
-    private World world ;
+    private boolean inAttack = false;
+    private World world;
+    private int flag = 0;
+    private Sentry_AI sentry;
+
     //****************************************
     void preProcess(World world) {
         this.world = world;
@@ -34,19 +37,21 @@ public class AI {
         this.world = world;
         Utility.printMap(world);
         init();
-        Blaster.blasterMove(world, world.getMyHeroes()[0],histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[1],histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[2],histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[3],histories[indexOfHeroInHistory(world.getMyHeroes()[3])]);
+        sentry = new Sentry_AI(world.getMyHeroes()[3], world);
+        Blaster.blasterMove(world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
+        Blaster.blasterMove(world, world.getMyHeroes()[1], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
+        Blaster.blasterMove(world, world.getMyHeroes()[2], histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
+        sentry.SentryMove();
     }
 
     void actionTurn(World world) {
         this.world = world;
         init();
-        Blaster.blasterAttack(world,world.getMyHeroes()[0]);
-        Blaster.blasterAttack(world,world.getMyHeroes()[1]);
-        Blaster.blasterAttack(world,world.getMyHeroes()[2]);
-        Blaster.blasterAttack(world,world.getMyHeroes()[3]);
+        Blaster.blasterAttack(world, world.getMyHeroes()[0]);
+        Blaster.blasterAttack(world, world.getMyHeroes()[1]);
+        Blaster.blasterAttack(world, world.getMyHeroes()[2]);
+        sentry = new Sentry_AI(world.getMyHeroes()[3],world);
+        sentry.actionPhase();
     }
 
     //****************************************
@@ -93,7 +98,7 @@ public class AI {
         Hero[] myHeroes = world.getMyHeroes();
         Cell oppHeroCurrentCell = oppHeroe.getCurrentCell();
         for (Hero myHero : myHeroes)
-            if(world.isInVision(myHero.getCurrentCell(),oppHeroCurrentCell))
+            if (world.isInVision(myHero.getCurrentCell(), oppHeroCurrentCell))
                 heroes.add(myHero);
         return heroes.toArray(new Hero[]{});
     }
@@ -113,7 +118,7 @@ public class AI {
                 world.pickHero(HeroName.BLASTER);
                 break;
             case 3:
-                world.pickHero(HeroName.BLASTER);
+                world.pickHero(HeroName.SENTRY);
                 break;
         }
         PICK_PHASE_COUNTER++;
@@ -134,21 +139,23 @@ public class AI {
         return -1;
     }
 
-    private void move(int HEROID, Cell src,Cell dst, History history,boolean saveCell){
-        Utility.move(world,HEROID,src,dst);
-        if(saveCell)
+    private void move(int HEROID, Cell src, Cell dst, History history, boolean saveCell) {
+        Utility.move(world, HEROID, src, dst);
+        if (saveCell)
             history.addLastStep(src);
     }
-    private void move(int HERODID,Cell src,Cell dest,History history){
-        move(HERODID,src,dest,history,true);
+
+    private void move(int HERODID, Cell src, Cell dest, History history) {
+        move(HERODID, src, dest, history, true);
     }
 
-    private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack){
+    private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack) {
         this.atttackTo.addAll(toAttack);
         this.whoAttackID = whoAttack.getId();
         inAttack = true;
     }
-    private void clearGpAttack(){
+
+    private void clearGpAttack() {
         whoAttackID = -1;
         atttackTo = null;
         inAttack = false;

@@ -148,13 +148,13 @@ public class Sentry_AI {
 
     public void SentryMove() {
         Hero[] heroes = world.getOppHeroes();
-        if (atkMode == true && heroes.length != 0) {
+        if (atkMode && heroes.length != 0) {
             Cell des = rangeFight.SingleToSingleAtkRange(hero, 7, rangeFight.NearstEnemy(hero.getCurrentCell(), heroes), 0)[0];
             Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), des);
             world.moveHero(hero, dir[0]);
 
         } else {
-            if (rangeFight.isSafe(hero, 7)) {
+            if (rangeFight.isSafe(hero, 6)) {
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
                     Direction dir = ObjectMove();
                     if (dir != null)
@@ -162,13 +162,13 @@ public class Sentry_AI {
                     return;
                 }
             } else {
-                if (!isNeedToMove())
-                    if (!hero.getCurrentCell().isInObjectiveZone()) {
-                        Direction dir = ObjectMove();
-                        if (dir != null)
-                            world.moveHero(hero, dir);
-                        return;
-                    }
+//                if (!isNeedToMove())
+//                    if (!hero.getCurrentCell().isInObjectiveZone()) {
+//                        Direction dir = ObjectMove();
+//                        if (dir != null)
+//                            world.moveHero(hero, dir);
+//                        return;
+//                    }
                 world.moveHero(hero, EscapeDirection(rangeFight.InRangeAtk(hero, 7)));
             }
         }
