@@ -39,8 +39,7 @@ public class Utility {
         world.moveHero(heroId,direction);
     }
 
-    static Cell nextCell(World world,Cell src,Cell des){
-        Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn())[0];
+    static Cell nextCell(World world,Cell src,Cell des,Direction dir){
         int row = src.getRow();
         int col = src.getColumn();
         return world.getMap()
@@ -51,6 +50,10 @@ public class Utility {
                 [col+(  dir==Direction.RIGHT?1:
                         dir==Direction.LEFT?-1:
                         0)];
+    }
+    static Cell nextCell(World world,Cell src,Cell des,Cell[] blockCells){
+        Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn(),blockCells)[0];
+        return nextCell(world,src,des,dir);
     }
 
     static Cell[] availableCells(Map map , int radius, Cell currentCell){
