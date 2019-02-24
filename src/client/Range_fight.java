@@ -172,11 +172,11 @@ public class Range_fight {
 
     public float avgDistance(Hero[] inRange, Cell cell) {
         float avg = 0;
-        for (int i = 0; i < inRange.length; i++) {
-            avg += world.manhattanDistance(cell, inRange[i].getCurrentCell());
+        for (Hero anInRange : inRange) {
+            avg += world.manhattanDistance(cell, anInRange.getCurrentCell());
         }
 
-        return avg / Float.valueOf(inRange.length);
+        return avg / (float) inRange.length;
     }
 
     public Cell[] cellsOfArea(Cell center, int Range) {
