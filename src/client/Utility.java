@@ -55,6 +55,9 @@ public class Utility {
         Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn(),blockCells)[0];
         return nextCell(world,src,des,dir);
     }
+    static Cell nextCell(World world,Cell src,Cell des){
+        return nextCell(world,src,des,world.getPathMoveDirections(src,des)[0]);
+    }
 
     static Cell[] availableCells(Map map , int radius, Cell currentCell){
         ArrayList<Cell> cells = new ArrayList<>();
