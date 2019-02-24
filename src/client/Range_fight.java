@@ -151,7 +151,7 @@ public class Range_fight {
             if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) <= range)
                 heroes.add(Opp[i]);
         }
-        return heroes.toArray(new Hero[heroes.size()]);
+        return heroes.toArray(new Hero[0]);
     }
 
     public Cell findNearestZoneCell(Cell start) {
