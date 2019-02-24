@@ -177,6 +177,7 @@ public class Range_fight {
         }
 
         return avg / Float.valueOf(inRange.length);
+        //compelet
     }
 
     public Cell[] cellsOfArea(Cell center, int Range) {
