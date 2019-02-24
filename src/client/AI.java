@@ -110,15 +110,9 @@ public class AI {
         initHistorys(world.getMyHeroes());
         initHeroInVision(world);
     }
-//    ina tuye init budan
-//        if (objectiveCells == null) {
-//            System.out.println("-->ObjectiveCells not assign in PreProccess and init in moveTurn method");
-//            objectiveCells = world.getMap().getObjectiveZone();
-//        }
-//        initWallCell(world);
-//
 
-    private void initHeroInVision(World world) {
+    private void initHeroInVision(World world)
+    {
         herosInVision = new ArrayList<>();
         for (int i = 0; i < 4; i++)
             histories[i].cleareSawHeroes();
