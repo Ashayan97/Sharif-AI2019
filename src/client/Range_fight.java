@@ -22,7 +22,6 @@ public class Range_fight {
         map = world.getMap();
         this.OppHero = world.getOppHeroes();
         this.OurHero = world.getMyHeroes();
-        this.world=world;
     }
 
     public Cell NearstEnemy(Cell us, Hero[] heroes) {
@@ -129,8 +128,7 @@ public class Range_fight {
     public boolean isSafe(Hero hero, int range) {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
-            if (OppHero[i].getCurrentCell().getColumn()!=-1)
-                if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
+            if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
                 return false;
         }
         return true;
@@ -153,7 +151,7 @@ public class Range_fight {
             if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) <= range)
                 heroes.add(Opp[i]);
         }
-        return heroes.toArray(new Hero[heroes.size()]);
+        return heroes.toArray(new Hero[0]);
     }
 
     public Cell findNearestZoneCell(Cell start) {
@@ -174,31 +172,15 @@ public class Range_fight {
 
     public float avgDistance(Hero[] inRange, Cell cell) {
         float avg = 0;
-        for (int i = 0; i < inRange.length; i++) {
-            avg += world.manhattanDistance(cell, inRange[i].getCurrentCell());
+        for (Hero anInRange : inRange) {
+            avg += world.manhattanDistance(cell, anInRange.getCurrentCell());
         }
 
-        return avg / Float.valueOf(inRange.length);
-        //compelet
+        return avg / (float) inRange.length;
     }
 
     public Cell[] cellsOfArea(Cell center, int Range) {
-        ArrayList<Cell> cellArray = new ArrayList<>();
-        for (int k = 0; k < 2; k++)
-            for (int i = 0; i <= Range; i++)
-                for (int j = 0; j <= 2 * i; j++)
-                    if (k == 0)
-                        if (!map.getCell(center.getRow() - Range + i, center.getColumn() - i + j).isWall() &&
-                                map.isInMap(center.getRow() - Range + i, center.getColumn() - i + j)) {
-                            cellArray.add(map.getCell(center.getRow() - Range + i, center.getColumn() - i + j));
-                        } else {
-                            if (!map.getCell(center.getRow() + Range - i, center.getColumn() - i + j).isWall() &&
-                                    map.isInMap(center.getRow() + Range - i, center.getColumn() - i + j)) {
-                                cellArray.add(map.getCell(center.getRow() + Range - i, center.getColumn() - i + j));
-                            }
-                        }
-        return cellArray.toArray(new Cell[cellArray.size()]);
-
+        return Utility.availableCells(world.getMap(),Range,center);
     }
 
     public Cell bestDodge(Cell center,int Range,int safeRange){
@@ -224,10 +206,6 @@ public class Range_fight {
                 inVision.add(heroes[i]);
         }
         return inVision.toArray(new Hero[inVision.size()]);
-    }
-
-    public boolean isInVision(Hero us,Hero enemy){
-        return world.isInVision(us.getCurrentCell(),enemy.getCurrentCell());
     }
 
 }

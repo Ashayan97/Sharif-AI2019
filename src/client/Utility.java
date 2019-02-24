@@ -3,6 +3,7 @@ package client;
 import client.model.*;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Utility {
     final static int DODGE_RANGE = 4;
@@ -38,8 +39,7 @@ public class Utility {
         world.moveHero(heroId,direction);
     }
 
-    static Cell nextCell(World world,Cell src,Cell des){
-        Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn())[0];
+    static Cell nextCell(World world,Cell src,Cell des,Direction dir){
         int row = src.getRow();
         int col = src.getColumn();
         return world.getMap()
@@ -50,6 +50,10 @@ public class Utility {
                 [col+(  dir==Direction.RIGHT?1:
                         dir==Direction.LEFT?-1:
                         0)];
+    }
+    static Cell nextCell(World world,Cell src,Cell des,Cell[] blockCells){
+        Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn(),blockCells)[0];
+        return nextCell(world,src,des,dir);
     }
 
     static Cell[] availableCells(Map map , int radius, Cell currentCell){
@@ -204,4 +208,29 @@ public class Utility {
         return results;
     }
 
+    static Hero[] getInAttackRange(World world,Hero hero,AbilityName... abilityNames) {
+        int radius = hero.getAbility(abilityNames[0]).getRange();
+        Cell[] available = Utility.availableCells(world.getMap(),radius,hero.getCurrentCell());
+        Vector<Hero> heroes = new Vector<>();
+        Cell heroCell = hero.getCurrentCell();
+        for (Cell anAvailable : available) {
+            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.isInVision(heroCell, anAvailable) &&
+                    world.getOppHero(anAvailable) != null)
+                heroes.add(world.getOppHero(anAvailable));
+            else if (   hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.getOppHero(anAvailable) != null)
+                heroes.add(world.getOppHero(anAvailable));
+        }
+        return heroes.toArray(new Hero[]{});
+    }
+
+    static Hero[] getSawHero(World world){
+        Vector<Hero> hs = new Vector<>();
+        Hero oppHs[] = world.getOppHeroes();
+        for (Hero oppH : oppHs)
+            if (oppH.getCurrentCell().getColumn() != -1)
+                hs.add(oppH);
+        return hs.toArray(new Hero[0]);
+    }
 }
