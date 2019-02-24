@@ -3,6 +3,7 @@ package client;
 import client.model.*;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Utility {
     final static int DODGE_RANGE = 4;
@@ -203,5 +204,23 @@ public class Utility {
         }
         return results;
     }
+
+    static Hero[] getInAttackRange(World world,Hero hero,AbilityName... abilityNames) {
+        int radius = hero.getAbility(abilityNames[0]).getRange();
+        Cell[] available = Utility.availableCells(world.getMap(),radius,hero.getCurrentCell());
+        Vector<Hero> heroes = new Vector<>();
+        Cell heroCell = hero.getCurrentCell();
+        for (Cell anAvailable : available) {
+            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.isInVision(heroCell, anAvailable) &&
+                    world.getOppHero(anAvailable) != null)
+                heroes.add(world.getOppHero(anAvailable));
+            else if (   hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.getOppHero(anAvailable) != null)
+                heroes.add(world.getOppHero(anAvailable));
+        }
+        return heroes.toArray(new Hero[]{});
+    }
+
 
 }
