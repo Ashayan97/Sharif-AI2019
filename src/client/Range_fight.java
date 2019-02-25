@@ -109,9 +109,9 @@ public class Range_fight {
             } else
                 for (int j = 0; j < ThrowCells.length; j++) {
                     if (LocalMinThrow == null)
-                        LocalMinThrow = ThrowCells[i];
-                    else if (world.manhattanDistance(ThrowCells[i], cells.get(i)) < world.manhattanDistance(LocalMinThrow, cells.get(i)))
-                        LocalMinThrow = ThrowCells[i];
+                        LocalMinThrow = ThrowCells[j];
+                    else if (world.manhattanDistance(ThrowCells[j], cells.get(j)) < world.manhattanDistance(LocalMinThrow, cells.get(j)))
+                        LocalMinThrow = ThrowCells[j];
                 }
             if (world.manhattanDistance(hero.getCurrentCell(), cells.get(i)) < world.manhattanDistance(hero.getCurrentCell(), min)) {
                 min = cells.get(i);
@@ -134,7 +134,6 @@ public class Range_fight {
         }
         return true;
     }
-
 
     public boolean isSafe(Cell cell, int range) {
         Hero[] OppHero = world.getOppHeroes();
@@ -193,13 +192,12 @@ public class Range_fight {
             if (isSafe(cell, safeRange))
                 lastChoice.add(cell);
         }
-        for (int i = 0; i < cells.length; i++) {
+        for (int i = 0; i < lastChoice.size(); i++) {
             if (world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i))) < min) {
                 Des = lastChoice.get(i);
                 min = world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i)));
             }
         }
-
         return Des;
     }
 
@@ -213,4 +211,13 @@ public class Range_fight {
         return inVision.toArray(new Hero[inVision.size()]);
     }
 
+    public Hero[] inVisionEnemy(Hero hero, int range) {
+        Hero[] heroes = world.getOppHeroes();
+        ArrayList<Hero> inVision = new ArrayList<>();
+        for (int i = 0; i < heroes.length; i++) {
+            if (world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()) && world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) < range)
+                inVision.add(heroes[i]);
+        }
+        return inVision.toArray(new Hero[inVision.size()]);
+    }
 }
