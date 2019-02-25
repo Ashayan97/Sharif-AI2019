@@ -9,11 +9,9 @@ import java.util.ArrayList;
  * guardian hero
  * */
 public class Guardian_AI {
-    private static int GUARDIAN_DOGE_RANGE = 2;
     private Hero guardian;
     private World world;
     private Map map;
-    private Hero[] enemyHeros;
 
     public Guardian_AI(Hero guardian, World world) {
         this.guardian = guardian;
@@ -43,20 +41,49 @@ public class Guardian_AI {
             }else {
                 world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, nearOutsideOfObjective());
             }
-            return;
+            return; // stop continue this method
         }
         // if guardian in objective Zone -->
+        if(canSeeAnyOne()){
+            Hero[] enemyHeroes = world.getOppHeroes();
+            ArrayList<Hero> enemyHeroInVision = getEnemyHeroesInVision(enemyHeroes);
+            ArrayList<Hero> attackAbleEnemies =  getAttackAbleEnemies(enemyHeroes);
+            //TODO ==> if it is possible first defends
+            //get All enemy heroes
+            if(attackAbleEnemies.size()!=0){
+                //TODO : review needed --> consider best cell for attack!!
+                world.castAbility(guardian,guardian.getAbility(AbilityName.GUARDIAN_ATTACK),
+                        attackAbleEnemies.get(0).getCurrentCell());
+            }
+        }
+    }
 
+    private ArrayList<Hero> getEnemyHeroesInVision(Hero[] enemyHeroes){
+        ArrayList<Hero> enemyHeroInVision = new ArrayList<>();
+        for (Hero enemy: enemyHeroes) {
+            if(world.isInVision(enemy.getCurrentCell(),guardian.getCurrentCell()))
+                enemyHeroInVision.add(enemy);
+        }
+        return enemyHeroInVision;
+    }
+
+    private ArrayList<Hero> getAttackAbleEnemies(Hero[] enemyHeroes){
+        ArrayList<Hero> attackAbleEnemies =  new ArrayList<>();
+        for (Hero enemy: enemyHeroes) {
+            if(world.manhattanDistance(enemy.getCurrentCell(),guardian.getCurrentCell())<=
+                    guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getRange()){
+                attackAbleEnemies.add(enemy);
+            }
+        }
+        return attackAbleEnemies;
     }
 
     private Cell nearOutsideOfObjective() {
         Cell[] path = directionPathToCell();
-        if(path!=null) {
-            for (Cell aPath : path) {
-                if (world.manhattanDistance(guardian.getCurrentCell(), aPath) ==
-                        guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange())
-                    return aPath;
-            }
+        for (Cell aPath : path) {
+            if (world.manhattanDistance(guardian.getCurrentCell(), aPath) ==
+                    guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange())
+                return aPath;
         }
         return null;
     }
