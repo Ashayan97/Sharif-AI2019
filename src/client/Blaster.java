@@ -6,6 +6,7 @@ import java.util.Random;
 
 public class Blaster {
     private static Cell[][] objectiveCells;
+    //*******************************
     static void set(World world){
         Map map = world.getMap();
         int row ,col;
@@ -15,6 +16,7 @@ public class Blaster {
             for (int j = 0; j < col; j++)
                 objectiveCells[i][j] = map.getObjectiveZone()[i*col + j];
     }
+    //*******************************
     /**
      * this method an cell and return the nearest objective cell
      * if blaster was in objzone this method return -1
@@ -37,6 +39,7 @@ public class Blaster {
             return null;
         return objectiveCells[rowIndex][colIndex];
     }
+
     /**
      * #Blaster charecter do this method across the game
      */
@@ -108,6 +111,7 @@ public class Blaster {
         }
     }
 
+
     static Cell getBestForBlasterAttack(World world,Hero mhero,Hero[] inMyAttckRange,AbilityName abilityName) {
         if(inMyAttckRange.length == 1)
             return inMyAttckRange[0].getCurrentCell();
@@ -130,7 +134,10 @@ public class Blaster {
         return inMyAttckRange[0].getCurrentCell();
     }
 
-    static void blasterAttack(World world, Hero myHero) {
+    /**
+     * hero'ii k behesh attack mizane ro set mikone tu AI v ag dodge bzne cell ro set mikone mikone
+     * */
+    static void blasterAttack(AI ai, World world, Hero myHero) {
         AbilityName abilityName = myHero.getAbility(AbilityName.BLASTER_BOMB).isReady()?
                 AbilityName.BLASTER_BOMB:
                 AbilityName.BLASTER_ATTACK;
@@ -142,10 +149,12 @@ public class Blaster {
             int row = random.nextInt(objectiveCells.length);
             int col = random.nextInt(objectiveCells.length);
             world.castAbility(myHero,AbilityName.BLASTER_DODGE,objectiveCells[row][col]);
+            ai.dodgeTo(myHero,objectiveCells[row][col]);
             return;
         }
-        Cell whereShouldIAttcka = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName); // todo :(
-        world.castAbility(myHero.getId(),abilityName,whereShouldIAttcka);
+        Cell whereShouldIAttack = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName); // todo :(
+        world.castAbility(myHero.getId(),abilityName,whereShouldIAttack);
+        ai.setInAttack(myHero,world.getOppHero(whereShouldIAttack));
     }
 
 

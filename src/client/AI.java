@@ -2,9 +2,8 @@ package client;
 
 import client.model.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Vector;
+import java.util.*;
+import java.util.Map;
 
 public class AI {
 
@@ -19,6 +18,8 @@ public class AI {
     private World world;
     private int flag = 0;
     private Sentry_AI sentry;
+    private Map<Integer, Hero> heroMap = new HashMap<>();
+    private Map<Integer, Cell> dodgeMap = new HashMap<>();
 
     //****************************************
     void preProcess(World world) {
@@ -47,9 +48,9 @@ public class AI {
     void actionTurn(World world) {
         this.world = world;
         init();
-        Blaster.blasterAttack(world, world.getMyHeroes()[0]);
-        Blaster.blasterAttack(world, world.getMyHeroes()[1]);
-        Blaster.blasterAttack(world, world.getMyHeroes()[2]);
+        Blaster.blasterAttack(this,world, world.getMyHeroes()[0]);
+        Blaster.blasterAttack(this,world, world.getMyHeroes()[1]);
+        Blaster.blasterAttack(this,world, world.getMyHeroes()[2]);
         sentry = new Sentry_AI(world.getMyHeroes()[3],world);
         sentry.actionPhase();
     }
@@ -163,5 +164,12 @@ public class AI {
 
     private void printCell(String str, Cell cell) {
         System.out.println(str + cell.getRow() + "-" + cell.getColumn());
+    }
+
+    void setInAttack(Hero fael,Hero maful){
+        heroMap.put(fael.getId(),maful);
+    }
+    void dodgeTo(Hero in,Cell dodgeTo){
+        dodgeMap.put(in.getId(),dodgeTo);
     }
 }
