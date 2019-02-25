@@ -159,7 +159,7 @@ public class Sentry_AI {
     public void SentryMove() {
         if (hero.getCurrentHP() == 0)
             return;
-        if (atkMode || (heroes.length == 0&&hero.getCurrentCell().isInObjectiveZone())) {
+        if (atkMode || (rangeFight.InRangeAtk(hero,7).length == 0 && hero.getCurrentCell().isInObjectiveZone())) {
             Cell des = rangeFight.NearstEnemy(hero.getCurrentCell(), world.getOppHeroes());
             if (!atkMode) {
                 if (des.isInObjectiveZone()) {
