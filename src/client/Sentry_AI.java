@@ -20,6 +20,9 @@ public class Sentry_AI {
     private boolean needToMove = false;
     private boolean atkMode = false;
     private Hero lastAtkTo = null;
+    private Hero[] inVision;
+    private Hero[] inRangeAtkHeroes;
+    private Hero[] ourHeroes;
 
 
     public Sentry_AI(Hero hero, World world) {
@@ -29,22 +32,24 @@ public class Sentry_AI {
         this.world = world;
         this.map = world.getMap();
         rangeFight = new Range_fight(world);
-        heroes = world.getMyHeroes();
+        heroes = rangeFight.inVisionEnemy(hero, 7);
+        inVision = rangeFight.inVisionEnemy(hero);
+        inRangeAtkHeroes = rangeFight.InRangeAtk(hero, 6);
+        ourHeroes = world.getMyHeroes();
+
+//        heroes = world.getOppHeroes();
     }
 
-    public boolean canAtk() {
-        Hero[] heroes = rangeFight.InRangeAtk(hero, 7);
-        for (Hero heroe : heroes) {
 
+    public boolean canAtk() {
+        for (Hero heroe : heroes) {
             return world.isInVision(heroe.getCurrentCell(), hero.getCurrentCell());
         }
         return false;
     }
 
     public void actionPhase() {
-
-        Hero[] inVision = rangeFight.inVisionEnemy(hero);
-        Hero[] heroes = rangeFight.InRangeAtk(hero, 7);
+//        Hero[] heroes = rangeFight.InRangeAtk(hero, 7);
         if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost() <= world.getAP()) {
             for (int i = 0; i < heroes.length; i++) {
                 if (heroes[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_ATTACK).getPower() <= 0 && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell())) {
@@ -54,54 +59,50 @@ public class Sentry_AI {
             }
         }
         if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() <= world.getAP()) {
-            if (hero.getAbility(AbilityName.SENTRY_RAY).isReady())
+            if (hero.getAbility(AbilityName.SENTRY_RAY).isReady()) {
                 for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_RAY).getPower() <= 0 && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell())) {
-                        if (inVision[i].getName().equals(HeroName.GUARDIAN)) {
-                            if (!inVision[i].getAbility(AbilityName.GUARDIAN_FORTIFY).isReady()) {
-                                world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
-                                return;
-                            }
-                        } else {
-                            world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
-                            return;
-                        }
+                    if (inVision[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_RAY).getPower() <= 0) {
+                        world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
+                        return;
                     }
                 }
+
+            }
         }
         if (hero.getAbility(AbilityName.SENTRY_DODGE).getAPCost() <= world.getAP()) {
-            if (needToDodge() || !canAtk()) {
-                Cell Des = rangeFight.bestDodge(hero.getCurrentCell(), 3, 6);
-                if (!hero.getCurrentCell().equals(Des)) {
-                    world.castAbility(hero, AbilityName.SENTRY_DODGE, Des);
-                    return;
+            if (needToDodge()) {
+                if (hero.getAbility(AbilityName.SENTRY_DODGE).isReady()) {
+                    Cell Des = rangeFight.bestDodge(hero.getCurrentCell(), 3, 6);
+                    if (!hero.getCurrentCell().equals(Des)) {
+                        world.castAbility(hero, AbilityName.SENTRY_DODGE, Des);
+                        return;
+                    }
                 }
             }
         }
         if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() <= world.getAP()) {
             if (hero.getAbility(AbilityName.SENTRY_RAY).isReady()) {
-                for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.SENTRY) && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
-                        world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
+                for (Hero anInVision3 : inVision) {
+                    if (anInVision3.getName().equals(HeroName.SENTRY)) {
+                        world.castAbility(hero, AbilityName.SENTRY_RAY, anInVision3.getCurrentCell());
                         return;
                     }
                 }
-                for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.BLASTER) && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
-                        world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
+                for (Hero anInVision2 : inVision) {
+                    if (anInVision2.getName().equals(HeroName.BLASTER)) {
+                        world.castAbility(hero, AbilityName.SENTRY_RAY, anInVision2.getCurrentCell());
                         return;
                     }
                 }
-                for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.GUARDIAN))
-                        if (!inVision[i].getAbility(AbilityName.GUARDIAN_FORTIFY).isReady() && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
-                            world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
-                            return;
-                        }
+                for (Hero anInVision1 : inVision) {
+                    if (anInVision1.getName().equals(HeroName.GUARDIAN))
+                        world.castAbility(hero, AbilityName.SENTRY_RAY, anInVision1.getCurrentCell());
+                    return;
+
                 }
-                for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.HEALER) && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
-                        world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
+                for (Hero anInVision : inVision) {
+                    if (anInVision.getName().equals(HeroName.HEALER)) {
+                        world.castAbility(hero, AbilityName.SENTRY_RAY, anInVision.getCurrentCell());
                         return;
                     }
                 }
@@ -109,66 +110,73 @@ public class Sentry_AI {
         }
         if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost() <= world.getAP()) {
             Hero inAtk = null;
-            for (int i = 0; i < heroes.length; i++) {
-                if (inAtk == null && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()))// && rangeFight.isInVision(hero, heroes[i]))
-                    inAtk = heroes[i];
-                else if (inAtk != null)
-                    if (inAtk.getCurrentHP() >= heroes[i].getCurrentHP() && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()))
-                        inAtk = heroes[i];
+            for (Hero heroe : heroes) {
+                if (inAtk == null)// && rangeFight.isInVision(hero, heroes[i]))
+                    inAtk = heroe;
+                else if (inAtk.getCurrentHP() >= heroe.getCurrentHP())
+                    inAtk = heroe;
             }
             if (inAtk != null)
                 world.castAbility(hero, AbilityName.SENTRY_ATTACK, inAtk.getCurrentCell());
         }
-
     }
 
 
     public boolean isNeedToMove() {
-        Hero[] heroes = rangeFight.InRangeAtk(hero, 6);
-        if (heroes.length == 0)
-            return true;
-        else return false;
+        return inRangeAtkHeroes.length == 0;
     }
 
     public boolean needToDodge() {
-        Hero[] heroes = rangeFight.InRangeAtk(hero, 7);
-        Hero[] inVision = rangeFight.inVisionEnemy(hero);
-        for (int i = 0; i < heroes.length; i++) {
-            if (heroes[i].getName().equals(HeroName.BLASTER))
-                if (world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) <= Blaster_Danger_Range)
-                    return true;
-            if (heroes[i].getName().equals(HeroName.GUARDIAN))
-                if (world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) <= Guardian_Danger_Range)
-                    return true;
-            if (heroes[i].getName().equals(HeroName.HEALER))
-                if (world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) <= Healer_Danger_Range)
-                    return true;
-            if (heroes[i].getName().equals(HeroName.SENTRY))
-                if (world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) <= Sentry_Danger_Range)
-                    return true;
-            for (int j = 0; j < inVision.length; j++) {
-                if (inVision[i].getName().equals(HeroName.SENTRY) && inVision[i].getAbility(AbilityName.SENTRY_RAY).isReady())
+        int counter = 0;
+//        Hero[] inRangeAtkHeroes = rangeFight.InRangeAtk(hero, 7);
+        //Hero[] inVision = rangeFight.inVisionEnemy(hero);
+        for (Hero inRangeAtkHeroe : inRangeAtkHeroes) {
+            if (counter == 2)
+                return true;
+            if (inRangeAtkHeroe.getName().equals(HeroName.BLASTER)) {
+                counter++;
+                if (world.manhattanDistance(inRangeAtkHeroe.getCurrentCell(), hero.getCurrentCell()) <= Blaster_Danger_Range)
                     return true;
             }
+            if (inRangeAtkHeroe.getName().equals(HeroName.GUARDIAN))
+                if (world.manhattanDistance(inRangeAtkHeroe.getCurrentCell(), hero.getCurrentCell()) <= Guardian_Danger_Range)
+                    return true;
+            if (inRangeAtkHeroe.getName().equals(HeroName.HEALER))
+                if (world.manhattanDistance(inRangeAtkHeroe.getCurrentCell(), hero.getCurrentCell()) <= Healer_Danger_Range)
+                    return true;
+            if (inRangeAtkHeroe.getName().equals(HeroName.SENTRY))
+                if (world.manhattanDistance(inRangeAtkHeroe.getCurrentCell(), hero.getCurrentCell()) <= Sentry_Danger_Range)
+                    return true;
+//            for (int j = 0; j < inVision.length; j++) {
+//                if (inVision[i].getName().equals(HeroName.SENTRY) && inVision[i].getAbility(AbilityName.SENTRY_RAY).isReady())
+//                    return true;
+//            }
 
         }
         return false;
     }
 
     public void SentryMove() {
-        Hero[] heroes = world.getOppHeroes();
-        if (atkMode && heroes.length != 0) {
-            Cell des = rangeFight.SingleToSingleAtkRange(hero, 7, rangeFight.NearstEnemy(hero.getCurrentCell(), heroes), 0)[0];
-            Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), des);
-            world.moveHero(hero, dir[0]);
-
+        if (hero.getCurrentHP() == 0)
+            return;
+        if (atkMode || (heroes.length == 0&&hero.getCurrentCell().isInObjectiveZone())) {
+            Cell des = rangeFight.NearstEnemy(hero.getCurrentCell(), world.getOppHeroes());
+            if (!atkMode) {
+                if (des.isInObjectiveZone()) {
+                    Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), des);
+                    world.moveHero(hero, dir[0]);
+                }
+            } else {
+                Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), des);
+                world.moveHero(hero, dir[0]);
+            }
         } else {
-            if (rangeFight.isSafe(hero, 6)) {
+            if (rangeFight.isSafe(hero, 6) || !canAtk()) {
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
                     Direction dir = ObjectMove();
                     if (dir != null)
                         world.moveHero(hero, dir);
-                    return;
+//                    return;
                 }
             } else {
 //                if (!isNeedToMove())
@@ -190,7 +198,7 @@ public class Sentry_AI {
     private Direction ObjectMove() {
         Cell[] cells = new Cell[4];
         for (int i = 0; i < 4; i++) {
-            cells[i] = heroes[i].getCurrentCell();
+            cells[i] = ourHeroes[i].getCurrentCell();
         }
         Cell des = rangeFight.findNearestZoneCell(hero.getCurrentCell());
         Cell next = Utility.nextCell(world, hero.getCurrentCell(), des, cells);
