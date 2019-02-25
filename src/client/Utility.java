@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class Utility {
-    final static int DODGE_RANGE = 4;
+    final static int BLASTER_DODGE_RANGE = 4;
     static int distance(Cell start, Cell end, boolean check) {
         if (check && (start.isWall() || end.isWall()))
             return -1;
@@ -39,7 +39,7 @@ public class Utility {
         world.moveHero(heroId,direction);
     }
 
-    static Cell nextCell(World world,Cell src,Cell des,Direction dir){
+    static Cell nextCell(World world,Cell src,Direction dir){
         int row = src.getRow();
         int col = src.getColumn();
         return world.getMap()
@@ -53,10 +53,10 @@ public class Utility {
     }
     static Cell nextCell(World world,Cell src,Cell des,Cell[] blockCells){
         Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn(),blockCells)[0];
-        return nextCell(world,src,des,dir);
+        return nextCell(world,src,dir);
     }
     static Cell nextCell(World world,Cell src,Cell des){
-        return nextCell(world,src,des,world.getPathMoveDirections(src,des)[0]);
+        return nextCell(world,src,world.getPathMoveDirections(src,des)[0]);
     }
 
     static Cell[] availableCells(Map map , int radius, Cell currentCell){
