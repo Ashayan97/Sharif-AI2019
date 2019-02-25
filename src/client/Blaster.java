@@ -243,6 +243,8 @@ public class Blaster {
                 Utility.sortOnHP(saw);
                 row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;
                 col = (blasterCell.getColumn() + saw[0].getCurrentCell().getColumn()) / 2;
+                world.castAbility(myHero,AbilityName.BLASTER_DODGE,world.getMap().getCells()[row][col]);
+                ai.dodgeTo(myHero,world.getMap().getCells()[row][col]);
             }else{
                 Cell[] avai = Utility.availableCells(world.getMap(),Utility.BLASTER_DODGE_RANGE,blasterCell);
                 Cell minObjzone = getIndexOfMinDisFromObjectiveZoneCell(blasterCell);
@@ -253,9 +255,9 @@ public class Blaster {
                         shodDodge = anAvai;
                 row = shodDodge.getRow();
                 col = shodDodge.getColumn();
+                world.castAbility(myHero.getId(),AbilityName.BLASTER_DODGE,row,col);
+                ai.dodgeTo(myHero,world.getMap().getCell(row,col));
             }
-            world.castAbility(myHero,AbilityName.BLASTER_DODGE,objectiveCells[row][col]);
-            ai.dodgeTo(myHero,objectiveCells[row][col]);
             return;
         }
         Cell whereShouldIAttack = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName);
@@ -271,7 +273,7 @@ public class Blaster {
     static void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
         Cell minDisCellFromObjzone = // if blaster was in objzone this method return -1
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
-        if (minDisCellFromObjzone == null) {
+        if (blasterCurrentCell.isInObjectiveZone()) {
             // it is in objective zone
             Hero[] blasters=getBelasters(world,blaster.getId());
             boolean dupRange = false;
@@ -284,11 +286,12 @@ public class Blaster {
             }
             if(dupRange){
                 Cell[] moveCells = moveCell(world,blaster);
-                for (int i = 0; i < moveCells.length; i++) {
+                for (int i = 3; i >= 0; i--) {
                     if(moveCells[i]!=null){
                         boolean flag = true;
                         for (Hero aDupRangeH : dupRangeH) {
-                            if (Utility.distance(moveCells[i], aDupRangeH.getCurrentCell()) <= 4) {
+                            if (Utility.distance(moveCells[i], aDupRangeH.getCurrentCell()) <= 4
+                                    || !moveCells[i].isInObjectiveZone()) {
                                 flag = false;
                                 break;
                             }
@@ -298,11 +301,11 @@ public class Blaster {
                                                                 i==1?Direction.DOWN:
                                                                     i==2?Direction.LEFT:
                                                                             Direction.RIGHT);
+                            return;
                         }
                     }
                 }
             }
-            return;
         }
         move(world, blaster.getId(),blasterCurrentCell,minDisCellFromObjzone,history);
     }
