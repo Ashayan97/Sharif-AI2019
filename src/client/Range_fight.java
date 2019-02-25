@@ -40,7 +40,7 @@ public class Range_fight {
     public Cell[] SingleToSingleAtkRange(Hero hero, int throwRange, Cell center, int effRange) {
         int shotRange = effRange + throwRange;
         ArrayList<Cell> cells = new ArrayList<>();
-        Cell[] ThrowCells ;
+        Cell[] ThrowCells;
         for (int j = 0; j <= 2 * shotRange; j++) {
             if (j < shotRange + 1)
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ public class Range_fight {
 //                                ThrowCells.add(map.getCell(center.getRow() + effRange - i, center.getColumn() - i + j));
 //                            }
 //                        }
-        ThrowCells=cellsOfArea(center,effRange);
+        ThrowCells = cellsOfArea(center, effRange);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Cell[] res = new Cell[2];
         Cell LocalMinThrow = null;
@@ -180,29 +180,33 @@ public class Range_fight {
     }
 
     public Cell[] cellsOfArea(Cell center, int Range) {
-        return Utility.availableCells(world.getMap(),Range,center);
+        return Utility.availableCells(world.getMap(), Range, center);
     }
 
-    public Cell bestDodge(Cell center,int Range,int safeRange){
-        Cell[] cells=cellsOfArea(center,Range);
-        Cell Des=center;
-        for (int i = 0; i < cells.length; i++) {
-            if (isSafe(cells[i],safeRange))
-                Des=cells[i];
+    public Cell bestDodge(Cell center, int Range, int safeRange) {
+        Cell[] cells = cellsOfArea(center, Range);
+        ArrayList<Cell> lastChoice = new ArrayList<>();
+        Cell Des = center;
+        int min = Integer.MAX_VALUE;
+        for (Cell cell : cells) {
+            if (isSafe(cell, safeRange))
+                lastChoice.add(cell);
         }
         for (int i = 0; i < cells.length; i++) {
-            if (isSafe(cells[i],safeRange)&&cells[i].isInObjectiveZone())
-                Des=cells[i];
+            if (world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i))) < min) {
+                Des = lastChoice.get(i);
+                min = world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i)));
+            }
         }
 
         return Des;
     }
 
-    public Hero[] inVisionEnemy(Hero hero){
-        Hero[] heroes=world.getOppHeroes();
-        ArrayList<Hero> inVision=new ArrayList<>();
-        for (int i = 0; i <heroes.length; i++) {
-            if (world.isInVision(hero.getCurrentCell(),heroes[i].getCurrentCell()))
+    public Hero[] inVisionEnemy(Hero hero) {
+        Hero[] heroes = world.getOppHeroes();
+        ArrayList<Hero> inVision = new ArrayList<>();
+        for (int i = 0; i < heroes.length; i++) {
+            if (world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()))
                 inVision.add(heroes[i]);
         }
         return inVision.toArray(new Hero[inVision.size()]);
