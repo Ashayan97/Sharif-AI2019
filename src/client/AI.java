@@ -15,34 +15,43 @@ public class AI {
     private Vector<Cell> wallsCell;
     private Vector<Hero> atttackTo;
     private int whoAttackID;
-    private boolean inAttack=false;
+    private boolean inAttack = false;
+    private World world;
+    private int flag = 0;
+    private Sentry_AI sentry;
 
     //****************************************
     void preProcess(World world) {
+        this.world = world;
         objectiveCells = world.getMap().getObjectiveZone();
-        initWallCell(world);
+        initWallCell();
         Blaster.set(world);
     }
 
     void pickTurn(World world) {
-        pickHeroInPhase(world);
+        this.world = world;
+        pickHeroInPhase();
     }
 
     void moveTurn(World world) {
+        this.world = world;
         Utility.printMap(world);
-        init(world);
-        Blaster.blasterMove(world, world.getMyHeroes()[0],histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[1],histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[2],histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[3],histories[indexOfHeroInHistory(world.getMyHeroes()[3])]);
+        init();
+        sentry = new Sentry_AI(world.getMyHeroes()[3], world);
+        Blaster.blasterMove(world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
+        Blaster.blasterMove(world, world.getMyHeroes()[1], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
+        Blaster.blasterMove(world, world.getMyHeroes()[2], histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
+        sentry.SentryMove();
     }
 
     void actionTurn(World world) {
-        init(world);
-        Blaster.blasterAttack(world,world.getMyHeroes()[0]);
-        Blaster.blasterAttack(world,world.getMyHeroes()[1]);
-        Blaster.blasterAttack(world,world.getMyHeroes()[2]);
-        Blaster.blasterAttack(world,world.getMyHeroes()[3]);
+        this.world = world;
+        init();
+        Blaster.blasterAttack(world, world.getMyHeroes()[0]);
+        Blaster.blasterAttack(world, world.getMyHeroes()[1]);
+        Blaster.blasterAttack(world, world.getMyHeroes()[2]);
+        sentry = new Sentry_AI(world.getMyHeroes()[3],world);
+        sentry.actionPhase();
     }
 
     //****************************************
@@ -50,16 +59,16 @@ public class AI {
     /**
      * this method initialize our need across the phase or turn
      */
-    private void init(World world) {
+    private void init() {
         initHistorys(world.getMyHeroes());
-        initHeroInVision(world);
+        initHeroInVision();
     }
 
-    private void initHeroInVision(World world) {
+    private void initHeroInVision() {
         herosInVision = Utility.getSawHero(world);
     }
 
-    private void initWallCell(World world) {
+    private void initWallCell() {
         if (wallsCell == null) {
             wallsCell = new Vector<>();
             for (Cell[] arryCell : world.getMap().getCells())
@@ -84,12 +93,12 @@ public class AI {
     /**
      * in method mige kodum az hero haye ma(@myHeroes), hero'ye doshman(oppHero) ro didan
      **/
-    private Hero[] whoSeeThisHero(World world, Hero oppHeroe) {
+    private Hero[] whoSeeThisHero(Hero oppHeroe) {
         Vector<Hero> heroes = new Vector<>();
         Hero[] myHeroes = world.getMyHeroes();
         Cell oppHeroCurrentCell = oppHeroe.getCurrentCell();
         for (Hero myHero : myHeroes)
-            if(world.isInVision(myHero.getCurrentCell(),oppHeroCurrentCell))
+            if (world.isInVision(myHero.getCurrentCell(), oppHeroCurrentCell))
                 heroes.add(myHero);
         return heroes.toArray(new Hero[]{});
     }
@@ -97,7 +106,7 @@ public class AI {
     /**
      * we pick our hero for game in this method
      */
-    private void pickHeroInPhase(World world) {
+    private void pickHeroInPhase() {
         switch (PICK_PHASE_COUNTER) {
             case 0:
                 world.pickHero(HeroName.BLASTER);
@@ -109,7 +118,7 @@ public class AI {
                 world.pickHero(HeroName.BLASTER);
                 break;
             case 3:
-                world.pickHero(HeroName.BLASTER);
+                world.pickHero(HeroName.SENTRY);
                 break;
         }
         PICK_PHASE_COUNTER++;
@@ -130,21 +139,23 @@ public class AI {
         return -1;
     }
 
-    private void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell){
-        Utility.move(world,HEROID,src,dst);
-        if(saveCell)
+    private void move(int HEROID, Cell src, Cell dst, History history, boolean saveCell) {
+        Utility.move(world, HEROID, src, dst);
+        if (saveCell)
             history.addLastStep(src);
     }
-    private void move(World world,int HERODID,Cell src,Cell dest,History history){
-        move(world,HERODID,src,dest,history,true);
+
+    private void move(int HERODID, Cell src, Cell dest, History history) {
+        move(HERODID, src, dest, history, true);
     }
 
-    private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack){
+    private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack) {
         this.atttackTo.addAll(toAttack);
         this.whoAttackID = whoAttack.getId();
         inAttack = true;
     }
-    private void clearGpAttack(){
+
+    private void clearGpAttack() {
         whoAttackID = -1;
         atttackTo = null;
         inAttack = false;
