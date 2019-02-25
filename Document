@@ -1,0 +1,18 @@
+Guardian :
+ATK :
+1-nearest enemy to sentry in objective zone
+2-nearest enemy to himself in objective zone
+3-group atk target
+
+
+Blaster :
+1-Keep guardian dis at least 3
+2-Blaster keep distance of 5 from each other
+3-Blaster normal atk needs to find best atk cell
+
+
+Sentry :
+
+1-need to atk if there is no one in atk vision
+2-need to move if no one in atk vision
+3-need to doge if there is more than 2 blaster in atk range

@@ -5,7 +5,7 @@ import client.model.*;
 import java.util.ArrayList;
 
 public class Sentry_AI {
-    static private int Blaster_Danger_Range = 5;
+    static private int Blaster_Danger_Range = 6;
     static private int Guardian_Danger_Range = 4;
     static private int Healer_Danger_Range = 5;
     static private int Sentry_Danger_Range = 3;
@@ -32,6 +32,15 @@ public class Sentry_AI {
         heroes = world.getMyHeroes();
     }
 
+    public boolean canAtk() {
+        Hero[] heroes = rangeFight.InRangeAtk(hero, 7);
+        for (Hero heroe : heroes) {
+
+            return world.isInVision(heroe.getCurrentCell(), hero.getCurrentCell());
+        }
+        return false;
+    }
+
     public void actionPhase() {
 
         Hero[] inVision = rangeFight.inVisionEnemy(hero);
@@ -47,7 +56,7 @@ public class Sentry_AI {
         if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() <= world.getAP()) {
             if (hero.getAbility(AbilityName.SENTRY_RAY).isReady())
                 for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_RAY).getPower() <= 0) {
+                    if (inVision[i].getCurrentHP() - hero.getAbility(AbilityName.SENTRY_RAY).getPower() <= 0 && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell())) {
                         if (inVision[i].getName().equals(HeroName.GUARDIAN)) {
                             if (!inVision[i].getAbility(AbilityName.GUARDIAN_FORTIFY).isReady()) {
                                 world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
@@ -61,7 +70,7 @@ public class Sentry_AI {
                 }
         }
         if (hero.getAbility(AbilityName.SENTRY_DODGE).getAPCost() <= world.getAP()) {
-            if (needToDodge()) {
+            if (needToDodge() || !canAtk()) {
                 Cell Des = rangeFight.bestDodge(hero.getCurrentCell(), 3, 6);
                 if (!hero.getCurrentCell().equals(Des)) {
                     world.castAbility(hero, AbilityName.SENTRY_DODGE, Des);
@@ -72,26 +81,26 @@ public class Sentry_AI {
         if (hero.getAbility(AbilityName.SENTRY_RAY).getAPCost() <= world.getAP()) {
             if (hero.getAbility(AbilityName.SENTRY_RAY).isReady()) {
                 for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.SENTRY)) {
+                    if (inVision[i].getName().equals(HeroName.SENTRY) && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
                         world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
                         return;
                     }
                 }
                 for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.BLASTER)) {
+                    if (inVision[i].getName().equals(HeroName.BLASTER) && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
                         world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
                         return;
                     }
                 }
                 for (int i = 0; i < inVision.length; i++) {
                     if (inVision[i].getName().equals(HeroName.GUARDIAN))
-                        if (!inVision[i].getAbility(AbilityName.GUARDIAN_FORTIFY).isReady()) {
+                        if (!inVision[i].getAbility(AbilityName.GUARDIAN_FORTIFY).isReady() && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
                             world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
                             return;
                         }
                 }
                 for (int i = 0; i < inVision.length; i++) {
-                    if (inVision[i].getName().equals(HeroName.HEALER)) {
+                    if (inVision[i].getName().equals(HeroName.HEALER) && world.isInVision(hero.getCurrentCell(), inVision[i].getCurrentCell())) {
                         world.castAbility(hero, AbilityName.SENTRY_RAY, inVision[i].getCurrentCell());
                         return;
                     }
@@ -101,7 +110,7 @@ public class Sentry_AI {
         if (hero.getAbility(AbilityName.SENTRY_ATTACK).getAPCost() <= world.getAP()) {
             Hero inAtk = null;
             for (int i = 0; i < heroes.length; i++) {
-                if (inAtk == null)// && rangeFight.isInVision(hero, heroes[i]))
+                if (inAtk == null && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()))// && rangeFight.isInVision(hero, heroes[i]))
                     inAtk = heroes[i];
                 else if (inAtk != null)
                     if (inAtk.getCurrentHP() >= heroes[i].getCurrentHP() && world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()))
@@ -195,31 +204,43 @@ public class Sentry_AI {
     private Direction EscapeDirection(Hero[] inRange) {
         Direction bestMove = null;
         float maxDistance = rangeFight.avgDistance(inRange, hero.getCurrentCell());
+        int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
         if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
                 rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) {
+                map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
+                world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) < disOfZone
+        ) {
             bestMove = Direction.UP;
             maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+            disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
         }
 
         if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
                 rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) {
+                map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
+                world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) < disOfZone
+        ) {
             bestMove = Direction.DOWN;
             maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+            disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
+
         }
 
         if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
                 rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) {
+                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
+                world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) < disOfZone
+        ) {
             bestMove = Direction.LEFT;
             maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+            disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
         }
         if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
                 rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) {
+                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
+                world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) < disOfZone
+        ) {
             bestMove = Direction.RIGHT;
-
         }
         return bestMove;
     }
