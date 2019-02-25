@@ -37,12 +37,12 @@ public class AI {
         this.world = world;
         Utility.printMap(world);
         init();
-//        sentry = new Sentry_AI(world.getMyHeroes()[3], world);
+        sentry = new Sentry_AI(world.getMyHeroes()[3], world);
         Blaster.blasterMove(world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
         Blaster.blasterMove(world, world.getMyHeroes()[1], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
         Blaster.blasterMove(world, world.getMyHeroes()[2], histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[3], histories[indexOfHeroInHistory(world.getMyHeroes()[3])]);
-//       sentry.SentryMove();
+//        Blaster.blasterMove(world, world.getMyHeroes()[3], histories[indexOfHeroInHistory(world.getMyHeroes()[3])]);
+       sentry.SentryMove();
     }
 
     void actionTurn(World world) {
@@ -51,9 +51,9 @@ public class AI {
         Blaster.blasterAttack(world, world.getMyHeroes()[0]);
         Blaster.blasterAttack(world, world.getMyHeroes()[1]);
         Blaster.blasterAttack(world, world.getMyHeroes()[2]);
-        Blaster.blasterAttack(world, world.getMyHeroes()[3]);
-//        sentry = new Sentry_AI(world.getMyHeroes()[3],world);
-//        sentry.actionPhase();
+//        Blaster.blasterAttack(world, world.getMyHeroes()[3]);
+        sentry = new Sentry_AI(world.getMyHeroes()[3],world);
+        sentry.actionPhase();
     }
 
     //****************************************
@@ -120,8 +120,8 @@ public class AI {
                 world.pickHero(HeroName.BLASTER);
                 break;
             case 3:
-                world.pickHero(HeroName.BLASTER);
-//                world.pickHero(HeroName.SENTRY);
+//                world.pickHero(HeroName.BLASTER);
+                world.pickHero(HeroName.SENTRY);
                 break;
         }
         PICK_PHASE_COUNTER++;
