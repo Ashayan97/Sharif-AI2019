@@ -1,4 +1,5 @@
 package client;
+<<<<<<< HEAD
 
 import client.model.*;
 
@@ -150,4 +151,10 @@ public class Guardian_AI {
         return world.getPathMoveDirections(guardian.getCurrentCell(),
                 new Range_fight(world).findNearestZoneCell(guardian.getCurrentCell()));
     }
+=======
+/**
+ * @author : Amirhossein
+ * */
+public class Guardian_AI {
+>>>>>>> add Guardian
 }
