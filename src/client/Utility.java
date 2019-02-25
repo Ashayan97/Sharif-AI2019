@@ -228,6 +228,9 @@ public class Utility {
         return heroes.toArray(new Hero[]{});
     }
 
+    /**
+     * hero haii k mibinim ro return mikone
+     * */
     static Hero[] getSawHero(World world){
         Vector<Hero> hs = new Vector<>();
         Hero oppHs[] = world.getOppHeroes();
@@ -235,5 +238,15 @@ public class Utility {
             if (oppH.getCurrentCell().getColumn() != -1)
                 hs.add(oppH);
         return hs.toArray(new Hero[0]);
+    }
+
+    static Hero[] getGuardians(World world){
+        Hero[] sawHeros=getSawHero(world);
+        Vector<Hero> guardians = new Vector<>();
+        for (Hero sawHero : sawHeros)
+            if (sawHero.getName().equals(HeroName.GUARDIAN))
+                guardians.add(sawHero);
+
+        return guardians.toArray(new Hero[0]);
     }
 }
