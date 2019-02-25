@@ -3,7 +3,6 @@ package client;
 import client.model.*;
 
 import java.util.Random;
-import java.util.Vector;
 
 public class Blaster {
     private static Cell[][] objectiveCells;
@@ -58,11 +57,10 @@ public class Blaster {
         if(safe)
             Blaster.BlasterNotSeeAnyOne(world,blaster,blasterCurrentCell,history);
         else {
-            Cell[] moveCell = moveCell(world,blaster);
-            Cell    down = moveCell[1],
-                    up = moveCell[0],
-                    left = moveCell[2],
-                    right = moveCell[3];
+            Cell    down = Utility.nextCell(world, blasterCurrentCell, Direction.DOWN),
+                    up = Utility.nextCell(world, blasterCurrentCell, Direction.UP),
+                    left = Utility.nextCell(world, blasterCurrentCell, Direction.LEFT),
+                    right = Utility.nextCell(world, blasterCurrentCell, Direction.RIGHT);
             boolean hasObjective = hasObjective(down, up, left, right);
             if (guardians.length > 1) {
                 Utility.sortOnDistance(blasterCurrentCell, guardians);
@@ -114,22 +112,6 @@ public class Blaster {
                 world.moveHero(blaster.getId(), dir);
             }
         }
-    }
-
-    private static Cell[] moveCell(World world, Hero blaster) {
-        Map map=world.getMap();
-        int row = blaster.getCurrentCell().getRow();
-        int col = blaster.getCurrentCell().getColumn();
-        Cell[] cs = new Cell[4];
-        if(map.isInMap(row-1,col))
-            cs[0] = (map.getCell(row-1,col)); // add up
-        if(map.isInMap(row+1,col))
-            cs[1]=(map.getCell(row+1,col)); // add down
-        if(map.isInMap(row,col-1)) // add left
-            cs[2]=(map.getCell(row,col-1));
-        if(map.isInMap(row,col+1)) // add right
-            cs[3]=(map.getCell(row,col+1));
-        return cs;
     }
 
     private static boolean hasObjective(Cell down, Cell up, Cell left, Cell right) {
@@ -239,14 +221,10 @@ public class Blaster {
             int col;
             if(myHero.getCurrentCell().isInObjectiveZone()){
                 Hero[] saw=Utility.getSawHero(world);
-                if(saw.length == 0)
-                    return;
                 Utility.sortOnDistance(myHero.getCurrentCell(),saw);
                 Utility.sortOnHP(saw);
                 row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;
                 col = (blasterCell.getColumn() + saw[0].getCurrentCell().getColumn()) / 2;
-                world.castAbility(myHero,AbilityName.BLASTER_DODGE,world.getMap().getCells()[row][col]);
-                ai.dodgeTo(myHero,world.getMap().getCells()[row][col]);
             }else{
                 Cell[] avai = Utility.availableCells(world.getMap(),Utility.BLASTER_DODGE_RANGE,blasterCell);
                 Cell minObjzone = getIndexOfMinDisFromObjectiveZoneCell(blasterCell);
@@ -257,9 +235,9 @@ public class Blaster {
                         shodDodge = anAvai;
                 row = shodDodge.getRow();
                 col = shodDodge.getColumn();
-                world.castAbility(myHero.getId(),AbilityName.BLASTER_DODGE,row,col);
-                ai.dodgeTo(myHero,world.getMap().getCell(row,col));
             }
+            world.castAbility(myHero,AbilityName.BLASTER_DODGE,objectiveCells[row][col]);
+            ai.dodgeTo(myHero,objectiveCells[row][col]);
             return;
         }
         Cell whereShouldIAttack = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName);
@@ -275,53 +253,11 @@ public class Blaster {
     static void BlasterNotSeeAnyOne(World world, Hero blaster, Cell blasterCurrentCell, History history) {
         Cell minDisCellFromObjzone = // if blaster was in objzone this method return -1
                 getIndexOfMinDisFromObjectiveZoneCell(blasterCurrentCell);
-        if (blasterCurrentCell.isInObjectiveZone()) {
-            // it is in objective zone
-            Hero[] blasters=getBelasters(world,blaster.getId());
-            boolean dupRange = false;
-            Vector<Hero> dupRangeH = new Vector<>();
-            for (Hero blaster1 : blasters) {
-                if (Utility.distance(blasterCurrentCell, blaster1.getCurrentCell()) <= 4) {
-                    dupRange = true;
-                    dupRangeH.add(blaster1);
-                }
-            }
-            if(dupRange){
-                Cell[] moveCells = moveCell(world,blaster);
-                for (int i = 3; i >= 0; i--) {
-                    if(moveCells[i]!=null){
-                        boolean flag = true;
-                        for (Hero aDupRangeH : dupRangeH) {
-                            if (Utility.distance(moveCells[i], aDupRangeH.getCurrentCell()) <= 4
-                                    || !moveCells[i].isInObjectiveZone()) {
-                                flag = false;
-                                break;
-                            }
-                        }
-                        if(flag){
-                            world.moveHero(blaster.getId(), i==0?Direction.UP:
-                                                                i==1?Direction.DOWN:
-                                                                    i==2?Direction.LEFT:
-                                                                            Direction.RIGHT);
-                            return;
-                        }
-                    }
-                }
-            }
+        if (minDisCellFromObjzone == null) {
+            return; // it is in objective zone
         }
         move(world, blaster.getId(),blasterCurrentCell,minDisCellFromObjzone,history);
     }
-
-    private static Hero[] getBelasters(World world, int excpIt) {
-        Hero[] mh = world.getMyHeroes();
-        Vector<Hero> hs = new Vector<>();
-        for (Hero aMh : mh) {
-            if (aMh.getName().equals(HeroName.BLASTER) && aMh.getId() != excpIt)
-                hs.add(aMh);
-        }
-        return hs.toArray(new Hero[0]);
-    }
-
     private static void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell){
         Utility.move(world,HEROID,src,dst);
         if(saveCell)
