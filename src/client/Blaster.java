@@ -239,6 +239,8 @@ public class Blaster {
             int col;
             if(myHero.getCurrentCell().isInObjectiveZone()){
                 Hero[] saw=Utility.getSawHero(world);
+                if(saw.length == 0)
+                    return;
                 Utility.sortOnDistance(myHero.getCurrentCell(),saw);
                 Utility.sortOnHP(saw);
                 row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;

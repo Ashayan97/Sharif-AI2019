@@ -41,7 +41,7 @@ public class AI {
         sentry = new Sentry_AI(world.getMyHeroes()[3], world);
         Blaster.blasterMove(world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
         Blaster.blasterMove(world, world.getMyHeroes()[1], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
-        Blaster.blasterMove(world, world.getMyHeroes()[2], histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
+//        Blaster.blasterMove(world, world.getMyHeroes()[2], histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
         sentry.SentryMove();
     }
 
@@ -50,7 +50,7 @@ public class AI {
         init();
         Blaster.blasterAttack(this,world, world.getMyHeroes()[0]);
         Blaster.blasterAttack(this,world, world.getMyHeroes()[1]);
-        Blaster.blasterAttack(this,world, world.getMyHeroes()[2]);
+//        Blaster.blasterAttack(this,world, world.getMyHeroes()[2]);
         sentry = new Sentry_AI(world.getMyHeroes()[3],world);
         sentry.actionPhase();
     }
@@ -116,7 +116,7 @@ public class AI {
                 world.pickHero(HeroName.BLASTER);
                 break;
             case 2:
-                world.pickHero(HeroName.BLASTER);
+                world.pickHero(HeroName.GUARDIAN);
                 break;
             case 3:
                 world.pickHero(HeroName.SENTRY);
