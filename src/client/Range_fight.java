@@ -220,4 +220,5 @@ public class Range_fight {
         }
         return inVision.toArray(new Hero[inVision.size()]);
     }
+
 }
