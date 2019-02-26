@@ -3,20 +3,25 @@ package client;
 import client.model.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author : Amirhossein
+ * @version : beta
  * guardian hero
  * */
 public class Guardian_AI {
     private Hero guardian;
     private World world;
     private Map map;
+    private Hero[] alliedHero;
 
     public Guardian_AI(Hero guardian, World world) {
         this.guardian = guardian;
         this.world = world;
         this.map = world.getMap();
+        this.alliedHero = world.getMyHeroes();
     }
 
     public Hero getGuardian() {
@@ -48,14 +53,80 @@ public class Guardian_AI {
             Hero[] enemyHeroes = world.getOppHeroes();
             ArrayList<Hero> enemyHeroInVision = getEnemyHeroesInVision(enemyHeroes);
             ArrayList<Hero> attackAbleEnemies =  getAttackAbleEnemies(enemyHeroes);
+            ArrayList<Hero> enemiesInObjective =  getEnemyHeroesInObjective(enemyHeroes);
             //TODO ==> if it is possible first defends
             //get All enemy heroes
             if(attackAbleEnemies.size()!=0){
                 //TODO : review needed --> consider best cell for attack!!
                 world.castAbility(guardian,guardian.getAbility(AbilityName.GUARDIAN_ATTACK),
                         attackAbleEnemies.get(0).getCurrentCell());
+                return; // stop continue this method
+            }
+            //guardian can see enemy and enemy is in objective zone
+            if (!enemiesInObjective.isEmpty()){
+                if(isDogeReady()){
+                    //doge to near enemy
+                    Cell nearEnemyCell = findNearHero(enemiesInObjective).getCurrentCell();
+                    world.castAbility(guardian,guardian.getAbility(AbilityName.GUARDIAN_DODGE),
+                            nearCellToDoge(nearEnemyCell));
+                    return; // stop continue this method
+                }
+                if(enemyHeroInVision.isEmpty()){
+                    // doge near friends
+                    if(isDogeReady()) {
+                        world.castAbility(guardian, guardian.getAbility(AbilityName.GUARDIAN_DODGE),
+                                nearCellToDoge(findNearHero(alliedHero).getCurrentCell()));
+                        return; //stop continue method
+                    }
+                }else {
+                    int HealthPoint =  guardian.getCurrentHP();
+                    Hero nearEnemy = findNearHero(world.getOppHeroes());
+                    Hero nearFriend =  findNearHero(world.getMyHeroes());
+
+                }
             }
         }
+    }
+
+    private Hero findNearHero(Hero[] heroes){
+        ArrayList<Hero> result =  new ArrayList<>();
+        result.addAll(Arrays.asList(heroes));
+        return findNearHero(result);
+    }
+
+    private Hero findNearHero(ArrayList<Hero> hero) {
+        int minDistance =  Integer.MAX_VALUE;
+        Hero result = hero.get(0);
+        for (Hero aHero : hero){
+            if(world.manhattanDistance(guardian.getCurrentCell(),aHero.getCurrentCell())>=minDistance){
+                minDistance =world.manhattanDistance(guardian.getCurrentCell(),aHero.getCurrentCell());
+                result = aHero;
+            }
+        }
+        return result;
+    }
+
+    private Cell nearCellToDoge(Cell destination){
+        Cell[] availableCells =  Utility.availableCells(map,
+                guardian.getAbility(AbilityName.GUARDIAN_FORTIFY).getRange(),guardian.getCurrentCell());
+        Cell minCell = availableCells[0];
+        int minDistance = Integer.MAX_VALUE;
+        for (int i = 0; i < availableCells.length; i++) {
+            if(!availableCells[i].isWall() && world.manhattanDistance(destination,availableCells[i])<minDistance){
+                minCell=availableCells[i];
+                minDistance=world.manhattanDistance(destination,availableCells[i]);
+            }
+        }
+        return minCell;
+    }
+
+    private ArrayList<Hero> getEnemyHeroesInObjective(Hero[] enemyHeroes){
+        ArrayList<Hero> enemyHeroesInObjective =  new ArrayList<>();
+        for(Hero enemy : enemyHeroes){
+            if(enemy.getCurrentCell().isInObjectiveZone())
+                enemyHeroesInObjective.add(enemy);
+        }
+        return enemyHeroesInObjective;
     }
 
     private ArrayList<Hero> getEnemyHeroesInVision(Hero[] enemyHeroes){
@@ -142,8 +213,27 @@ public class Guardian_AI {
         return new Range_fight(world).inVisionEnemy(guardian).length != 0;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Guardian_AI)) return false;
+        Guardian_AI that = (Guardian_AI) o;
+        return Objects.equals(guardian, that.guardian) &&
+                Objects.equals(world, that.world) &&
+                Objects.equals(map, that.map);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(guardian, world, map);
+    }
+
     private boolean isInObjectiveZone(){
         return guardian.getCurrentCell().isInObjectiveZone();
+    }
+
+    private boolean isFortifyReady(){
+        return guardian.getAbility(AbilityName.GUARDIAN_FORTIFY).isReady();
     }
 
     private Direction[] nearestObjectiveCell(){
