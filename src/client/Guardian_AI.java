@@ -26,16 +26,6 @@ public class Guardian_AI {
 
     public void actionPhase(){
         //TODO -->
-        // if guardian is outside of objective zone
-        if(!isInObjectiveZone() && isDogeReady()){
-            if(world.manhattanDistance(guardian.getCurrentCell(),findNearestCellOurSide())<=
-                    guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange()) {
-                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, findNearestCellOurSide());
-            }else {
-                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, nearOutsideOfObjective());
-            }
-            return; // stop continue this method
-        }
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
             Hero[] enemyHeroes = world.getOppHeroes();
@@ -45,8 +35,8 @@ public class Guardian_AI {
             //get All enemy heroes
             if(!attackAbleEnemies.isEmpty()){
                 Cell effectiveCell ;
+                //TODO ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
                 Hero bestEnemyForDie = findNearHero(attackAbleEnemies);
-
                 world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,bestEnemyForDie.getCurrentCell());
                 return; // stop continue this method
             }
@@ -71,15 +61,23 @@ public class Guardian_AI {
                     Hero nearEnemy = findNearHero(world.getOppHeroes());
                     Hero nearFriend =  findNearHero(world.getMyHeroes());
                     //TODO need to complete --> when some heroes can see guardian
-                    //TODO
-
+                    //TODO attack b
                 }
             }
+        }
+        // if guardian is outside of objective zone
+        if(!isInObjectiveZone() && isDogeReady()){
+            if(world.manhattanDistance(guardian.getCurrentCell(),findNearestCellOurSide())<=
+                    guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange()) {
+                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, findNearestCellOurSide());
+            }else {
+                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, nearOutsideOfObjective());
+            }
+            return; // stop continue this method
         }
     }
 
     public void movePhase(){
-        //TODO -->
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
             world.moveHero(guardian,nearestObjectiveCell()[0]);
