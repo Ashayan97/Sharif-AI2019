@@ -1,11 +1,14 @@
-package client;
 
-import client.model.*;
+        package client;
 
-import java.util.Random;
+        import client.model.*;
+
+        import java.util.Random;
 
 public class Blaster {
     private static Cell[][] objectiveCells;
+    private static final int GUARDIAN_DANGER_DISTANCE = 3;
+    //*******************************
     static void set(World world){
         Map map = world.getMap();
         int row ,col;
@@ -15,6 +18,7 @@ public class Blaster {
             for (int j = 0; j < col; j++)
                 objectiveCells[i][j] = map.getObjectiveZone()[i*col + j];
     }
+    //*******************************
     /**
      * this method an cell and return the nearest objective cell
      * if blaster was in objzone this method return -1
@@ -37,12 +41,85 @@ public class Blaster {
             return null;
         return objectiveCells[rowIndex][colIndex];
     }
+
     /**
      * #Blaster charecter do this method across the game
      */
     static void blasterMove(World world, Hero blaster, History history) {
         Cell blasterCurrentCell = blaster.getCurrentCell();
-        Blaster.BlasterNotSeeAnyOne(world,blaster,blasterCurrentCell,history);
+        Hero guardians[] = Utility.getGuardians(world);
+        boolean safe = true;
+        for (Hero guardian : guardians)
+            if (Utility.distance(blasterCurrentCell, guardian.getCurrentCell()) <= GUARDIAN_DANGER_DISTANCE) {
+                safe = false;
+                break;
+            }
+
+        if(safe)
+            Blaster.BlasterNotSeeAnyOne(world,blaster,blasterCurrentCell,history);
+        else {
+            Cell    down = Utility.nextCell(world, blasterCurrentCell, Direction.DOWN),
+                    up = Utility.nextCell(world, blasterCurrentCell, Direction.UP),
+                    left = Utility.nextCell(world, blasterCurrentCell, Direction.LEFT),
+                    right = Utility.nextCell(world, blasterCurrentCell, Direction.RIGHT);
+            boolean hasObjective = hasObjective(down, up, left, right);
+            if (guardians.length > 1) {
+                Utility.sortOnDistance(blasterCurrentCell, guardians);
+                Cell fGCell = guardians[0].getCurrentCell();
+                Cell sGCell = guardians[1].getCurrentCell();
+                Direction dir;
+                int leftDis = Utility.distance(left,fGCell);
+                int rightDis= Utility.distance(right,fGCell);
+                int upDis   = Utility.distance(up,fGCell);
+                int downDis = Utility.distance(down,fGCell);
+
+                if(leftDis >= GUARDIAN_DANGER_DISTANCE
+                        && Utility.distance(left,sGCell)>=GUARDIAN_DANGER_DISTANCE)
+                    dir = Direction.LEFT;
+                else if(rightDis >= GUARDIAN_DANGER_DISTANCE
+                        && Utility.distance(right,sGCell)>=GUARDIAN_DANGER_DISTANCE)
+                    dir = Direction.RIGHT;
+                else if(downDis >= GUARDIAN_DANGER_DISTANCE
+                        && Utility.distance(down,sGCell)>=GUARDIAN_DANGER_DISTANCE)
+                    dir = Direction.DOWN;
+                else
+                    dir = Direction.UP;
+                world.moveHero(blaster.getId(),dir);
+            } else {
+                Direction dir;
+                Cell gCell = guardians[0].getCurrentCell();
+                if (hasObjective) {
+                    if (down.isInObjectiveZone()
+                            && Utility.distance(down, gCell) >= GUARDIAN_DANGER_DISTANCE)
+                        dir = Direction.DOWN;
+                    else if (up.isInObjectiveZone()
+                            && Utility.distance(up, gCell) >= GUARDIAN_DANGER_DISTANCE)
+                        dir = Direction.UP;
+                    else if (left.isInObjectiveZone()
+                            && Utility.distance(left, gCell) >= GUARDIAN_DANGER_DISTANCE)
+                        dir = Direction.LEFT;
+                    else
+                        dir = Direction.RIGHT;
+                } else {
+                    if (Utility.distance(down, guardians[0].getCurrentCell()) >= GUARDIAN_DANGER_DISTANCE)
+                        dir = Direction.DOWN;
+                    else if (Utility.distance(up, guardians[0].getCurrentCell()) >= GUARDIAN_DANGER_DISTANCE)
+                        dir = Direction.UP;
+                    else if (Utility.distance(left, guardians[0].getCurrentCell()) >= GUARDIAN_DANGER_DISTANCE)
+                        dir = Direction.LEFT;
+                    else
+                        dir = Direction.RIGHT;
+                }
+                world.moveHero(blaster.getId(), dir);
+            }
+        }
+    }
+
+    private static boolean hasObjective(Cell down, Cell up, Cell left, Cell right) {
+        return down.isInObjectiveZone()||
+                up.isInObjectiveZone()||
+                left.isInObjectiveZone()||
+                right.isInObjectiveZone();
     }
 
     /**
@@ -85,7 +162,7 @@ public class Blaster {
                 // ag last step az did enemy kharej bashe mirim unja
                 move(world, mHeroID, blasterCurrentCell, lastCell,history);
             }else {
-                Cell[] cells = Utility.availableCells(world.getMap(), Utility.DODGE_RANGE, blasterCurrentCell); // tamame khune ha be radius'e DODGE_RANGE  = 4
+                Cell[] cells = Utility.availableCells(world.getMap(), Utility.BLASTER_DODGE_RANGE, blasterCurrentCell); // tamame khune ha be radius'e BLASTER_DODGE_RANGE  = 4
                 int maxDistance = Utility.distance(enemyCurrentCell,cells[0]);
                 Cell maxDistanceCell = cells[0];
                 for(Cell i:cells){
@@ -107,6 +184,7 @@ public class Blaster {
             }
         }
     }
+
 
     static Cell getBestForBlasterAttack(World world,Hero mhero,Hero[] inMyAttckRange,AbilityName abilityName) {
         if(inMyAttckRange.length == 1)
@@ -130,22 +208,42 @@ public class Blaster {
         return inMyAttckRange[0].getCurrentCell();
     }
 
-    static void blasterAttack(World world, Hero myHero) {
+    /**
+     * hero'ii k behesh attack mizane ro set mikone tu AI v ag dodge bzne cell ro set mikone mikone
+     * */
+    static void blasterAttack(AI ai, World world, Hero myHero) {
         AbilityName abilityName = myHero.getAbility(AbilityName.BLASTER_BOMB).isReady()?
                 AbilityName.BLASTER_BOMB:
                 AbilityName.BLASTER_ATTACK;
         Hero[] inMyAttckRange = Utility.getInAttackRange(world,myHero,abilityName);
+        Cell blasterCell = myHero.getCurrentCell();
         if(inMyAttckRange.length == 0){
-            // todo no is no in his range
-            // todo so is better to go to enemys
-            Random random = new Random();
-            int row = random.nextInt(objectiveCells.length);
-            int col = random.nextInt(objectiveCells.length);
+            int row;
+            int col;
+            if(myHero.getCurrentCell().isInObjectiveZone()){
+                Hero[] saw=Utility.getSawHero(world);
+                Utility.sortOnDistance(myHero.getCurrentCell(),saw);
+                Utility.sortOnHP(saw);
+                row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;
+                col = (blasterCell.getColumn() + saw[0].getCurrentCell().getColumn()) / 2;
+            }else{
+                Cell[] avai = Utility.availableCells(world.getMap(),Utility.BLASTER_DODGE_RANGE,blasterCell);
+                Cell minObjzone = getIndexOfMinDisFromObjectiveZoneCell(blasterCell);
+                int min = Integer.MAX_VALUE;
+                Cell shodDodge = avai[0];
+                for (Cell anAvai : avai)
+                    if (Utility.distance(anAvai, minObjzone) < min)
+                        shodDodge = anAvai;
+                row = shodDodge.getRow();
+                col = shodDodge.getColumn();
+            }
             world.castAbility(myHero,AbilityName.BLASTER_DODGE,objectiveCells[row][col]);
+            ai.dodgeTo(myHero,objectiveCells[row][col]);
             return;
         }
-        Cell whereShouldIAttcka = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName); // todo :(
-        world.castAbility(myHero.getId(),abilityName,whereShouldIAttcka);
+        Cell whereShouldIAttack = getBestForBlasterAttack(world,myHero,inMyAttckRange,abilityName);
+        world.castAbility(myHero.getId(),abilityName,whereShouldIAttack);
+        ai.setInAttack(myHero,world.getOppHero(whereShouldIAttack));
     }
 
 
