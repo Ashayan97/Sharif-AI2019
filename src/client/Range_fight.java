@@ -198,7 +198,7 @@ public class Range_fight {
 
     public Cell findNearestZoneCell(Cell start) {
         Cell[] cells = map.getObjectiveZone();
-        Cell min = null;
+        Cell min = cells[0];
         int minLen = Integer.MAX_VALUE;
         for (int i = 0; i < cells.length; i++) {
             if (min == null && world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null) {

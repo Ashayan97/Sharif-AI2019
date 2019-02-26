@@ -18,10 +18,10 @@ public class AI {
     private World world;
     private int flag = 0;
     private Sentry_AI sentry;
+    private Guardian_AI guardian;
     private Map<Integer, Hero> heroInAttack = new HashMap<>();
     private Map<Integer, Cell> dodgeMap = new HashMap<>();
     private Map<Integer,Cell> nextCell = new HashMap<>();
-
     //****************************************
     void preProcess(World world) {
         this.world = world;
@@ -39,36 +39,25 @@ public class AI {
         this.world = world;
         Utility.printMap(world);
         init();
-        sentry = new Sentry_AI(world.getMyHeroes()[0], world);
-//        Blaster.blasterMove(this,world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
-//        Blaster.blasterMove(this,world, world.getMyHeroes()[1], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
-//        Blaster.blasterMove(this,world,world.getMyHeroes()[2],histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
-//        Blaster.blasterMove(this,world,world.getMyHeroes()[3],histories[indexOfHeroInHistory(world.getMyHeroes()[3])]);
-        sentry.SentryMove();
-        sentry = new Sentry_AI(world.getMyHeroes()[1], world);
-        sentry.SentryMove();
-        sentry = new Sentry_AI(world.getMyHeroes()[2], world);
-        sentry.SentryMove();
         sentry = new Sentry_AI(world.getMyHeroes()[3], world);
+        guardian = new Guardian_AI(world.getMyHeroes()[2],world);
+        Blaster.blasterMove(this,world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
+        Blaster.blasterMove(this,world, world.getMyHeroes()[1], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
+//        Blaster.blasterMove(this,world,world.getMyHeroes()[2],histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
+        guardian.movePhase();
         sentry.SentryMove();
-
     }
 
     void actionTurn(World world) {
         this.world = world;
         init();
-//        Blaster.blasterAttack(this,world, world.getMyHeroes()[0]);
-//        Blaster.blasterAttack(this,world, world.getMyHeroes()[1]);
+        Blaster.blasterAttack(this,world, world.getMyHeroes()[0]);
+        Blaster.blasterAttack(this,world, world.getMyHeroes()[1]);
 //        Blaster.blasterAttack(this,world,world.getMyHeroes()[2]);
-//        Blaster.blasterAttack(this,world,world.getMyHeroes()[3]);
-        sentry = new Sentry_AI(world.getMyHeroes()[0],world);
-        sentry.actionPhase();
-        sentry = new Sentry_AI(world.getMyHeroes()[1],world);
-        sentry.actionPhase();
-        sentry = new Sentry_AI(world.getMyHeroes()[2],world);
-        sentry.actionPhase();
         sentry = new Sentry_AI(world.getMyHeroes()[3],world);
         sentry.actionPhase();
+        guardian = new Guardian_AI(world.getMyHeroes()[2],world);
+        guardian.actionPhase();
     }
 
     //****************************************
@@ -126,18 +115,16 @@ public class AI {
     private void pickHeroInPhase() {
         switch (PICK_PHASE_COUNTER) {
             case 0:
-                world.pickHero(HeroName.SENTRY);
+                world.pickHero(HeroName.BLASTER);
                 break;
             case 1:
-                world.pickHero(HeroName.SENTRY);
+                world.pickHero(HeroName.BLASTER);
                 break;
             case 2:
-                world.pickHero(HeroName.SENTRY);
+                world.pickHero(HeroName.GUARDIAN);
                 break;
             case 3:
-//                world.pickHero(HeroName.BLASTER);
                 world.pickHero(HeroName.SENTRY);
-
                 break;
         }
         PICK_PHASE_COUNTER++;
