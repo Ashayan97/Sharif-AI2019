@@ -25,7 +25,6 @@ public class Guardian_AI {
     }
 
     public void actionPhase(){
-        //TODO -->
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
             Hero[] enemyHeroes = world.getOppHeroes();
@@ -34,10 +33,8 @@ public class Guardian_AI {
             ArrayList<Hero> enemiesInObjective =  getEnemyHeroesInObjective(enemyHeroes);
             //get All enemy heroes
             if(!attackAbleEnemies.isEmpty()){
-                Cell effectiveCell ;
-                //TODO ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-                Hero bestEnemyForDie = findNearHero(attackAbleEnemies);
-                world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,bestEnemyForDie.getCurrentCell());
+                Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
+                world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,effectiveCell);
                 return; // stop continue this method
             }
             //guardian can see enemy and enemy is in objective zone
@@ -75,6 +72,78 @@ public class Guardian_AI {
             }
             return; // stop continue this method
         }
+    }
+
+    private Cell findEffectiveCell(ArrayList<Hero> attackAbleEnemies) {
+        Cell effectiveCell = null ;
+        if(attackAbleEnemies.size()==1){
+            Cell enemyCell =  attackAbleEnemies.get(0).getCurrentCell();
+            int distanceToEnemy =  world.manhattanDistance(guardian.getCurrentCell(),enemyCell);
+            if(distanceToEnemy<=guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getRange()) {
+                effectiveCell = enemyCell;
+                return effectiveCell;
+            }
+            else{
+                Cell[] aroundEnemy = new Range_fight(world).cellsOfArea(enemyCell,
+                        guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getAreaOfEffect());
+                //find near cell
+                int minDistance =  Integer.MAX_VALUE;
+                for (int i=0 ; i<aroundEnemy.length ;i++){
+                    int distance =  world.manhattanDistance(guardian.getCurrentCell(), aroundEnemy[i]);
+                    if(distance<minDistance){
+                        minDistance=distance;
+                        effectiveCell=aroundEnemy[i];
+                    }
+                }
+                return effectiveCell;
+            }
+        } else if(attackAbleEnemies.size()==2){
+            Hero firstEnemy =  attackAbleEnemies.get(0);
+            Hero secondEnemy = attackAbleEnemies.get(1);
+            //if distance between two enemy is more than Area effect of guardian Attack
+            int distanceBetweenEnemies = world.manhattanDistance(firstEnemy.getCurrentCell(),secondEnemy.getCurrentCell());
+            if(distanceBetweenEnemies > guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getAreaOfEffect()){
+                ArrayList<Hero> forRecursion = new ArrayList<>();
+                if(firstEnemy.getCurrentHP()<secondEnemy.getCurrentHP()){
+                    forRecursion.add(firstEnemy);
+                    return findEffectiveCell(forRecursion);
+                }else {
+                    forRecursion.add(secondEnemy);
+                    return findEffectiveCell(forRecursion);
+                }
+                //else mean :: if distance is less than Area effect of guardian attack --> we can damage both of them
+            } else {
+                Cell[] effectiveCells =  Utility.effectiveCells(world,firstEnemy.getCurrentCell(),secondEnemy.getCurrentCell());
+                if(effectiveCells.length==1){
+                    return effectiveCells[0];
+                } else if(effectiveCells.length==2){
+
+                    int dis0 = world.manhattanDistance(guardian.getCurrentCell(),effectiveCells[0]);
+                    int dis1 = world.manhattanDistance(guardian.getCurrentCell(),effectiveCells[1]);
+
+                    if(dis0<dis1)
+                        return effectiveCells[0];
+                    else
+                        return effectiveCells[1];
+                }
+            }
+            //else mean ::  if enemies are more than 2 -->
+        } else if (attackAbleEnemies.size()==3 || attackAbleEnemies.size()==4) {
+            //find a enemy two close enemies -->
+            Cell start ,mid ,end ;
+
+            start = attackAbleEnemies.get(0).getCurrentCell();
+            mid = attackAbleEnemies.get(1).getCurrentCell();
+            end = attackAbleEnemies.get(2).getCurrentCell();
+
+            Cell left = Utility.getLEFT(Utility.getLEFT(start,mid),end);
+            Cell right = Utility.getRIGHT(Utility.getRIGHT(start,mid),end);
+            Cell up = Utility.getUP(Utility.getUP(start,mid),end);
+            Cell down = Utility.getDOWN(Utility.getDOWN(start,mid),end);
+            return world.getMap().getCell((up.getRow() + down.getRow())/2,(left.getColumn()+right.getColumn())/2);
+
+        }
+        return effectiveCell;
     }
 
     public void movePhase(){
