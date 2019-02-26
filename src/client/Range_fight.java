@@ -181,7 +181,7 @@ public class Range_fight {
         ArrayList<Hero> heroes = new ArrayList<>();
         Hero[] Opp = world.getOppHeroes();
         for (int i = 0; i < Opp.length; i++) {
-            if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) <= range)
+            if (Opp[i].getCurrentCell().getColumn()!=-1&&world.manhattanDistance(hero.getCurrentCell(), Opp[i].getCurrentCell()) <= range)
                 heroes.add(Opp[i]);
         }
         return heroes.toArray(new Hero[0]);
