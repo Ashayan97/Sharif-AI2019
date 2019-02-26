@@ -8,7 +8,6 @@ import client.model.World;
 import java.util.ArrayList;
 
 public class Range_fight {
-
     ///////////////////////////////////////////////////////////
     private World world;
     private Map map;
@@ -16,6 +15,40 @@ public class Range_fight {
     private Hero[] OppHero;
     ////////////////////////////////////////////////////////////
 
+    static public Cell[] cellsOfArea(Cell center, int Range, World world) {
+        return Utility.availableCells(world.getMap(), Range, center);
+    }
+
+//    static public Cell[] mostVision(World world) {
+//        Cell[] zone = world.getMap().getObjectiveZone();
+//        int localCount = 0;
+//        int count = Integer.MIN_VALUE;
+//        ArrayList<Cell> bestVision = new ArrayList<>();
+//        for (int i = 0; i < zone.length; i++) {
+//            Cell[] inRange = Range_fight.cellsOfArea(zone[i], 7, world);
+//            for (int j = 0; j < inRange.length; j++) {
+//                if (world.isInVision(zone[i], inRange[i]) && inRange[i].isInObjectiveZone() && !inRange[i].isWall())
+//                    localCount++;
+//            }
+//            if (localCount > count) {
+//                count = localCount;
+//            }
+//            localCount = 0;
+//        }
+//        for (int i = 0; i < zone.length; i++) {
+//            Cell[] inRange = Range_fight.cellsOfArea(zone[i], 7, world);
+//            for (int j = 0; j < inRange.length; j++) {
+//                if (world.isInVision(zone[i], inRange[j]) && inRange[j].isInObjectiveZone() && !inRange[j].isWall())
+//                    localCount++;
+//            }
+//            if (localCount ==count) {
+//                bestVision.add(zone[i]);
+//            }
+//            localCount = 0;
+//        }
+//
+//        return bestVision.toArray(new Cell[bestVision.size()]);
+//    }
 
     //constructor to make Class
     public Range_fight(World world) {
@@ -38,92 +71,92 @@ public class Range_fight {
     }
 
     // Atk with best distance from single to single enemy
-    public Cell[] SingleToSingleAtkRange(Hero hero, int throwRange, Cell center, int effRange) {
-        int shotRange = effRange + throwRange;
-        ArrayList<Cell> cells = new ArrayList<>();
-        Cell[] ThrowCells;
-        for (int j = 0; j <= 2 * shotRange; j++) {
-            if (j < shotRange + 1)
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                if (!map.getCell(center.getRow() - j, center.getColumn() - shotRange + j).isWall() &&
-                        map.isInMap(center.getRow() - j, center.getColumn() - shotRange + j) &&
-                        world.getMyHero(center.getRow() - j, center.getColumn() - shotRange + j) == null
-                        && world.getOppHero(center.getRow() - j, center.getColumn() - shotRange + j) == null &&
-                        !map.getCell(center.getRow() + j, center.getColumn() - shotRange + j).isWall() &&
-                        map.isInMap(center.getRow() + j, center.getColumn() - shotRange + j) &&
-                        world.getMyHero(center.getRow() + j, center.getColumn() - shotRange + j) == null
-                        && world.getOppHero(center.getRow() + j, center.getColumn() - shotRange + j) == null) {
-                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    cells.add(map.getCell(center.getRow() + j, center.getColumn() - shotRange + j));
-                    cells.add(map.getCell(center.getRow() - j, center.getColumn() - shotRange + j));
-                } else {
-                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    if (!map.getCell(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j).isWall() &&
-                            map.isInMap(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) &&
-                            world.getMyHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) == null
-                            && world.getOppHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) == null &&
-                            !map.getCell(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j).isWall() &&
-                            map.isInMap(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) &&
-                            world.getMyHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) == null
-                            && world.getOppHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) == null) {
-                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        cells.add(map.getCell(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j));
-                        cells.add(map.getCell(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j));
-                    }
-                }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//        for (int k = 0; k < 2; k++)
-//            for (int i = 0; i <= effRange; i++)
-//                for (int j = 0; j <= 2 * i; j++)
-//                    if (k == 0)
-//                        if (!map.getCell(center.getRow() - effRange + i, center.getColumn() - i + j).isWall() &&
-//                                map.isInMap(center.getRow() - effRange + i, center.getColumn() - i + j)) {
-//                            ThrowCells.add(map.getCell(center.getRow() - effRange + i, center.getColumn() - i + j));
-//                        } else {
-//                            if (!map.getCell(center.getRow() + effRange - i, center.getColumn() - i + j).isWall() &&
-//                                    map.isInMap(center.getRow() + effRange - i, center.getColumn() - i + j)) {
-//                                ThrowCells.add(map.getCell(center.getRow() + effRange - i, center.getColumn() - i + j));
-//                            }
-//                        }
-        ThrowCells = cellsOfArea(center, effRange);
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        Cell[] res = new Cell[2];
-        Cell LocalMinThrow = null;
-        Cell min = null;
-        Cell minThrow = null;
-
-        /////////////////////////////////////////////
-        for (int i = 0; i < cells.size(); i++) {
-            if (min == null) {
-                for (int j = 0; j < ThrowCells.length; j++) {
-                    if (LocalMinThrow == null)
-                        LocalMinThrow = ThrowCells[i];
-                    else if (world.manhattanDistance(ThrowCells[i], cells.get(i)) < world.manhattanDistance(LocalMinThrow, cells.get(i)))
-                        LocalMinThrow = ThrowCells[i];
-                    min = cells.get(i);
-                    minThrow = LocalMinThrow;
-                }
-                LocalMinThrow = null;
-            } else
-                for (int j = 0; j < ThrowCells.length; j++) {
-                    if (LocalMinThrow == null)
-                        LocalMinThrow = ThrowCells[j];
-                    else if (world.manhattanDistance(ThrowCells[j], cells.get(j)) < world.manhattanDistance(LocalMinThrow, cells.get(j)))
-                        LocalMinThrow = ThrowCells[j];
-                }
-            if (world.manhattanDistance(hero.getCurrentCell(), cells.get(i)) < world.manhattanDistance(hero.getCurrentCell(), min)) {
-                min = cells.get(i);
-                minThrow = LocalMinThrow;
-            }
-            LocalMinThrow = null;
-        }
-        /////////////////////////////////////////////////////////
-        res[0] = min;
-        res[1] = minThrow;
-        return res;
-    }
+//    public Cell[] SingleToSingleAtkRange(Hero hero, int throwRange, Cell center, int effRange) {
+//        int shotRange = effRange + throwRange;
+//        ArrayList<Cell> cells = new ArrayList<>();
+//        Cell[] ThrowCells;
+//        for (int j = 0; j <= 2 * shotRange; j++) {
+//            if (j < shotRange + 1)
+//                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                if (!map.getCell(center.getRow() - j, center.getColumn() - shotRange + j).isWall() &&
+//                        map.isInMap(center.getRow() - j, center.getColumn() - shotRange + j) &&
+//                        world.getMyHero(center.getRow() - j, center.getColumn() - shotRange + j) == null
+//                        && world.getOppHero(center.getRow() - j, center.getColumn() - shotRange + j) == null &&
+//                        !map.getCell(center.getRow() + j, center.getColumn() - shotRange + j).isWall() &&
+//                        map.isInMap(center.getRow() + j, center.getColumn() - shotRange + j) &&
+//                        world.getMyHero(center.getRow() + j, center.getColumn() - shotRange + j) == null
+//                        && world.getOppHero(center.getRow() + j, center.getColumn() - shotRange + j) == null) {
+//                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                    cells.add(map.getCell(center.getRow() + j, center.getColumn() - shotRange + j));
+//                    cells.add(map.getCell(center.getRow() - j, center.getColumn() - shotRange + j));
+//                } else {
+//                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                    if (!map.getCell(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j).isWall() &&
+//                            map.isInMap(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) &&
+//                            world.getMyHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) == null
+//                            && world.getOppHero(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j) == null &&
+//                            !map.getCell(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j).isWall() &&
+//                            map.isInMap(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) &&
+//                            world.getMyHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) == null
+//                            && world.getOppHero(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j) == null) {
+//                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                        cells.add(map.getCell(center.getRow() + 2 * shotRange - j, center.getColumn() - shotRange + j));
+//                        cells.add(map.getCell(center.getRow() - 2 * shotRange + j, center.getColumn() - shotRange + j));
+//                    }
+//                }
+//        }
+//
+//        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////        for (int k = 0; k < 2; k++)
+////            for (int i = 0; i <= effRange; i++)
+////                for (int j = 0; j <= 2 * i; j++)
+////                    if (k == 0)
+////                        if (!map.getCell(center.getRow() - effRange + i, center.getColumn() - i + j).isWall() &&
+////                                map.isInMap(center.getRow() - effRange + i, center.getColumn() - i + j)) {
+////                            ThrowCells.add(map.getCell(center.getRow() - effRange + i, center.getColumn() - i + j));
+////                        } else {
+////                            if (!map.getCell(center.getRow() + effRange - i, center.getColumn() - i + j).isWall() &&
+////                                    map.isInMap(center.getRow() + effRange - i, center.getColumn() - i + j)) {
+////                                ThrowCells.add(map.getCell(center.getRow() + effRange - i, center.getColumn() - i + j));
+////                            }
+////                        }
+//        ThrowCells = cellsOfArea(center, effRange);
+//        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//        Cell[] res = new Cell[2];
+//        Cell LocalMinThrow = null;
+//        Cell min = null;
+//        Cell minThrow = null;
+//
+//        /////////////////////////////////////////////
+//        for (int i = 0; i < cells.size(); i++) {
+//            if (min == null) {
+//                for (int j = 0; j < ThrowCells.length; j++) {
+//                    if (LocalMinThrow == null)
+//                        LocalMinThrow = ThrowCells[i];
+//                    else if (world.manhattanDistance(ThrowCells[i], cells.get(i)) < world.manhattanDistance(LocalMinThrow, cells.get(i)))
+//                        LocalMinThrow = ThrowCells[i];
+//                    min = cells.get(i);
+//                    minThrow = LocalMinThrow;
+//                }
+//                LocalMinThrow = null;
+//            } else
+//                for (int j = 0; j < ThrowCells.length; j++) {
+//                    if (LocalMinThrow == null)
+//                        LocalMinThrow = ThrowCells[j];
+//                    else if (world.manhattanDistance(ThrowCells[j], cells.get(j)) < world.manhattanDistance(LocalMinThrow, cells.get(j)))
+//                        LocalMinThrow = ThrowCells[j];
+//                }
+//            if (world.manhattanDistance(hero.getCurrentCell(), cells.get(i)) < world.manhattanDistance(hero.getCurrentCell(), min)) {
+//                min = cells.get(i);
+//                minThrow = LocalMinThrow;
+//            }
+//            LocalMinThrow = null;
+//        }
+//        /////////////////////////////////////////////////////////
+//        res[0] = min;
+//        res[1] = minThrow;
+//        return res;
+//    }
 
 
     public boolean isSafe(Hero hero, int range) {
@@ -138,7 +171,7 @@ public class Range_fight {
     public boolean isSafe(Cell cell, int range) {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
-            if (world.manhattanDistance(cell, OppHero[i].getCurrentCell()) < range)
+            if (world.manhattanDistance(cell, OppHero[i].getCurrentCell()) <= range)
                 return false;
         }
         return true;
@@ -149,6 +182,15 @@ public class Range_fight {
         Hero[] Opp = world.getOppHeroes();
         for (int i = 0; i < Opp.length; i++) {
             if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) <= range)
+                heroes.add(Opp[i]);
+        }
+        return heroes.toArray(new Hero[0]);
+    }
+    public Hero[] InRangeAtk(Hero hero, int range,Hero[] Opp) {
+        ArrayList<Hero> heroes = new ArrayList<>();
+//        Hero[] Opp = world.getOppHeroes();
+        for (int i = 0; i < Opp.length; i++) {
+            if (world.manhattanDistance(hero.getCurrentCell(), Opp[i].getCurrentCell()) <= range && !Opp[i].equals(hero))
                 heroes.add(Opp[i]);
         }
         return heroes.toArray(new Hero[0]);
@@ -170,13 +212,29 @@ public class Range_fight {
         return min;
     }
 
-    static public float avgDistance(Hero[] inRange, Cell cell ,World world) {
+    public Cell findNearestCell(Cell start,Cell[] cells) { Cell min = null;
+        int minLen = Integer.MAX_VALUE;
+        for (int i = 0; i < cells.length; i++) {
+            if (min == null && world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null) {
+                min = cells[i];
+                minLen = world.manhattanDistance(start, min);
+            } else if (world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null && world.manhattanDistance(cells[i], start) < minLen) {
+                min = cells[i];
+                minLen = world.manhattanDistance(start, min);
+            }
+        }
+        return min;
+    }
+
+
+    static public float avgDistance(Hero[] inRange, Cell cell, World world) {
         float avg = 0;
         for (Hero anInRange : inRange) {
             avg += world.manhattanDistance(cell, anInRange.getCurrentCell());
         }
         return avg / (float) inRange.length;
     }
+
     public float avgDistance(Hero[] inRange, Cell cell) {
         float avg = 0;
         for (Hero anInRange : inRange) {
@@ -188,6 +246,20 @@ public class Range_fight {
     public Cell[] cellsOfArea(Cell center, int Range) {
         return Utility.availableCells(world.getMap(), Range, center);
     }
+
+
+//    public Cell[] cellsOfAreaEnemy(int Range,Hero[] heroes) {
+//
+//        ArrayList<Cell> cells=new ArrayList<>();
+//        Cell[] localCell=null;
+//        for (int i = 0; i <heroes.length ; i++) {
+//            localCell= Utility.availableCells(world.getMap(), Range, heroes[i].getCurrentCell());
+//            for (int j = 0; j < localCell.length; j++) {
+//                cells.add(localCell[j]);
+//            }
+//        }
+//        return cells.toArray(new Cell[cells.size()]);
+//    }
 
     public Cell bestDodge(Cell center, int Range, int safeRange) {
         Cell[] cells = cellsOfArea(center, Range);
@@ -221,10 +293,29 @@ public class Range_fight {
         Hero[] heroes = world.getOppHeroes();
         ArrayList<Hero> inVision = new ArrayList<>();
         for (int i = 0; i < heroes.length; i++) {
-            if (world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()) && world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) < range)
+            if (world.isInVision(hero.getCurrentCell(), heroes[i].getCurrentCell()) && world.manhattanDistance(heroes[i].getCurrentCell(), hero.getCurrentCell()) <= range)
                 inVision.add(heroes[i]);
         }
         return inVision.toArray(new Hero[inVision.size()]);
+    }
+
+    public Cell bestInVision(Hero hero,Cell enemy,int range){
+        Cell[] cells=cellsOfArea(enemy,range);
+        Cell near=null;
+        int dis=Integer.MAX_VALUE;
+        for (int i = 0; i <cells.length ; i++) {
+           if (near==null){
+               near=cells[i];
+               dis=world.manhattanDistance(hero.getCurrentCell(),cells[i]);
+           }
+           else if (world.manhattanDistance(hero.getCurrentCell(),cells[i])<dis&&world.isInVision(enemy,cells[i])&&world.manhattanDistance(enemy,cells[i])<=range)
+           {
+               near=cells[i];
+               dis=world.manhattanDistance(hero.getCurrentCell(),cells[i]);
+
+           }
+        }
+        return near;
     }
 
 }
