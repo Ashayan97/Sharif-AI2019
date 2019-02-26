@@ -16,6 +16,7 @@ public class Guardian_AI {
     private World world;
     private Map map;
     private Hero[] alliedHero;
+    private static final int criticalHealthPoint = 40 ;
 
     public Guardian_AI(Hero guardian, World world) {
         this.guardian = guardian;
@@ -36,6 +37,14 @@ public class Guardian_AI {
                 Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
                 world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,effectiveCell);
                 return; // stop continue this method
+            }
+            //Fortify if necessary
+            if(isDangerTime()){ //TODO
+                if(isFortifyReady()){
+                    world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
+                    Logger.log("============================FORTIFY==========================",Logger.YELLOW);
+                    return;
+                }
             }
             //guardian can see enemy and enemy is in objective zone
             if (!enemiesInObjective.isEmpty()){
@@ -62,6 +71,7 @@ public class Guardian_AI {
                     if(isDangerTime()){
                         if(isFortifyReady()) {
                             world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
+                            Logger.log("============================FORTIFY==========================",Logger.YELLOW);
                             return;
                         }else if(isDogeReady()){
                             world.castAbility(guardian, guardian.getAbility(AbilityName.GUARDIAN_DODGE),
@@ -95,6 +105,12 @@ public class Guardian_AI {
         int numberOfBlasterTooClose = numberOfBlastersTooClose(tooCloseEnemies);
         int numberOfGuardiansTooClose = numberOfGuardiansTooClose(tooCloseEnemies);
         int numberOfHealersTooClose = numberOfHealersTooClose(tooCloseEnemies);
+        if(tooCloseEnemies.size()>=3){
+            return true;
+        }
+        if(currentHP<=criticalHealthPoint){
+            return true;
+        }
         if(currentHP<=numberOfSentryTooClose*Utility_Attack.damage_of_sentry_attack){
             return true;
         }
@@ -226,7 +242,8 @@ public class Guardian_AI {
     public void movePhase(){
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
-            world.moveHero(guardian,nearestObjectiveCell()[0]);
+            if(nearestObjectiveCell().length!=0)
+                world.moveHero(guardian,nearestObjectiveCell()[0]);
         }else {
             // guardian are in Objective zone
             // if can't see any one
@@ -241,8 +258,10 @@ public class Guardian_AI {
                     Hero nearEnemy = findNearHero(enemiesInObjective);
                     //check if in current cell
                     if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell()))
+                        if(world.getPathMoveDirections(guardian.getCurrentCell(),
+                                nearEnemy.getCurrentCell(),getHeroesLocation(world.getMyHeroes())).length!=0)
                         world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),
-                            nearEnemy.getCurrentCell())[0]);
+                            nearEnemy.getCurrentCell(),getHeroesLocation(world.getMyHeroes()))[0]);
                 } else {
                     //TODO ببینیم اصلا می صرفه بریم سمت دشمنی که نزدیک هست؟؟
                 }
@@ -384,7 +403,15 @@ public class Guardian_AI {
 
     private Direction[] nearestObjectiveCell(){
         return world.getPathMoveDirections(guardian.getCurrentCell(),
-                new Range_fight(world).findNearestZoneCell(guardian.getCurrentCell()));
+                new Range_fight(world).findNearestZoneCell(guardian.getCurrentCell()),getHeroesLocation(world.getMyHeroes()));
+    }
+
+    private Cell[] getHeroesLocation(Hero[] heroes){
+        Cell[] locations = new Cell[heroes.length];
+        for (int i = 0; i < heroes.length; i++) {
+            locations[i]=heroes[i].getCurrentCell();
+        }
+        return locations;
     }
 
 
