@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * @author : Amirhossein
- * @version : 1.0
+ * @version : 1.1
  * guardian hero
  * */
 public class Guardian_AI {
@@ -57,8 +57,19 @@ public class Guardian_AI {
                     int HealthPoint =  guardian.getCurrentHP();
                     Hero nearEnemy = findNearHero(world.getOppHeroes());
                     Hero nearFriend =  findNearHero(world.getMyHeroes());
-                    //TODO need to complete --> when some heroes can see guardian
-                    //TODO attack b
+                    int nearFriendDistance = world.manhattanDistance(nearFriend.getCurrentCell(),guardian.getCurrentCell());
+                    //priority of defense is for friends
+                    if(isDangerTime()){
+                        if(isFortifyReady()) {
+                            world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
+                            return;
+                        }else if(isDogeReady()){
+                            world.castAbility(guardian, guardian.getAbility(AbilityName.GUARDIAN_DODGE),
+                                    nearCellToDoge(findNearHero(alliedHero).getCurrentCell()));
+                        } else {
+                            // :( GOODBYE GUARDIAN
+                        }
+                    }
                 }
             }
         }
@@ -72,6 +83,72 @@ public class Guardian_AI {
             }
             return; // stop continue this method
         }
+    }
+
+    private boolean isDangerTime() {
+        //TODO --> this method can be smarter
+        int currentHP = guardian.getCurrentHP();
+        ArrayList<Hero> visibleEnemies = getEnemyHeroesInVision(world.getOppHeroes());
+        ArrayList<Hero> tooCloseEnemies =  getAttackAbleEnemies(world.getOppHeroes());
+        int numberOfSentryInVision = numberOfSentriesInVision(visibleEnemies);
+        int numberOfSentryTooClose =  numberOfSentriesInVision(tooCloseEnemies);
+        int numberOfBlasterTooClose = numberOfBlastersTooClose(tooCloseEnemies);
+        int numberOfGuardiansTooClose = numberOfGuardiansTooClose(tooCloseEnemies);
+        int numberOfHealersTooClose = numberOfHealersTooClose(tooCloseEnemies);
+        if(currentHP<=numberOfSentryTooClose*Utility_Attack.damage_of_sentry_attack){
+            return true;
+        }
+        if(currentHP<=numberOfSentryInVision*Utility_Attack.damage_of_sentry_ray){
+            return true;
+        }
+        if(currentHP<=numberOfBlasterTooClose*Utility_Attack.damage_of_blaster_bomb ||
+                currentHP<=numberOfBlasterTooClose*Utility_Attack.damage_of_blaster_attack){
+            return true;
+        }
+        if(currentHP<=numberOfGuardiansTooClose*Utility_Attack.damage_of_guardian_attack){
+            return true;
+        }
+        if(currentHP<=numberOfHealersTooClose*Utility_Attack.damage_of_healer_attack){
+            return true;
+        }
+
+        return false;
+    }
+
+    private int numberOfHealersTooClose(ArrayList<Hero> tooCloseEnemies) {
+        int count = 0;
+        for (int i= 0 ; i<tooCloseEnemies.size();i++){
+            if(tooCloseEnemies.get(i).getName().equals(HeroName.HEALER))
+                count++;
+        }
+        return count;
+    }
+
+    private int numberOfGuardiansTooClose(ArrayList<Hero> tooCloseEnemies) {
+        int count = 0;
+        for (int i= 0 ; i<tooCloseEnemies.size();i++){
+            if(tooCloseEnemies.get(i).getName().equals(HeroName.GUARDIAN))
+                count++;
+        }
+        return count;
+    }
+
+    private int numberOfBlastersTooClose(ArrayList<Hero> tooCloseEnemies){
+        int count = 0;
+        for (int i= 0 ; i<tooCloseEnemies.size();i++){
+            if(tooCloseEnemies.get(i).getName().equals(HeroName.BLASTER))
+                count++;
+        }
+        return count;
+    }
+
+    private int numberOfSentriesInVision(ArrayList<Hero> visibleEnemies){
+        int count = 0;
+        for (int i = 0; i < visibleEnemies.size(); i++) {
+            if(visibleEnemies.get(i).getName().equals(HeroName.SENTRY))
+                count++;
+        }
+        return count;
     }
 
     private Cell findEffectiveCell(ArrayList<Hero> attackAbleEnemies) {
