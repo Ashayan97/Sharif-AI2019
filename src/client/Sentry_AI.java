@@ -35,7 +35,7 @@ public class Sentry_AI {
         rangeFight = new Range_fight(world);
         heroes = rangeFight.inVisionEnemy(hero, 7);
         inVision = rangeFight.inVisionEnemy(hero);
-        inRangeAtkHeroes = rangeFight.InRangeAtk(hero, 6);
+        inRangeAtkHeroes = rangeFight.InRangeAtk(hero, 7);
         ourHeroes = world.getMyHeroes();
 
 //        heroes = world.getOppHeroes();
@@ -179,7 +179,7 @@ public class Sentry_AI {
                 world.moveHero(hero, dir[0]);
             }
         } else {
-            if (rangeFight.isSafe(hero, 6)) {
+            if (rangeFight.isSafe(hero, 6)||(isBlaster()&&!canAtk())) {
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
                     Direction dir = ObjectMove();
                     if (dir != null)
@@ -215,6 +215,14 @@ public class Sentry_AI {
             return dir[0];
         } else
             return null;
+    }
+
+    private boolean isBlaster(){
+        for (Hero inRangeAtkHeroe : inRangeAtkHeroes) {
+            if (inRangeAtkHeroe.getName().equals(HeroName.HEALER))
+                return true;
+        }
+        return false;
     }
 
     private Direction EscapeDirection(Hero[] inRange) {

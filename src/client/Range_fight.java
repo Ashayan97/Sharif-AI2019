@@ -170,12 +170,18 @@ public class Range_fight {
         return min;
     }
 
+    static public float avgDistance(Hero[] inRange, Cell cell ,World world) {
+        float avg = 0;
+        for (Hero anInRange : inRange) {
+            avg += world.manhattanDistance(cell, anInRange.getCurrentCell());
+        }
+        return avg / (float) inRange.length;
+    }
     public float avgDistance(Hero[] inRange, Cell cell) {
         float avg = 0;
         for (Hero anInRange : inRange) {
             avg += world.manhattanDistance(cell, anInRange.getCurrentCell());
         }
-
         return avg / (float) inRange.length;
     }
 
