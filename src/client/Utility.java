@@ -241,6 +241,9 @@ public class Utility {
         return hs.toArray(new Hero[0]);
     }
 
+    /**
+     * return opp guardians
+     * */
     static Hero[] getGuardians(World world){
         Hero[] sawHeros=getSawHero(world);
         Vector<Hero> guardians = new Vector<>();

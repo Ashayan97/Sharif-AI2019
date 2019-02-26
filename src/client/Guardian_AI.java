@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * @author : Amirhossein
- * @version : beta
+ * @version : 1.0
  * guardian hero
  * */
 public class Guardian_AI {
@@ -24,42 +24,20 @@ public class Guardian_AI {
         this.alliedHero = world.getMyHeroes();
     }
 
-    public Hero getGuardian() {
-        return guardian;
-    }
-
-    public void setGuardian(Hero guardian) {
-        this.guardian = guardian;
-    }
-
-    public void setWorld(World world) {
-        this.world = world;
-    }
-
     public void actionPhase(){
         //TODO -->
-        // if guardian is outside of objective zone
-        if(!isInObjectiveZone() && isDogeReady()){
-            if(world.manhattanDistance(guardian.getCurrentCell(),findNearestCellOurSide())<=
-                    guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange()) {
-                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, findNearestCellOurSide());
-            }else {
-                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, nearOutsideOfObjective());
-            }
-            return; // stop continue this method
-        }
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
             Hero[] enemyHeroes = world.getOppHeroes();
             ArrayList<Hero> enemyHeroInVision = getEnemyHeroesInVision(enemyHeroes);
             ArrayList<Hero> attackAbleEnemies =  getAttackAbleEnemies(enemyHeroes);
             ArrayList<Hero> enemiesInObjective =  getEnemyHeroesInObjective(enemyHeroes);
-            //TODO ==> if it is possible first defends
             //get All enemy heroes
-            if(attackAbleEnemies.size()!=0){
-                //TODO : review needed --> consider best cell for attack!!
-                world.castAbility(guardian,guardian.getAbility(AbilityName.GUARDIAN_ATTACK),
-                        attackAbleEnemies.get(0).getCurrentCell());
+            if(!attackAbleEnemies.isEmpty()){
+                Cell effectiveCell ;
+                //TODO ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+                Hero bestEnemyForDie = findNearHero(attackAbleEnemies);
+                world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,bestEnemyForDie.getCurrentCell());
                 return; // stop continue this method
             }
             //guardian can see enemy and enemy is in objective zone
@@ -82,15 +60,53 @@ public class Guardian_AI {
                     int HealthPoint =  guardian.getCurrentHP();
                     Hero nearEnemy = findNearHero(world.getOppHeroes());
                     Hero nearFriend =  findNearHero(world.getMyHeroes());
-
+                    //TODO need to complete --> when some heroes can see guardian
+                    //TODO attack b
                 }
             }
         }
+        // if guardian is outside of objective zone
+        if(!isInObjectiveZone() && isDogeReady()){
+            if(world.manhattanDistance(guardian.getCurrentCell(),findNearestCellOurSide())<=
+                    guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange()) {
+                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, findNearestCellOurSide());
+            }else {
+                world.castAbility(guardian, AbilityName.GUARDIAN_DODGE, nearOutsideOfObjective());
+            }
+            return; // stop continue this method
+        }
+    }
+
+    public void movePhase(){
+        //if guardian are not in Objective zone :
+        if(!isInObjectiveZone()){
+            world.moveHero(guardian,nearestObjectiveCell()[0]);
+        }else {
+            // guardian are in Objective zone
+            // if can't see any one
+            Cell cell = findNearestCellOurSide();
+            if (!canSeeAnyOne()){
+                // go to nearest row of objective Zone after Blaster
+                world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
+            } else { // guardian an see enemyHeroes -->
+                //find near enemy and go to kill that
+                ArrayList<Hero> enemiesInObjective = getEnemyHeroesInObjective(world.getOppHeroes());
+                if(!enemiesInObjective.isEmpty()){
+                    Hero nearEnemy = findNearHero(enemiesInObjective);
+                    //check if in current cell
+                    if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell()))
+                        world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),
+                            nearEnemy.getCurrentCell())[0]);
+                } else {
+                    //TODO ببینیم اصلا می صرفه بریم سمت دشمنی که نزدیک هست؟؟
+                }
+            }
+        }
+
     }
 
     private Hero findNearHero(Hero[] heroes){
-        ArrayList<Hero> result =  new ArrayList<>();
-        result.addAll(Arrays.asList(heroes));
+        ArrayList<Hero> result = new ArrayList<>(Arrays.asList(heroes));
         return findNearHero(result);
     }
 
@@ -142,7 +158,8 @@ public class Guardian_AI {
         ArrayList<Hero> attackAbleEnemies =  new ArrayList<>();
         for (Hero enemy: enemyHeroes) {
             if(world.manhattanDistance(enemy.getCurrentCell(),guardian.getCurrentCell())<=
-                    guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getRange()){
+                    guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getRange()+
+                    guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getAreaOfEffect()){
                 attackAbleEnemies.add(enemy);
             }
         }
@@ -161,33 +178,16 @@ public class Guardian_AI {
 
     private Cell[] directionPathToCell() {
         Direction[] path = world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide());
-        ArrayList<Cell> result =  new ArrayList<>() ;
+        Cell[] result =  new Cell[path.length];
         Cell src = guardian.getCurrentCell();
-        for (Direction dir : path) {
-            src = Utility.nextCell(world,src,dir);
-            result.add(src);
+        for (int i = 0; i < result.length; i++) {
+            result[i]=Utility.nextCell(world,src,path[i]);
+            src=Utility.nextCell(world,src,path[i]);
         }
-        return (Cell[]) result.toArray();
+        return result;
     }
 
-    public void movePhase(){
-        //TODO -->
-        //if guardian are not in Objective zone :
-        if(!isInObjectiveZone()){
-                world.moveHero(guardian,nearestObjectiveCell()[0]);
-        }else {
-            // guardian are in Objective zone
-            // if can't see any one
-            Cell cell = findNearestCellOurSide();
-            if (!canSeeAnyOne()){
-                // go to nearest row of objective Zone after Blaster
-                world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
-            } else { // guardian an see enemyHeroes -->
-                //TODO ==> guardian can see enemies
-            }
-        }
 
-    }
 
     private Cell findNearestCellOurSide() {
         Cell[] myRespawnZone  = map.getMyRespawnZone();
@@ -239,5 +239,18 @@ public class Guardian_AI {
     private Direction[] nearestObjectiveCell(){
         return world.getPathMoveDirections(guardian.getCurrentCell(),
                 new Range_fight(world).findNearestZoneCell(guardian.getCurrentCell()));
+    }
+
+
+    public Hero getGuardian() {
+        return guardian;
+    }
+
+    public void setGuardian(Hero guardian) {
+        this.guardian = guardian;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
     }
 }
