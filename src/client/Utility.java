@@ -7,6 +7,7 @@ import java.util.Vector;
 
 public class Utility {
     final static int BLASTER_DODGE_RANGE = 4;
+    final static int BLASTER_ATTACK_RADIUS = 1;
     static int distance(Cell start, Cell end, boolean check) {
         if (check && (start.isWall() || end.isWall()))
             return -1;
