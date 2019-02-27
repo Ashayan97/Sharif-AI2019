@@ -185,7 +185,7 @@ public class Sentry_AI {
             Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), rangeFight.bestInVision(hero, rangeFight.NearstEnemy(hero.getCurrentCell(), inRangeAtkHeroes), 7));
             world.moveHero(hero, dir[0]);
         } else {
-            if (rangeFight.isSafe(hero, 6)) {
+            if (rangeFight.isSafe(hero, 6)||rangeFight.notInEnemyVision(hero,world.getOppHeroes())) {
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
                     Direction dir = ObjectMove();
                     if (dir != null)
@@ -229,6 +229,7 @@ public class Sentry_AI {
             if (inRangeAtkHeroe.getName().equals(HeroName.BLASTER))
                 return true;
         }
+
         return false;
     }
 
