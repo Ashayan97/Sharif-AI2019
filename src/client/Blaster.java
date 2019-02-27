@@ -5,6 +5,7 @@ import client.model.*;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 /**
  * created by Omidekz
@@ -244,18 +245,29 @@ public class Blaster {
                 safeFromBlasters(world, blaster, blasterCurrentCell, dupRangeH);
             }
         } else {
-            Cell minDisCellFromObjzone = // if blaster was in objzone this method return null
-                    objzoneCellMinDis(blasterCurrentCell);
+            System.out.println("=======================\nin safemove and out of objzone\n"+blasterCurrentCell.getRow()+"-"+blasterCurrentCell.getColumn());
+
             Vector<Cell> blockcell = new Vector<>();
-            while (world.getMyHero(minDisCellFromObjzone) != null &&
-                    Utility.getGuardians(world,Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone)).length!=0) {
-                blockcell.add(minDisCellFromObjzone);
+            Cell minDisCellFromObjzone;
+
+            do{
                 minDisCellFromObjzone = objzoneCellMinDis(blasterCurrentCell, blockcell);
+                blockcell.add(minDisCellFromObjzone);
+                System.out.println(blockcell.size()+":"+minDisCellFromObjzone.getRow()+"-"+minDisCellFromObjzone.getColumn());
                 if(blockcell.size() == objectiveCells.length * objectiveCells.length)
                     return;
+            } while (Utility.distance(minDisCellFromObjzone,blasterCurrentCell) == 1&&
+                    world.getMyHero(minDisCellFromObjzone) != null);
+
+            Cell nextCell = Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone);
+            System.out.println("next cell : "+nextCell.getRow()+"-"+nextCell.getColumn());
+            Hero[] perdict = Utility.getGuardians(world,nextCell);
+            System.out.println("perdict len : "+perdict.length);
+            if(perdict.length == 0) {
+                move(world, blaster.getId(), blasterCurrentCell, minDisCellFromObjzone, history);
+                setCell(blaster, nextCell);
             }
-            move(world, blaster.getId(), blasterCurrentCell, minDisCellFromObjzone, history);
-            setCell(blaster,minDisCellFromObjzone);
+            System.out.println("==========================");
         }
     }
 
@@ -263,6 +275,49 @@ public class Blaster {
         Cell[] moveCells = moveCell(world, blaster);
         //obj && > 4
         float avgDis = avgDis(blasterCurrentCell,dupRangeH.toArray(new Hero[0]));
+        //*********************************************
+        Cell okCell = null,outofobjOkCell=null,objBadCell=null,badCell=null;
+        boolean okFlag,outofFlag,objbadCellFlag,badCellFlag;
+        for (int i = 0; i < moveCells.length; i++) {
+            if(moveCells[i] == null || moveCells[i].isWall())
+                continue;
+            okFlag = outofFlag = objbadCellFlag = badCellFlag = true;
+            for (int j = 0; j < dupRangeH.size(); j++) {
+                if(!(moveCells[i].isInObjectiveZone() &&
+                    Utility.distance(moveCells[i],currentCell(dupRangeH.get(j)))>4 )){
+                    okFlag = false;
+                }else if(!(moveCells[i].isInObjectiveZone() &&
+                    Utility.distance(moveCells[i],currentCell(dupRangeH.get(j)))>avgDis )){
+                    objbadCellFlag = false;
+                }else if(!(Utility.distance(moveCells[i],currentCell(dupRangeH.get(j)))>4 )){
+                    outofFlag = false;
+                }else if(!(Utility.distance(moveCells[i],currentCell(dupRangeH.get(j)))>4 )){
+                    badCellFlag = false;
+                }
+            }
+            if(okFlag){
+                okCell = moveCells[i];
+            }else if(objbadCellFlag){
+                objBadCell = moveCells[i];
+            }else if(outofFlag){
+                outofobjOkCell = moveCells[i];
+            }else if(badCellFlag){
+                badCell = moveCells[i];
+            }
+        }
+        Direction[] dir;
+        if(okCell != null){
+            dir = world.getPathMoveDirections(blasterCurrentCell,okCell);
+        }else if(objBadCell != null){
+            dir = world.getPathMoveDirections(blasterCurrentCell,badCell);
+        }else if(outofobjOkCell != null){
+            dir = world.getPathMoveDirections(blasterCurrentCell,outofobjOkCell);
+        }else if(badCell != null){
+            dir = world.getPathMoveDirections(blasterCurrentCell,badCell);
+        }else{
+            return;
+        }
+        //*********************************************
         for (int i = 0; i < moveCells.length; i++) {
             if (moveCells[i] != null && moveCells[i].isInObjectiveZone()) {
                 boolean flag = true;
@@ -366,7 +421,8 @@ public class Blaster {
             for (int j = 0; j < objectiveCells.length; j++) {
                 boolean flag = false;
                 for (Cell block : blocks) {
-                    if (objectiveCells[i][j].equals(block)) {
+                    if (objectiveCells[i][j].getRow() == block.getRow()
+                            &&objectiveCells[i][j].getColumn() == block.getColumn() ) {
                         flag = true;
                         break;
                     }
@@ -423,12 +479,15 @@ public class Blaster {
      * blaster haye khodi ro return mikone
      * */
     private static Hero[] getBelasters(World world, Hero blaster) {
-        Cell[] cl = Utility.availableCells(world.getMap(),4,blaster.getCurrentCell());
+        return getBlasters(world,blaster.getCurrentCell(),blaster.getId());
+    }
+    private static Hero[] getBlasters(World world,Cell center,int blasterID){
+        Cell[] cl = Utility.availableCells(world.getMap(),4,center);
         Vector<Hero> hs = new Vector<>();
         for (Cell aMh : cl) {
             if (world.getMyHero(aMh) != null &&
-            world.getMyHero(aMh).getName().equals(HeroName.BLASTER) &&
-            world.getMyHero(aMh).getId()!=blaster.getId())
+                    world.getMyHero(aMh).getName().equals(HeroName.BLASTER) &&
+                    world.getMyHero(aMh).getId()!=blasterID)
                 hs.add(world.getMyHero(aMh));
         }
         return hs.toArray(new Hero[0]);
