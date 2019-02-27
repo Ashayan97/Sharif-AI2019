@@ -38,26 +38,44 @@ public class AI {
         this.world = world;
         Utility.printMap(world);
         init();
-        sentry = new Sentry_AI(world.getMyHeroes()[3], world);
-        Blaster.blasterMove(this,world, world.getMyHeroes()[0], histories[indexOfHeroInHistory(world.getMyHeroes()[0])]);
-        Blaster.blasterMove(this,world, world.getMyHeroes()[2], histories[indexOfHeroInHistory(world.getMyHeroes()[1])]);
-        Guardian_AI g = new Guardian_AI(world.getMyHeroes()[1],world);
-        g.movePhase();
-//        Blaster.blasterMove(this,world,world.getMyHeroes()[2],histories[indexOfHeroInHistory(world.getMyHeroes()[2])]);
+        Hero[] hero = world.getMyHeroes();
+        Sentry_AI sentry = new Sentry_AI(hero[3],world);
         sentry.SentryMove();
+
+        Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
+        Blaster.blasterMove(this,world,hero[1],histories[indexOfHeroInHistory(hero[1])]);
+        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
+
+//        Guardian_AI guardian ;
+//        guardian= new Guardian_AI(hero[0],world);
+//        guardian.movePhase();
+//        guardian= new Guardian_AI(hero[1],world);
+//        guardian.movePhase();
+//        guardian= new Guardian_AI(hero[2],world);
+//        guardian.movePhase();
+
     }
 
     void actionTurn(World world) {
         this.world = world;
         init();
-        Blaster.blasterAttack(this,world, world.getMyHeroes()[0]);
-        Blaster.blasterAttack(this,world, world.getMyHeroes()[2]);
-        Guardian_AI g = new Guardian_AI(world.getMyHeroes()[1],world);
-        g.actionPhase();
+        Hero[] heroes = world.getMyHeroes();
 
-//        Blaster.blasterAttack(this,world,world.getMyHeroes()[2]);
-        sentry = new Sentry_AI(world.getMyHeroes()[3],world);
+        Sentry_AI sentry = new Sentry_AI(heroes[3],world);
         sentry.actionPhase();
+
+        Blaster.blasterMove(this,world,heroes[0],histories[indexOfHeroInHistory(heroes[0])]);
+        Blaster.blasterMove(this,world,heroes[1],histories[indexOfHeroInHistory(heroes[1])]);
+        Blaster.blasterMove(this,world,heroes[2],histories[indexOfHeroInHistory(heroes[2])]);
+
+//        Guardian_AI guardian;
+//        guardian  = new Guardian_AI(heroes[0],world);
+//        guardian.actionPhase();
+//        guardian  = new Guardian_AI(heroes[1],world);
+//        guardian.actionPhase();
+//        guardian  = new Guardian_AI(heroes[2],world);
+//        guardian.actionPhase();
+
     }
 
     //****************************************
