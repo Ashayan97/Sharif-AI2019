@@ -21,7 +21,9 @@ public class Guardian_AI {
 
     public Guardian_AI(Hero guardian, World world) {
         if(guardian==null)
-            throw new RuntimeException("HERO PASSED IS NULL");
+            throw new RuntimeException("HERO PASSED IS NULL OR PASSED WRONG \n" +
+                    "هیرو رو اشتباهی پاس دادی یا پاس ندادی");
+
         this.guardian = guardian;
         this.world = world;
         this.map = world.getMap();
