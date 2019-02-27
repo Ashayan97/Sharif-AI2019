@@ -48,7 +48,7 @@ public class Blaster {
      * */
     static void blasterAttack(AI ai, World world, Hero blaster) {
         setAI(ai);
-        if(blaster.getCurrentHP() == 0)
+        if(blaster.getCurrentHP() == 0 || world.getAP() < 15)
             return;
         AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() && world.getAP() >= 25?
                 AbilityName.BLASTER_BOMB :
