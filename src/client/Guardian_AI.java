@@ -19,6 +19,8 @@ public class Guardian_AI {
     private static final int criticalHealthPoint = 40 ;
 
     public Guardian_AI(Hero guardian, World world) {
+        if(guardian==null)
+            throw new RuntimeException("HERO PASSED IS NULL");
         this.guardian = guardian;
         this.world = world;
         this.map = world.getMap();
@@ -26,7 +28,7 @@ public class Guardian_AI {
     }
 
     public void actionPhase(){
-        if(guardian.getCurrentHP()==0)
+        if(guardian.getCurrentHP()==0 || world.getAP()<15)
             return;
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
@@ -142,7 +144,7 @@ public class Guardian_AI {
     }
 
     public void movePhase(){
-        if(guardian.getCurrentHP()==0)
+        if(guardian.getCurrentHP()==0 || world.getAP()<8)
             return;
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
@@ -188,8 +190,10 @@ public class Guardian_AI {
                                 Logger.log("=== === === === EFFECTIVE AP === === === ===",Logger.BLUE);
                                 return;
                             }
-                            world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
-                                    bestCell, getHeroesLocation(world.getMyHeroes()))[0]);
+                            if(world.getPathMoveDirections(guardian.getCurrentCell(),
+                                    bestCell, getHeroesLocation(world.getMyHeroes())).length!=0)
+                                world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
+                                        bestCell, getHeroesLocation(world.getMyHeroes()))[0]);
                         }
                     }
                 } else {

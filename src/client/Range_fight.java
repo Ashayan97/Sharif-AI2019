@@ -160,9 +160,8 @@ public class Range_fight {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
             if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
-                if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) > 5) {
+                if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) >= 5) {
 
-                } else if (OppHero[i].getName().equals(HeroName.HEALER) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) > 5) {
                 } else
                     return false;
         }
