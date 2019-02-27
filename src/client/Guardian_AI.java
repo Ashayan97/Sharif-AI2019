@@ -71,7 +71,7 @@ public class Guardian_AI {
                     if(isDangerTime()){
                         if(isFortifyReady()) {
                             world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
-                            Logger.log("============================FORTIFY==========================",Logger.YELLOW);
+                            Logger.log("============================FORTIFY==========================",Logger.BLUE);
                             return;
                         }else if(isDogeReady()){
                             world.castAbility(guardian, guardian.getAbility(AbilityName.GUARDIAN_DODGE),
@@ -262,11 +262,13 @@ public class Guardian_AI {
                     int distnceToNearEnemy = world.manhattanDistance(nearEnemy.getCurrentCell(),guardian.getCurrentCell());
                     if(movePhaseCount==5){
                         if(distnceToNearEnemy<=1){
+                            Logger.log("=== === === === === === GUARDIAN EFFECTIVE AP === === === ===",Logger.BLUE);
                             return;
                         }
                     }
                     if(movePhaseCount==6){
                         if(distnceToNearEnemy<=2){
+                            Logger.log("=== === === === === === GUARDIAN EFFECTIVE AP === === === ===",Logger.BLUE);
                             return;
                         }
                     }
