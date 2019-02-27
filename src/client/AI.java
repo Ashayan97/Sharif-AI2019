@@ -22,6 +22,11 @@ public class AI {
     private Map<Integer, Cell> dodgeMap = new HashMap<>();
     private Map<Integer,Cell> nextCell = new HashMap<>();
     private LastData lastData=new LastData();
+    private int GUARDIAN_INDEX=-1;
+    private int BLASTER_INDEX = -1;
+    private int BLASTER2_INDEX = -1;
+    private int SENTRY_INDEX = -1;
+    private int BEST_FOR_GUARDIAN_RESPAWNZONE = -1;
 
     //****************************************
     void preProcess(World world) {
@@ -29,6 +34,19 @@ public class AI {
         objectiveCells = world.getMap().getObjectiveZone();
         initWallCell();
         Blaster.set(world);
+        Cell[] res = world.getMap().getMyRespawnZone();
+        for (int i = 0; i < res.length; i++) {
+            Cell[] avires = Utility.availableCells(world.getMap(),1,res[i]);
+            for (int j = 0; j < avires.length; j++) {
+                if(avires[j].isWall()&&Utility.distance(res[i],avires[j])==1){
+                    BEST_FOR_GUARDIAN_RESPAWNZONE = i;
+                    break;
+                }
+            }
+            if(BEST_FOR_GUARDIAN_RESPAWNZONE !=-1)
+                break;
+        }
+        setINDEX();
     }
 
     void pickTurn(World world) {
@@ -64,11 +82,11 @@ public class AI {
         Hero[] heroes = world.getMyHeroes();
 
         Sentry_AI sentry = new Sentry_AI(heroes[3],world,lastData);
-        if(heroes[3].getCurrentHP()!=0)
+        if(heroes[SENTRY_INDEX].getCurrentHP()!=0)
             sentry.actionPhase();
 
-        Blaster.blasterAttack(this,world,heroes[0]);
-        Blaster.blasterAttack(this,world,heroes[1]);
+        Blaster.blasterAttack(this,world,heroes[BLASTER_INDEX]);
+        Blaster.blasterAttack(this,world,heroes[BLASTER2_INDEX]);
 //        Blaster.blaster(this,world,heroes[2],histories[indexOfHeroInHistory(heroes[2])]);
 
         Guardian_AI guardian;
@@ -76,19 +94,40 @@ public class AI {
 //        guardian.actionPhase();
 //        guardian  = new Guardian_AI(heroes[1],world);
 //        guardian.actionPhase();
-        guardian  = new Guardian_AI(heroes[2],world);
+        guardian  = new Guardian_AI(heroes[GUARDIAN_INDEX],world);
         guardian.actionPhase();
 
     }
 
-    //****************************************
 
+    //****************************************
     /**
      * this method initialize our need across the phase or turn
      */
     private void init() {
         initHistorys(world.getMyHeroes());
         initHeroInVision();
+    }
+
+    private void setINDEX() {
+        GUARDIAN_INDEX = BEST_FOR_GUARDIAN_RESPAWNZONE;
+        if(BEST_FOR_GUARDIAN_RESPAWNZONE == 0){
+            BLASTER_INDEX = 1;
+            SENTRY_INDEX = 2;
+            BLASTER2_INDEX = 3;
+        }else if(GUARDIAN_INDEX == 1){
+            BLASTER_INDEX = 0;
+            SENTRY_INDEX = 2;
+            BLASTER2_INDEX = 3;
+        }else if(BEST_FOR_GUARDIAN_RESPAWNZONE == 2){
+            BLASTER_INDEX = 0;
+            SENTRY_INDEX = 1;
+            BLASTER2_INDEX = 3;
+        }else{
+            BLASTER_INDEX = 0;
+            SENTRY_INDEX = 1;
+            BLASTER2_INDEX = 2;
+        }
     }
 
     private void initHeroInVision() {
@@ -134,20 +173,14 @@ public class AI {
      * we pick our hero for game in this method
      */
     private void pickHeroInPhase() {
-        switch (PICK_PHASE_COUNTER) {
-            case 0:
-                world.pickHero(HeroName.BLASTER);
-                break;
-            case 1:
-                world.pickHero(HeroName.BLASTER);
-
-                break;
-            case 2:
-                world.pickHero(HeroName.GUARDIAN);
-                break;
-            case 3:
-                world.pickHero(HeroName.SENTRY);
-                break;
+        if(PICK_PHASE_COUNTER == GUARDIAN_INDEX){
+            world.pickHero(HeroName.GUARDIAN);
+        }else if(PICK_PHASE_COUNTER == BLASTER_INDEX){
+            world.pickHero(HeroName.BLASTER);
+        }else if(PICK_PHASE_COUNTER == SENTRY_INDEX){
+            world.pickHero(HeroName.SENTRY);
+        }else if(PICK_PHASE_COUNTER == BLASTER2_INDEX){
+            world.pickHero(HeroName.BLASTER);
         }
         PICK_PHASE_COUNTER++;
 
