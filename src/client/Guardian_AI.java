@@ -167,13 +167,13 @@ public class Guardian_AI {
                     int distanceToNearEnemy = world.manhattanDistance(nearEnemy.getCurrentCell(),guardian.getCurrentCell());
                     if(movePhaseCount==5){
                         if(distanceToNearEnemy<=1){
-                            Logger.log("=== === === === === === GUARDIAN EFFECTIVE AP === === === ===",Logger.BLUE);
+                            Logger.log("=== === === === EFFECTIVE AP === === === ===",Logger.BLUE);
                             return;
                         }
                     }
                     if(movePhaseCount==6){
                         if(distanceToNearEnemy<=2){
-                            Logger.log("=== === === === === === GUARDIAN EFFECTIVE AP === === === ===",Logger.BLUE);
+                            Logger.log("=== === === === EFFECTIVE AP === === === ===",Logger.BLUE);
                             return;
                         }
                     }
@@ -183,6 +183,11 @@ public class Guardian_AI {
                                 nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes())).length != 0) {
                             // find best cell with range 1 from
                             Cell bestCell = findNearCellWithRangeOne(nearEnemy.getCurrentCell());
+                            if(world.manhattanDistance(bestCell,guardian.getCurrentCell())>=5){
+                                //do nothing if we can find him
+                                Logger.log("=== === === === EFFECTIVE AP === === === ===",Logger.BLUE);
+                                return;
+                            }
                             world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
                                     bestCell, getHeroesLocation(world.getMyHeroes()))[0]);
                         }
