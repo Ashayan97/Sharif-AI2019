@@ -190,8 +190,10 @@ public class Guardian_AI {
                                 Logger.log("=== === === === EFFECTIVE AP === === === ===",Logger.BLUE);
                                 return;
                             }
-                            world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
-                                    bestCell, getHeroesLocation(world.getMyHeroes()))[0]);
+                            if(world.getPathMoveDirections(guardian.getCurrentCell(),
+                                    bestCell, getHeroesLocation(world.getMyHeroes())).length!=0)
+                                world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
+                                        bestCell, getHeroesLocation(world.getMyHeroes()))[0]);
                         }
                     }
                 } else {
