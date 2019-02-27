@@ -1,9 +1,6 @@
 package client;
 
-import client.model.Cell;
-import client.model.Hero;
-import client.model.Map;
-import client.model.World;
+import client.model.*;
 
 import java.util.ArrayList;
 
@@ -163,7 +160,11 @@ public class Range_fight {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
             if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
-                return false;
+                if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) > 5) {
+
+                } else if (OppHero[i].getName().equals(HeroName.HEALER) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) > 5) {
+                } else
+                    return false;
         }
         return true;
     }
@@ -172,7 +173,12 @@ public class Range_fight {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
             if (world.manhattanDistance(cell, OppHero[i].getCurrentCell()) <= range)
-                return false;
+                if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(cell, OppHero[i].getCurrentCell()) > 5) {
+
+                } else if (OppHero[i].getName().equals(HeroName.HEALER) && world.manhattanDistance(cell, OppHero[i].getCurrentCell()) > 5) {
+                } else
+                    return false;
+
         }
         return true;
     }
@@ -190,6 +196,16 @@ public class Range_fight {
         Hero[] Opp = world.getOppHeroes();
         for (int i = 0; i < Opp.length; i++) {
             if (Opp[i].getCurrentCell().getColumn() != -1 && world.manhattanDistance(hero.getCurrentCell(), Opp[i].getCurrentCell()) <= range)
+                heroes.add(Opp[i]);
+        }
+        return heroes.toArray(new Hero[0]);
+    }
+
+    public Hero[] InRangeAtk(Cell hero, int range) {
+        ArrayList<Hero> heroes = new ArrayList<>();
+        Hero[] Opp = world.getOppHeroes();
+        for (int i = 0; i < Opp.length; i++) {
+            if (Opp[i].getCurrentCell().getColumn() != -1 && world.manhattanDistance(hero, Opp[i].getCurrentCell()) <= range)
                 heroes.add(Opp[i]);
         }
         return heroes.toArray(new Hero[0]);
@@ -277,7 +293,7 @@ public class Range_fight {
         Cell Des = center;
         int min = Integer.MAX_VALUE;
         for (Cell cell : cells) {
-            if (isSafe(cell, safeRange))
+            if (isSafe(cell, safeRange) && !cell.isWall())
                 lastChoice.add(cell);
         }
         for (int i = 0; i < lastChoice.size(); i++) {
@@ -286,6 +302,9 @@ public class Range_fight {
                 min = world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i)));
             }
         }
+
+        if (Des.equals(center))
+            return bestSafe(cells, center);
         return Des;
     }
 
@@ -309,20 +328,42 @@ public class Range_fight {
         return inVision.toArray(new Hero[inVision.size()]);
     }
 
+    public Hero[] inVisionEnemy(Cell hero, int range) {
+        Hero[] heroes = world.getOppHeroes();
+        ArrayList<Hero> inVision = new ArrayList<>();
+        for (int i = 0; i < heroes.length; i++) {
+            if (world.isInVision(hero, heroes[i].getCurrentCell()) && world.manhattanDistance(heroes[i].getCurrentCell(), hero) <= range)
+                inVision.add(heroes[i]);
+        }
+        return inVision.toArray(new Hero[inVision.size()]);
+    }
+
+    public Cell bestSafe(Cell[] cells, Cell center) {
+        Cell bestCell = null;
+        Hero[] inrange = InRangeAtk(world.getMyHero(center), 6);
+        float Avg = avgDistance(inrange, center);
+        for (int i = 0; i < cells.length; i++) {
+            if (avgDistance(inrange, cells[i]) >= Avg && !cells[i].isWall())
+                bestCell = cells[i];
+        }
+        return bestCell;
+
+    }
+
     public Cell bestInVision(Hero hero, Cell enemy, int range) {
         Cell[] cells = cellsOfArea(enemy, range);
         Cell near = null;
         int dis = Integer.MAX_VALUE;
         for (int i = 0; i < cells.length; i++) {
-            if (near == null&&!cells[i].isWall()&&world.getMyHero(cells[i].getRow(),cells[i].getColumn())==null) {
+            if (near == null && !cells[i].isWall() && world.getMyHero(cells[i].getRow(), cells[i].getColumn()) == null) {
                 near = cells[i];
                 dis = world.manhattanDistance(hero.getCurrentCell(), cells[i]);
             } else if (world.manhattanDistance(hero.getCurrentCell(), cells[i]) < dis &&
                     world.isInVision(enemy, cells[i]) &&
-                    world.manhattanDistance(enemy, cells[i]) <= range&&
+                    world.manhattanDistance(enemy, cells[i]) <= range &&
                     world.manhattanDistance(enemy, cells[i]) >= 5 &&
-                    !cells[i].isWall()&&
-                    world.getMyHero(cells[i].getRow(),cells[i].getColumn())==null) {
+                    !cells[i].isWall() &&
+                    world.getMyHero(cells[i].getRow(), cells[i].getColumn()) == null) {
                 near = cells[i];
                 dis = world.manhattanDistance(hero.getCurrentCell(), cells[i]);
             }

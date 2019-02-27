@@ -16,17 +16,16 @@ public class Sentry_AI {
     private Map map;
     private Range_fight rangeFight;
     private Hero[] heroes;
-    private int AtkPriority = 0;
     private boolean needToMove = false;
     private boolean atkMode = false;
     private Hero lastAtkTo = null;
     private Hero[] inVision;
     private Hero[] inRangeAtkHeroes;
     private Hero[] ourHeroes;
-    private Hero commonEnemy;
+    private LastData lastData;
 //    private Cell[] bestOfZone;
 
-    public Sentry_AI(Hero hero, World world) {
+    public Sentry_AI(Hero hero, World world, LastData lastData) {
         if (world == null)
             throw new RuntimeException("NULL WORLD");
         this.hero = hero;
@@ -37,6 +36,7 @@ public class Sentry_AI {
         inVision = rangeFight.inVisionEnemy(hero);
         inRangeAtkHeroes = rangeFight.InRangeAtk(hero, 7);
         ourHeroes = world.getMyHeroes();
+        this.lastData = lastData;
 //        this.bestOfZone = bestOfZone;
 
 //        heroes = world.getOppHeroes();
@@ -123,9 +123,6 @@ public class Sentry_AI {
         }
     }
 
-    public void setCommonEnemy(Hero commonEnemy) {
-        this.commonEnemy = commonEnemy;
-    }
 
     public boolean isNeedToMove() {
         return inRangeAtkHeroes.length == 0;
@@ -136,7 +133,7 @@ public class Sentry_AI {
 //        Hero[] inRangeAtkHeroes = rangeFight.InRangeAtk(hero, 7);
         //Hero[] inVision = rangeFight.inVisionEnemy(hero);
         for (Hero inRangeAtkHeroe : inRangeAtkHeroes) {
-            if (counter == 2)
+            if (counter >= 2)
                 return true;
             if (inRangeAtkHeroe.getName().equals(HeroName.BLASTER)) {
                 counter++;
@@ -161,7 +158,25 @@ public class Sentry_AI {
         return false;
     }
 
+    private void setLastData() {
+        lastData.inRangeAtkHeroes = inRangeAtkHeroes;
+        lastData.inVision = inVision;
+        lastData.lastCell = hero.getCurrentCell();
+        lastData.ourHeroes = ourHeroes;
+    }
+
     public void SentryMove() {
+        if (lastData.Des != null) {
+
+            if (rangeFight.inVisionEnemy(lastData.lastCell, 7).length == 0 && heroes.length == 0) {
+                world.moveHero(hero, world.getPathMoveDirections(hero.getCurrentCell(), lastData.Des)[0]);
+                lastData.lastCell = hero.getCurrentCell();
+                lastData.ourHeroes = ourHeroes;
+            } else {
+                lastData.Des = null;
+                setLastData();
+            }
+        }
         if (hero.getCurrentHP() == 0)
             return;
         if (atkMode || (heroes.length == 0 && hero.getCurrentCell().isInObjectiveZone())) {
@@ -172,25 +187,30 @@ public class Sentry_AI {
                 //Cell[] blockCell=rangeFight.cellsOfArea(rangeFight.NearstEnemy(hero.getCurrentCell(),enemyHero),6);
                 if (des.isInObjectiveZone()) {
                     Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), des);
+                    setLastData();
                     world.moveHero(hero, dir[0]);
                 }
             } else {
                 Hero[] enemyHero = world.getOppHeroes();
                 Cell[] blockCell = rangeFight.cellsOfArea(rangeFight.NearstEnemy(hero.getCurrentCell(), enemyHero), 6);
-                Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), commonEnemy.getCurrentCell(), blockCell);
+                Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), des, blockCell);
+                setLastData();
                 world.moveHero(hero, dir[0]);
             }
 
         } else if (heroes.length == 0 && inRangeAtkHeroes.length != 0 && !hero.getCurrentCell().isInObjectiveZone()) {
             Direction[] dir = world.getPathMoveDirections(hero.getCurrentCell(), rangeFight.bestInVision(hero, rangeFight.NearstEnemy(hero.getCurrentCell(), inRangeAtkHeroes), 7));
+            setLastData();
             world.moveHero(hero, dir[0]);
         } else {
-            if (rangeFight.isSafe(hero, 6)||rangeFight.notInEnemyVision(hero,world.getOppHeroes())) {
+            if (rangeFight.isSafe(hero, 6) || rangeFight.notInEnemyVision(hero, world.getOppHeroes())) {
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
                     Direction dir = ObjectMove();
-                    if (dir != null)
+                    if (dir != null) {
+                        setLastData();
                         world.moveHero(hero, dir);
 //                    return;
+                    }
                 }
             } else {
 //                if (!isNeedToMove())
@@ -200,6 +220,7 @@ public class Sentry_AI {
 //                            world.moveHero(hero, dir);
 //                        return;
 //                    }
+                setLastData();
                 world.moveHero(hero, EscapeDirection(rangeFight.InRangeAtk(hero, 7)));
             }
         }
@@ -294,7 +315,7 @@ public class Sentry_AI {
                 return bestMove;
             else {
                 if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
+                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
                         rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
                         rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
                         map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
@@ -306,7 +327,7 @@ public class Sentry_AI {
                 }
 
                 if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
+                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
                         rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
                         rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
                         map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
@@ -340,7 +361,7 @@ public class Sentry_AI {
                 else {
                     if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
                             rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
+                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
                             map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
                             world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
                     ) {
@@ -350,7 +371,7 @@ public class Sentry_AI {
                     }
 
                     if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
+                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
                             rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
                             map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
                             world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
@@ -389,7 +410,7 @@ public class Sentry_AI {
                         return bestMove;
                     else {
                         if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
+                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
 //                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
 //                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
 //                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
@@ -403,7 +424,7 @@ public class Sentry_AI {
 
                         if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
 //                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
+                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
 //                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
 //                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
                                 rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
@@ -440,7 +461,7 @@ public class Sentry_AI {
                         else {
 
                             if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
+                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
@@ -453,7 +474,7 @@ public class Sentry_AI {
 
                             if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
+                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
                                     rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
@@ -490,7 +511,7 @@ public class Sentry_AI {
                         else {
 
                             if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
+                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
@@ -503,7 +524,7 @@ public class Sentry_AI {
 
                             if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
+                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
 //                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
                                     rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
