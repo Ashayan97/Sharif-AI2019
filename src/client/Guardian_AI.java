@@ -147,7 +147,7 @@ public class Guardian_AI {
         if(guardian.getCurrentHP()==0 || world.getAP()<8)
             return;
         //save AP for Blaster or Sentry
-        if(world.getAP()<30)
+        if(world.getAP()<=30)
             return;
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
