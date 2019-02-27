@@ -265,8 +265,8 @@ public class Blaster {
                 return minCellFrom(world,mhero.getCurrentCell(),4,inMyAttckRange[0].getCurrentCell());
             }
         }
-        Utility.sortOnHP(inMyAttckRange);
-        return minCellFrom(world,mhero.getCurrentCell(),4,inMyAttckRange[0].getCurrentCell());
+        Utility.sortOnDistance(mhero.getCurrentCell(),inMyAttckRange);
+        return inMyAttckRange[0].getCurrentCell();
     }
 
     private static Cell minCellFrom(World world,Cell from, int range, Cell to) {
