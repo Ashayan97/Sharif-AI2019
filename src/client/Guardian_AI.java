@@ -32,6 +32,12 @@ public class Guardian_AI {
             ArrayList<Hero> enemyHeroInVision = getEnemyHeroesInVision(enemyHeroes);
             ArrayList<Hero> attackAbleEnemies =  getAttackAbleEnemies(enemyHeroes);
             ArrayList<Hero> enemiesInObjective =  getEnemyHeroesInObjective(enemyHeroes);
+            //attack
+            if(!attackAbleEnemies.isEmpty()){
+                Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
+                world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,effectiveCell);
+                return; // stop continue this method
+            }
             //Fortify if necessary
             if(isDangerTime()){ //TODO
                 if(isFortifyReady()){
