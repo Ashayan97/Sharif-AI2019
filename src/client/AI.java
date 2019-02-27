@@ -22,10 +22,10 @@ public class AI {
     private Map<Integer, Cell> dodgeMap = new HashMap<>();
     private Map<Integer,Cell> nextCell = new HashMap<>();
     private LastData lastData=new LastData();
-    private int GUARDIAN_INDEX=-1;
-    private int BLASTER_INDEX = -1;
-    private int BLASTER2_INDEX = -1;
-    private int SENTRY_INDEX = -1;
+    private int FIRST_HERO =-1; // is Guardian
+    private int SECOND_HERO = -1;
+    private int THERD_HERO = -1;
+    private int FORTH_HERO = -1;
     private int BEST_FOR_GUARDIAN_RESPAWNZONE = -1;
 
     //****************************************
@@ -59,20 +59,21 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-        Sentry_AI sentry = new Sentry_AI(hero[SENTRY_INDEX],world,lastData);
-        if(hero[SENTRY_INDEX].getCurrentHP() != 0)
+        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO],world,lastData);
+        if(hero[FORTH_HERO].getCurrentHP() != 0)
             sentry.SentryMove();
-        Blaster.blasterMove(this,world,hero[BLASTER_INDEX],histories[indexOfHeroInHistory(hero[BLASTER_INDEX])]);
-        Blaster.blasterMove(this,world,hero[BLASTER2_INDEX],histories[indexOfHeroInHistory(hero[BLASTER2_INDEX])]);
-//        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
+//        Blaster.blasterMove(this,world,hero[FORTH_HERO],histories[indexOfHeroInHistory(hero[FORTH_HERO])]);
+        Blaster.blasterMove(this,world,hero[SECOND_HERO],histories[indexOfHeroInHistory(hero[SECOND_HERO])]);
+        Blaster.blasterMove(this,world,hero[THERD_HERO],histories[indexOfHeroInHistory(hero[THERD_HERO])]);
+        Blaster.blasterMove(this,world,hero[FIRST_HERO],histories[indexOfHeroInHistory(hero[FIRST_HERO])]);
 
-        Guardian_AI guardian ;
+//        Guardian_AI guardian ;
 //        guardian= new Guardian_AI(hero[0],world);
 //        guardian.movePhase();
 //        guardian= new Guardian_AI(hero[1],world);
 //        guardian.movePhase();
-        guardian= new Guardian_AI(hero[GUARDIAN_INDEX],world);
-        guardian.movePhase();
+//        guardian= new Guardian_AI(hero[FIRST_HERO],world);
+//        guardian.movePhase();
 
     }
 
@@ -81,21 +82,22 @@ public class AI {
         init();
         Hero[] heroes = world.getMyHeroes();
 
-        Sentry_AI sentry = new Sentry_AI(heroes[SENTRY_INDEX],world,lastData);
-        if(heroes[SENTRY_INDEX].getCurrentHP()!=0)
+        Sentry_AI sentry = new Sentry_AI(heroes[FORTH_HERO],world,lastData);
+        if(heroes[FORTH_HERO].getCurrentHP()!=0)
             sentry.actionPhase();
 
-        Blaster.blasterAttack(this,world,heroes[BLASTER_INDEX]);
-        Blaster.blasterAttack(this,world,heroes[BLASTER2_INDEX]);
-//        Blaster.blaster(this,world,heroes[2],histories[indexOfHeroInHistory(heroes[2])]);
+//        Blaster.blasterAttack(this,world,heroes[FORTH_HERO]);
+        Blaster.blasterAttack(this,world,heroes[SECOND_HERO]);
+        Blaster.blasterAttack(this,world,heroes[THERD_HERO]);
+        Blaster.blasterAttack(this,world,heroes[FIRST_HERO]);
 
-        Guardian_AI guardian;
+//        Guardian_AI guardian;
 //        guardian  = new Guardian_AI(heroes[0],world);
 //        guardian.actionPhase();
 //        guardian  = new Guardian_AI(heroes[1],world);
 //        guardian.actionPhase();
-        guardian  = new Guardian_AI(heroes[GUARDIAN_INDEX],world);
-        guardian.actionPhase();
+//        guardian  = new Guardian_AI(heroes[FIRST_HERO],world);
+//        guardian.actionPhase();
 
     }
 
@@ -110,23 +112,23 @@ public class AI {
     }
 
     private void setINDEX() {
-        GUARDIAN_INDEX = BEST_FOR_GUARDIAN_RESPAWNZONE;
+        FIRST_HERO = BEST_FOR_GUARDIAN_RESPAWNZONE;
         if(BEST_FOR_GUARDIAN_RESPAWNZONE == 0){
-            BLASTER_INDEX = 1;
-            SENTRY_INDEX = 2;
-            BLASTER2_INDEX = 3;
-        }else if(GUARDIAN_INDEX == 1){
-            BLASTER_INDEX = 0;
-            SENTRY_INDEX = 2;
-            BLASTER2_INDEX = 3;
+            SECOND_HERO = 1;
+            FORTH_HERO = 2;
+            THERD_HERO = 3;
+        }else if(FIRST_HERO == 1){
+            SECOND_HERO = 0;
+            FORTH_HERO = 2;
+            THERD_HERO = 3;
         }else if(BEST_FOR_GUARDIAN_RESPAWNZONE == 2){
-            BLASTER_INDEX = 0;
-            SENTRY_INDEX = 1;
-            BLASTER2_INDEX = 3;
+            SECOND_HERO = 0;
+            FORTH_HERO = 1;
+            THERD_HERO = 3;
         }else{
-            BLASTER_INDEX = 0;
-            SENTRY_INDEX = 1;
-            BLASTER2_INDEX = 2;
+            SECOND_HERO = 0;
+            FORTH_HERO = 1;
+            THERD_HERO = 2;
         }
     }
 
@@ -173,15 +175,16 @@ public class AI {
      * we pick our hero for game in this method
      */
     private void pickHeroInPhase() {
-        if(PICK_PHASE_COUNTER == GUARDIAN_INDEX){
-            world.pickHero(HeroName.GUARDIAN);
-        }else if(PICK_PHASE_COUNTER == BLASTER_INDEX){
+        if(PICK_PHASE_COUNTER == FIRST_HERO){
             world.pickHero(HeroName.BLASTER);
-        }else if(PICK_PHASE_COUNTER == SENTRY_INDEX){
+        }else if(PICK_PHASE_COUNTER == SECOND_HERO){
+            world.pickHero(HeroName.BLASTER);
+        }else if(PICK_PHASE_COUNTER == FORTH_HERO){
             world.pickHero(HeroName.SENTRY);
-        }else if(PICK_PHASE_COUNTER == BLASTER2_INDEX){
+        }else if(PICK_PHASE_COUNTER == THERD_HERO){
             world.pickHero(HeroName.BLASTER);
         }
+
         PICK_PHASE_COUNTER++;
 
     }
