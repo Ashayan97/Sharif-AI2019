@@ -18,6 +18,7 @@ public class Guardian_AI {
     private Hero[] alliedHero;
     private static final int criticalHealthPoint = 40 ;
 
+
     public Guardian_AI(Hero guardian, World world) {
         if(guardian==null)
             throw new RuntimeException("HERO PASSED IS NULL");
@@ -30,24 +31,14 @@ public class Guardian_AI {
     public void actionPhase(){
         if(guardian.getCurrentHP()==0 || world.getAP()<15)
             return;
+        //
         if(guardian.getCurrentCell().isInMyRespawnZone() && isDogeReady() &&
                 world.getAP()>=guardian.getAbility(AbilityName.GUARDIAN_DODGE).getAPCost()){
-            Cell[] dogeAbleCell = new Range_fight(world).cellsOfArea(guardian.getCurrentCell(),
-                    guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange());
-            int minDistance = Integer.MAX_VALUE;
-            Cell bestForDoge = null;
-            for (int i = 0; i < dogeAbleCell.length; i++) {
-                if(!dogeAbleCell[i].isWall()){
-                    int distance = world.manhattanDistance(dogeAbleCell[i],
-                            new Range_fight(world).findNearestZoneCell(dogeAbleCell[i]));
-                    if(distance<minDistance){
-                        minDistance=distance;
-                        bestForDoge=dogeAbleCell[i];
-                    }
-                }
+            Cell bestForDoge = bestForFirstDoge();
+            if(bestForDoge!=null){
+                world.castAbility(guardian,AbilityName.GUARDIAN_DODGE,bestForDoge);
+                return;
             }
-            world.castAbility(guardian,AbilityName.GUARDIAN_DODGE,bestForDoge);
-            return;
         }
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
@@ -169,7 +160,8 @@ public class Guardian_AI {
         if(world.getAP()<=30)
             return;
         if(guardian.getCurrentCell().isInMyRespawnZone() && isDogeReady() &&
-                world.getAP()>=guardian.getAbility(AbilityName.GUARDIAN_DODGE).getAPCost()){
+                world.getAP()>=guardian.getAbility(AbilityName.GUARDIAN_DODGE).getAPCost() &&
+                bestForFirstDoge()!=null){
             return;
         }
         //if guardian are not in Objective zone :
@@ -228,6 +220,33 @@ public class Guardian_AI {
             }
         }
 
+    }
+    private Cell bestForFirstDoge(){
+        Cell[] dogeAbleCell = new Range_fight(world).cellsOfArea(guardian.getCurrentCell(),
+                guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange());
+        int minDistance = Integer.MAX_VALUE;
+        Cell bestForDoge = null;
+        for (int i = 0; i < dogeAbleCell.length; i++) {
+            if(!dogeAbleCell[i].isWall()){
+                int distance = world.manhattanDistance(dogeAbleCell[i],
+                        new Range_fight(world).findNearestZoneCell(dogeAbleCell[i]));
+                if(distance<minDistance){
+                    minDistance=distance;
+                    bestForDoge=dogeAbleCell[i];
+                }
+            }
+        }
+        if(bestForDoge!=null) {
+            if(world.manhattanDistance(guardian.getCurrentCell(),
+                    new Range_fight(world).findNearestZoneCell(guardian.getCurrentCell()))+1<=
+                    world.manhattanDistance(bestForDoge,new Range_fight(world).findNearestZoneCell(bestForDoge))){
+                return null;
+
+            }else {
+                return bestForDoge;
+            }
+        }
+        return null;
     }
 
     private Cell findNearCellWithRangeOne(Cell currentCell) {
