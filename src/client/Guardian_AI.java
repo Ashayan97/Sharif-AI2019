@@ -36,12 +36,19 @@ public class Guardian_AI {
             ArrayList<Hero> enemiesInObjective =  getEnemyHeroesInObjective(enemyHeroes);
             //attack
             if(!attackAbleEnemies.isEmpty()){
-                Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
-                world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,effectiveCell);
-                return; // stop continue this method
+                // fortify is available
+                if(isFortifyReady() && world.getAP() >= guardian.getAbility(AbilityName.GUARDIAN_FORTIFY).getAPCost()) {
+                    world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
+                    return;
+                }
+                else {
+                    Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
+                    world.castAbility(guardian, AbilityName.GUARDIAN_ATTACK, effectiveCell);
+                    return; // stop continue this method
+                }
             }
             //Fortify if necessary
-            if(isDangerTime()){ //TODO
+            if(isDangerTime()){
                 if(isFortifyReady()){
                     world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
                     Logger.log("============================FORTIFY==========================",Logger.YELLOW);
