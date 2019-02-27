@@ -19,6 +19,8 @@ public class Guardian_AI {
     private static final int criticalHealthPoint = 40 ;
 
     public Guardian_AI(Hero guardian, World world) {
+        if(guardian==null)
+            throw new RuntimeException("HERO PASSED IS NULL");
         this.guardian = guardian;
         this.world = world;
         this.map = world.getMap();
