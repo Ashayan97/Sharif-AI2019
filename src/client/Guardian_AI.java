@@ -254,15 +254,30 @@ public class Guardian_AI {
                     world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
             } else { // guardian an see enemyHeroes -->
                 //find near enemy and go to kill that
+                int movePhaseCount = world.getMovePhaseNum()%6+1;
                 ArrayList<Hero> enemiesInObjective = getEnemyHeroesInObjective(world.getOppHeroes());
+                //enemies in objective -->
                 if(!enemiesInObjective.isEmpty()){
                     Hero nearEnemy = findNearHero(enemiesInObjective);
+                    int distnceToNearEnemy = world.manhattanDistance(nearEnemy.getCurrentCell(),guardian.getCurrentCell());
+                    if(movePhaseCount==5){
+                        if(distnceToNearEnemy<=1){
+                            return;
+                        }
+                    }
+                    if(movePhaseCount==6){
+                        if(distnceToNearEnemy<=2){
+                            return;
+                        }
+                    }
                     //check if in current cell
-                    if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell()))
-                        if(world.getPathMoveDirections(guardian.getCurrentCell(),
-                                nearEnemy.getCurrentCell(),getHeroesLocation(world.getMyHeroes())).length!=0)
-                        world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),
-                            nearEnemy.getCurrentCell(),getHeroesLocation(world.getMyHeroes()))[0]);
+                    if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell())) {
+                        if (world.getPathMoveDirections(guardian.getCurrentCell(),
+                                nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes())).length != 0) {
+                            world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
+                                    nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes()))[0]);
+                        }
+                    }
                 } else {
                     //TODO ببینیم اصلا می صرفه بریم سمت دشمنی که نزدیک هست؟؟
                 }
