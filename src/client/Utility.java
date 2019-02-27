@@ -218,12 +218,12 @@ public class Utility {
         Vector<Hero> heroes = new Vector<>();
         Cell heroCell = hero.getCurrentCell();
         for (Cell anAvailable : available) {
-            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
-                    world.isInVision(heroCell, anAvailable) &&
-                    world.getOppHero(anAvailable) != null)
+            if (    world.getOppHero(anAvailable) != null&&
+                    !hero.getAbility(abilityNames[0]).isLobbing() &&
+                    world.isInVision(heroCell, anAvailable))
                 heroes.add(world.getOppHero(anAvailable));
-            else if (   hero.getAbility(abilityNames[0]).isLobbing() &&
-                    world.getOppHero(anAvailable) != null)
+            else if (   world.getOppHero(anAvailable) != null&&
+                        hero.getAbility(abilityNames[0]).isLobbing())
                 heroes.add(world.getOppHero(anAvailable));
         }
         return heroes.toArray(new Hero[]{});
@@ -244,13 +244,13 @@ public class Utility {
     /**
      * return opp guardians
      * */
-    static Hero[] getGuardians(World world){
-        Hero[] sawHeros=getSawHero(world);
+    static Hero[] getGuardians(World world,Hero h){
+        Cell[] cl = availableCells(world.getMap(),3,h.getCurrentCell());
         Vector<Hero> guardians = new Vector<>();
-        for (Hero sawHero : sawHeros)
-            if (sawHero.getName().equals(HeroName.GUARDIAN))
-                guardians.add(sawHero);
-
+        for (Cell cell: cl)
+            if (world.getOppHero(cell)!=null&&
+                    world.getOppHero(cell).getName().equals(HeroName.GUARDIAN))
+                guardians.add(world.getOppHero(cell));
         return guardians.toArray(new Hero[0]);
     }
 }
