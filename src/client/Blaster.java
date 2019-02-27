@@ -50,7 +50,7 @@ public class Blaster {
         setAI(ai);
         if(blaster.getCurrentHP() == 0)
             return;
-        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() ?
+        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() && world.getAP() >= 25?
                 AbilityName.BLASTER_BOMB :
                 AbilityName.BLASTER_ATTACK;
         Hero[] inMyAttckRange = Utility.getInAttackRange(world, blaster, abilityName);
