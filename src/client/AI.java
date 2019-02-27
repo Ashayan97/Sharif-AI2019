@@ -21,6 +21,8 @@ public class AI {
     private Map<Integer, Hero> heroInAttack = new HashMap<>();
     private Map<Integer, Cell> dodgeMap = new HashMap<>();
     private Map<Integer,Cell> nextCell = new HashMap<>();
+    private LastData lastData=new LastData();
+
     //****************************************
     void preProcess(World world) {
         this.world = world;
@@ -39,7 +41,7 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-        Sentry_AI sentry = new Sentry_AI(hero[3],world);
+        Sentry_AI sentry = new Sentry_AI(hero[3],world,lastData);
         if(hero[3].getCurrentHP() != 0)
             sentry.SentryMove();
         Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
@@ -61,7 +63,7 @@ public class AI {
         init();
         Hero[] heroes = world.getMyHeroes();
 
-        Sentry_AI sentry = new Sentry_AI(heroes[3],world);
+        Sentry_AI sentry = new Sentry_AI(heroes[3],world,lastData);
         if(heroes[3].getCurrentHP()!=0)
             sentry.actionPhase();
 
