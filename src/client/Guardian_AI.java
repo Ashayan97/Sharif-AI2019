@@ -20,7 +20,7 @@ public class Guardian_AI {
 
 
     public Guardian_AI(Hero guardian, World world) {
-        if(guardian==null)
+        if(guardian==null || !guardian.getName().equals(HeroName.GUARDIAN))
             throw new RuntimeException("HERO PASSED IS NULL OR PASSED WRONG \n" +
                     "هیرو رو اشتباهی پاس دادی یا پاس ندادی");
 
@@ -63,11 +63,11 @@ public class Guardian_AI {
             }
             //Fortify if necessary
             if(isDangerTime()){
-                if(isFortifyReady()){
+                if(isFortifyReady() && world.getAP()>= guardian.getAbility(AbilityName.GUARDIAN_FORTIFY).getAPCost()){
                     world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
                     Logger.log("============================FORTIFY==========================",Logger.YELLOW);
                     return;
-                }else if(isDogeReady()){
+                }else if(isDogeReady() && world.getAP()>= guardian.getAbility(AbilityName.GUARDIAN_DODGE).getAPCost()){
                     Hero nearEnemy = findNearHero(world.getOppHeroes());
                     Cell[] areaOfDogeRange = new Range_fight(world).cellsOfArea(guardian.getCurrentCell(),
                             guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange());
