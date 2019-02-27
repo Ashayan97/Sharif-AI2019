@@ -31,6 +31,8 @@ public class Blaster {
      */
     static void blasterMove(AI ai,World world, Hero blaster, History history) {
         setAI(ai);
+        if(blaster.getCurrentHP() == 0)
+            return;
         Cell blasterCurrentCell = blaster.getCurrentCell();
         Hero guardians[] = Utility.getGuardians(world,blaster);
         boolean safe=guardians.length==0;
@@ -130,30 +132,32 @@ public class Blaster {
     /**
      * hero'ii k behesh attack mizane ro set mikone tu AI v ag dodge bzne cell ro set mikone mikone
      * */
-    static void blasterAttack(AI ai, World world, Hero myHero) {
+    static void blasterAttack(AI ai, World world, Hero blaster) {
         setAI(ai);
-        AbilityName abilityName = myHero.getAbility(AbilityName.BLASTER_BOMB).isReady() ?
+        if(blaster.getCurrentHP() == 0)
+            return;
+        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() ?
                 AbilityName.BLASTER_BOMB :
                 AbilityName.BLASTER_ATTACK;
-        Hero[] inMyAttckRange = Utility.getInAttackRange(world, myHero, abilityName);
-        Cell blasterCell = myHero.getCurrentCell();
+        Hero[] inMyAttckRange = Utility.getInAttackRange(world, blaster, abilityName);
+        Cell blasterCell = blaster.getCurrentCell();
         if (inMyAttckRange.length == 0) {
             int row;
             int col;
-            if (myHero.getCurrentCell().isInObjectiveZone()) {
+            if (blaster.getCurrentCell().isInObjectiveZone()) {
                 Hero[] saw = Utility.getSawHero(world);
                 if (saw.length == 0)
                     return;
                 Utility.sortOnHP(saw);
-                Utility.sortOnDistance(myHero.getCurrentCell(), saw);
+                Utility.sortOnDistance(blaster.getCurrentCell(), saw);
                 if (Utility.distance(blasterCell, saw[0].getCurrentCell()) > Utility.BLASTER_DODGE_RANGE)
                     return;
                 row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;
                 col = (blasterCell.getColumn() + saw[0].getCurrentCell().getColumn()) / 2;
-                world.castAbility(myHero, AbilityName.BLASTER_DODGE, world.getMap().getCells()[row][col]);
-                ai.dodgeTo(myHero, world.getMap().getCells()[row][col]);
-                setCell(myHero, world.getMap().getCell(row, col));
-            } else if (myHero.getAbility(AbilityName.BLASTER_DODGE).isReady()) {
+                world.castAbility(blaster, AbilityName.BLASTER_DODGE, world.getMap().getCells()[row][col]);
+                ai.dodgeTo(blaster, world.getMap().getCells()[row][col]);
+                setCell(blaster, world.getMap().getCell(row, col));
+            } else if (blaster.getAbility(AbilityName.BLASTER_DODGE).isReady()) {
                 Cell[] avai = Utility.availableCells(world.getMap(), Utility.BLASTER_DODGE_RANGE, blasterCell);
                 Cell minObjzone = objectiveCells[0][0];
                 int min = Integer.MAX_VALUE;
@@ -165,14 +169,14 @@ public class Blaster {
                     }
                 row = shodDodge.getRow();
                 col = shodDodge.getColumn();
-                world.castAbility(myHero.getId(), AbilityName.BLASTER_DODGE, row, col);
-                ai.dodgeTo(myHero, world.getMap().getCell(row, col));
-                setCell(myHero, world.getMap().getCell(row, col));
+                world.castAbility(blaster.getId(), AbilityName.BLASTER_DODGE, row, col);
+                ai.dodgeTo(blaster, world.getMap().getCell(row, col));
+                setCell(blaster, world.getMap().getCell(row, col));
             }
         } else {
-            Cell whereShouldIAttack = getBestForBlasterAttack(world, myHero, inMyAttckRange, abilityName);
-            world.castAbility(myHero.getId(), abilityName, whereShouldIAttack);
-            ai.setInAttack(myHero, world.getOppHero(whereShouldIAttack));
+            Cell whereShouldIAttack = getBestForBlasterAttack(world, blaster, inMyAttckRange, abilityName);
+            world.castAbility(blaster.getId(), abilityName, whereShouldIAttack);
+            ai.setInAttack(blaster, world.getOppHero(whereShouldIAttack));
         }
     }
 
