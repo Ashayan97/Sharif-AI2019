@@ -56,21 +56,30 @@ public class Blaster {
             for (int i = 0; i < moveCell.length; i++) {
                 if(moveCell[i] == null || moveCell[i].isWall())
                     continue;// i++ if movecell[i] be null or wall
-                boolean flag = true;
+                boolean okFlag,outofFlag,objbadcellFlag,badcellFlag;
+                okFlag = outofFlag = objbadcellFlag = badcellFlag = true;
                 for (int j = 0; j < guardians.length; j++) {
                     Cell GCELL = guardians[j].getCurrentCell();
-                    if(moveCell[i].isInObjectiveZone() && //be objective and dis > dangeres range
-                            Utility.distance(moveCell[i],GCELL)>=GUARDIAN_DANGER_DISTANCE){
-                        okCell = moveCell[i];
-                        break;
-                    }else if(Utility.distance(moveCell[i],GCELL)>=GUARDIAN_DANGER_DISTANCE){ // dis > dangeres rrange
-                        outofobjOkCell = moveCell[i];
-                    }else if(moveCell[i].isInObjectiveZone() &&  // objective and dis > nowDis
-                            Utility.distance(moveCell[i],GCELL) > avgDis){
-                        objBadCell = moveCell[i];
+                    if((moveCell[i].isInObjectiveZone() && //be objective and dis > dangeres range
+                            Utility.distance(moveCell[i],GCELL)>=GUARDIAN_DANGER_DISTANCE)){
+                        okFlag = false;
+                    }else if((Utility.distance(moveCell[i],GCELL)>=GUARDIAN_DANGER_DISTANCE)){ // dis > dangeres rrange
+                        outofFlag = false;
+                    }else if((moveCell[i].isInObjectiveZone() &&  // objective and dis > nowDis
+                            Utility.distance(moveCell[i],GCELL) > avgDis )){
+                        objbadcellFlag = false;
                     }else if(Utility.distance(moveCell[i],GCELL) > avgDis){ // dis > nowDis
-                        badCell = moveCell[i];
+                        badcellFlag = false;
                     }
+                }
+                if(okFlag){
+                    okCell = moveCell[i];
+                }else if(outofFlag){
+                    outofobjOkCell = moveCell[i];
+                }else if(objbadcellFlag){
+                    objBadCell = moveCell[i];
+                }else if(badcellFlag){
+                    badCell = moveCell[i];
                 }
             }
             Direction dir[];
@@ -96,7 +105,6 @@ public class Blaster {
             for (int i = 0; i < moveCell.length; i++) {
                 if(moveCell[i] == null || moveCell[i].isWall())
                     continue;// i++ if movecell[i] be null or wall
-
                 if(moveCell[i].isInObjectiveZone() && //be objective and dis > dangeres range
                     Utility.distance(moveCell[i],gCell)>=GUARDIAN_DANGER_DISTANCE){
                     okCell = moveCell[i];
