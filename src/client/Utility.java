@@ -211,7 +211,7 @@ public class Utility {
     }
 
     static Hero[] getInAttackRange(World world,Hero hero,AbilityName... abilityNames) {
-        int radius = hero.getAbility(abilityNames[0]).getRange();
+        int radius = abilityNames[0] == AbilityName.BLASTER_BOMB?7:5;
         Cell[] available = Utility.availableCells(world.getMap(),radius,hero.getCurrentCell());
         Vector<Hero> heroes = new Vector<>();
         Cell heroCell = hero.getCurrentCell();
