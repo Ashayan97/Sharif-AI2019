@@ -145,21 +145,11 @@ public class Blaster {
             int row;
             int col;
             if (blaster.getCurrentCell().isInObjectiveZone()) {
-                Hero[] saw = Utility.getSawHero(world);
-                if (saw.length == 0)
-                    return;
-                Utility.sortOnHP(saw);
-                Utility.sortOnDistance(blaster.getCurrentCell(), saw);
-                if (Utility.distance(blasterCell, saw[0].getCurrentCell()) > Utility.BLASTER_DODGE_RANGE)
-                    return;
-                row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;
-                col = (blasterCell.getColumn() + saw[0].getCurrentCell().getColumn()) / 2;
-                world.castAbility(blaster, AbilityName.BLASTER_DODGE, world.getMap().getCells()[row][col]);
-                ai.dodgeTo(blaster, world.getMap().getCells()[row][col]);
-                setCell(blaster, world.getMap().getCell(row, col));
+                dodgeToNearestEnemy(ai, world, blaster, blasterCell);
             } else if (blaster.getAbility(AbilityName.BLASTER_DODGE).isReady()) {
+                // hichki tu range attack nis va kharej objzone hastim
                 Cell[] avai = Utility.availableCells(world.getMap(), Utility.BLASTER_DODGE_RANGE, blasterCell);
-                Cell minObjzone = objectiveCells[0][0];
+                Cell minObjzone = objzoneCellMinDis(blasterCell,true);
                 int min = Integer.MAX_VALUE;
                 Cell shodDodge = avai[0];
                 for (Cell anAvai : avai)
@@ -178,6 +168,21 @@ public class Blaster {
             world.castAbility(blaster.getId(), abilityName, whereShouldIAttack);
             ai.setInAttack(blaster, world.getOppHero(whereShouldIAttack));
         }
+    }
+
+    private static void dodgeToNearestEnemy(AI ai, World world, Hero blaster, Cell blasterCell) {
+        int row;
+        int col;
+        Hero[] saw = Utility.getSawHero(world);
+        if (saw.length == 0)
+            return;
+        Utility.sortOnHP(saw);
+        Utility.sortOnDistance(blaster.getCurrentCell(), saw);
+        row = (blasterCell.getRow() + saw[0].getCurrentCell().getRow()) / 2;
+        col = (blasterCell.getColumn() + saw[0].getCurrentCell().getColumn()) / 2;
+        world.castAbility(blaster, AbilityName.BLASTER_DODGE, world.getMap().getCells()[row][col]);
+        ai.dodgeTo(blaster, world.getMap().getCells()[row][col]);
+        setCell(blaster, world.getMap().getCell(row, col));
     }
 
     /**
@@ -417,6 +422,8 @@ public class Blaster {
         return objzoneCellMinDis(blastercc,blocks.toArray(new Cell[0]));
     }
     private static Cell objzoneCellMinDis(Cell blastercc,Cell[] blocks){
+        if(blastercc.isInObjectiveZone())
+            return null;
         int rowIndex=0,colIndex=0,minDis = Integer.MAX_VALUE;
         for (int i = 0; i < blocks.length; i++) {
             System.out.println(blocks[i].getRow()+"-"+blocks[i].getColumn());
@@ -441,10 +448,26 @@ public class Blaster {
                 }
             }
         }
-        if (minDis == 0)
-            return null;
         System.out.println(rowIndex+"-"+colIndex);
         return objectiveCells[rowIndex][colIndex];
+    }
+    private static Cell objzoneCellMinDis(Cell center,boolean forceEmpty){
+        if(!forceEmpty)
+            return objzoneCellMinDis(center);
+        if(center.isInObjectiveZone())
+            return null;
+        int minDis = Integer.MAX_VALUE;
+        Cell ans = objectiveCells[0][0];
+        for (int i = 0; i < objectiveCells.length; i++) {
+            for (int j = 0; j < objectiveCells.length; j++) {
+                int tmpDis = Utility.distance(center,objectiveCells[i][j]);
+                if(tmpDis < minDis){
+                    tmpDis = minDis;
+                    ans = objectiveCells[i][j];
+                }
+            }
+        }
+        return ans;
     }
 
     /**
