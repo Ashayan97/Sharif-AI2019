@@ -26,7 +26,7 @@ public class Guardian_AI {
     }
 
     public void actionPhase(){
-        if(guardian.getCurrentHP()==0)
+        if(guardian.getCurrentHP()==0 || world.getAP()<15)
             return;
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
@@ -142,7 +142,7 @@ public class Guardian_AI {
     }
 
     public void movePhase(){
-        if(guardian.getCurrentHP()==0)
+        if(guardian.getCurrentHP()==0 || world.getAP()<8)
             return;
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
