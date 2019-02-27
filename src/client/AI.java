@@ -46,7 +46,7 @@ public class AI {
             sentry.SentryMove();
         Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
         Blaster.blasterMove(this,world,hero[1],histories[indexOfHeroInHistory(hero[1])]);
-//        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
+        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
 
         Guardian_AI guardian ;
 //        guardian= new Guardian_AI(hero[0],world);
@@ -54,8 +54,7 @@ public class AI {
 //        guardian= new Guardian_AI(hero[1],world);
 //        guardian.movePhase();
         guardian= new Guardian_AI(hero[2],world);
-        if(hero[2].getCurrentHP()!=0)
-            guardian.movePhase();
+        guardian.movePhase();
 
     }
 
@@ -78,7 +77,6 @@ public class AI {
 //        guardian  = new Guardian_AI(heroes[1],world);
 //        guardian.actionPhase();
         guardian  = new Guardian_AI(heroes[2],world);
-        if(heroes[2].getCurrentHP()!=0)
         guardian.actionPhase();
 
     }
@@ -145,7 +143,7 @@ public class AI {
 
                 break;
             case 2:
-                world.pickHero(HeroName.GUARDIAN);
+                world.pickHero(HeroName.BLASTER);
                 break;
             case 3:
                 world.pickHero(HeroName.SENTRY);
