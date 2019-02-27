@@ -250,7 +250,8 @@ public class Guardian_AI {
             Cell cell = findNearestCellOurSide();
             if (!canSeeAnyOne()){
                 // go to nearest row of objective Zone after Blaster
-                world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
+                if(world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide()).length!=0)
+                    world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
             } else { // guardian an see enemyHeroes -->
                 //find near enemy and go to kill that
                 ArrayList<Hero> enemiesInObjective = getEnemyHeroesInObjective(world.getOppHeroes());
