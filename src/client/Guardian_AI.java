@@ -26,6 +26,8 @@ public class Guardian_AI {
     }
 
     public void actionPhase(){
+        if(guardian.getCurrentHP()==0)
+            return;
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
             Hero[] enemyHeroes = world.getOppHeroes();
@@ -133,6 +135,8 @@ public class Guardian_AI {
     }
 
     public void movePhase(){
+        if(guardian.getCurrentHP()==0)
+            return;
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
             if(nearestObjectiveCell().length!=0)
