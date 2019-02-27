@@ -59,11 +59,11 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-        Sentry_AI sentry = new Sentry_AI(hero[3],world,lastData);
-        if(hero[3].getCurrentHP() != 0)
+        Sentry_AI sentry = new Sentry_AI(hero[SENTRY_INDEX],world,lastData);
+        if(hero[SENTRY_INDEX].getCurrentHP() != 0)
             sentry.SentryMove();
-        Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
-        Blaster.blasterMove(this,world,hero[1],histories[indexOfHeroInHistory(hero[1])]);
+        Blaster.blasterMove(this,world,hero[BLASTER_INDEX],histories[indexOfHeroInHistory(hero[BLASTER_INDEX])]);
+        Blaster.blasterMove(this,world,hero[BLASTER2_INDEX],histories[indexOfHeroInHistory(hero[BLASTER2_INDEX])]);
 //        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
 
         Guardian_AI guardian ;
@@ -71,7 +71,7 @@ public class AI {
 //        guardian.movePhase();
 //        guardian= new Guardian_AI(hero[1],world);
 //        guardian.movePhase();
-        guardian= new Guardian_AI(hero[2],world);
+        guardian= new Guardian_AI(hero[GUARDIAN_INDEX],world);
         guardian.movePhase();
 
     }
