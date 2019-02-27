@@ -65,15 +65,15 @@ public class AI {
 //        Blaster.blasterMove(this,world,hero[FORTH_HERO],histories[indexOfHeroInHistory(hero[FORTH_HERO])]);
         Blaster.blasterMove(this,world,hero[SECOND_HERO],histories[indexOfHeroInHistory(hero[SECOND_HERO])]);
         Blaster.blasterMove(this,world,hero[THERD_HERO],histories[indexOfHeroInHistory(hero[THERD_HERO])]);
-        Blaster.blasterMove(this,world,hero[FIRST_HERO],histories[indexOfHeroInHistory(hero[FIRST_HERO])]);
+//        Blaster.blasterMove(this,world,hero[FIRST_HERO],histories[indexOfHeroInHistory(hero[FIRST_HERO])]);
 
-//        Guardian_AI guardian ;
+        Guardian_AI guardian ;
 //        guardian= new Guardian_AI(hero[0],world);
 //        guardian.movePhase();
 //        guardian= new Guardian_AI(hero[1],world);
 //        guardian.movePhase();
-//        guardian= new Guardian_AI(hero[FIRST_HERO],world);
-//        guardian.movePhase();
+        guardian= new Guardian_AI(hero[FIRST_HERO],world);
+        guardian.movePhase();
 
     }
 
@@ -89,15 +89,15 @@ public class AI {
 //        Blaster.blasterAttack(this,world,heroes[FORTH_HERO]);
         Blaster.blasterAttack(this,world,heroes[SECOND_HERO]);
         Blaster.blasterAttack(this,world,heroes[THERD_HERO]);
-        Blaster.blasterAttack(this,world,heroes[FIRST_HERO]);
+//        Blaster.blasterAttack(this,world,heroes[FIRST_HERO]);
 
-//        Guardian_AI guardian;
+        Guardian_AI guardian;
 //        guardian  = new Guardian_AI(heroes[0],world);
 //        guardian.actionPhase();
 //        guardian  = new Guardian_AI(heroes[1],world);
 //        guardian.actionPhase();
-//        guardian  = new Guardian_AI(heroes[FIRST_HERO],world);
-//        guardian.actionPhase();
+        guardian  = new Guardian_AI(heroes[FIRST_HERO],world);
+        guardian.actionPhase();
 
     }
 
@@ -176,7 +176,7 @@ public class AI {
      */
     private void pickHeroInPhase() {
         if(PICK_PHASE_COUNTER == FIRST_HERO){
-            world.pickHero(HeroName.BLASTER);
+            world.pickHero(HeroName.GUARDIAN);
         }else if(PICK_PHASE_COUNTER == SECOND_HERO){
             world.pickHero(HeroName.BLASTER);
         }else if(PICK_PHASE_COUNTER == FORTH_HERO){
