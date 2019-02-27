@@ -260,7 +260,7 @@ public class Blaster {
                 System.out.println(blockcell.size()+":"+minDisCellFromObjzone.getRow()+"-"+minDisCellFromObjzone.getColumn());
                 if(blockcell.size() == objectiveCells.length * objectiveCells.length)
                     return;
-            } while (Utility.distance(minDisCellFromObjzone,blasterCurrentCell) == 1&&
+            } while (Utility.distance(blasterCurrentCell,minDisCellFromObjzone) == 1 &&
                     world.getMyHero(minDisCellFromObjzone) != null);
 
             Cell nextCell = Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone);
@@ -268,7 +268,7 @@ public class Blaster {
             Hero[] perdict = Utility.getGuardians(world,nextCell);
             System.out.println("perdict len : "+perdict.length);
             if(perdict.length == 0) {
-                move(world, blaster.getId(), blasterCurrentCell, minDisCellFromObjzone, history);
+                move(world, blaster.getId(), blasterCurrentCell, nextCell, history);
                 setCell(blaster, nextCell);
             }
             System.out.println("==========================");
@@ -519,7 +519,6 @@ public class Blaster {
     }
     private static void move(World world,int HERODID,Cell src,Cell dest,History history){
         move(world,HERODID,src,dest,history,true);
-        move(world,HERODID,src,dest,history,false);
     }
 
     //    private static boolean isObjzoneEmpty(World world) {
