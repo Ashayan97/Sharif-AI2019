@@ -358,9 +358,14 @@ public class Guardian_AI {
         int minDistance =  Integer.MAX_VALUE;
         Hero result = hero.get(0);
         for (Hero aHero : hero){
-            if(world.manhattanDistance(guardian.getCurrentCell(),aHero.getCurrentCell())<=minDistance){
+            if(world.manhattanDistance(guardian.getCurrentCell(),aHero.getCurrentCell())<minDistance){
                 minDistance =world.manhattanDistance(guardian.getCurrentCell(),aHero.getCurrentCell());
                 result = aHero;
+            }
+            //check for same distance and go to loser
+            if(world.manhattanDistance(guardian.getCurrentCell(),aHero.getCurrentCell())==minDistance){
+                if(result.getCurrentHP()>=aHero.getCurrentHP())
+                    result=aHero;
             }
         }
         return result;
