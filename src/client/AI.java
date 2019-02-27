@@ -81,7 +81,7 @@ public class AI {
         init();
         Hero[] heroes = world.getMyHeroes();
 
-        Sentry_AI sentry = new Sentry_AI(heroes[3],world,lastData);
+        Sentry_AI sentry = new Sentry_AI(heroes[SENTRY_INDEX],world,lastData);
         if(heroes[SENTRY_INDEX].getCurrentHP()!=0)
             sentry.actionPhase();
 
