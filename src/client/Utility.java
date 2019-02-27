@@ -245,7 +245,10 @@ public class Utility {
      * return opp guardians
      * */
     static Hero[] getGuardians(World world,Hero h){
-        Cell[] cl = availableCells(world.getMap(),3,h.getCurrentCell());
+        return getGuardians(world,h.getCurrentCell());
+    }
+    static Hero[] getGuardians(World world,Cell center){
+        Cell[] cl = availableCells(world.getMap(),3,center);
         Vector<Hero> guardians = new Vector<>();
         for (Cell cell: cl)
             if (world.getOppHero(cell)!=null&&

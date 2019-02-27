@@ -247,9 +247,12 @@ public class Blaster {
             Cell minDisCellFromObjzone = // if blaster was in objzone this method return null
                     objzoneCellMinDis(blasterCurrentCell);
             Vector<Cell> blockcell = new Vector<>();
-            while (world.getMyHero(minDisCellFromObjzone) != null) {
+            while (world.getMyHero(minDisCellFromObjzone) != null &&
+                    Utility.getGuardians(world,Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone)).length!=0) {
                 blockcell.add(minDisCellFromObjzone);
                 minDisCellFromObjzone = objzoneCellMinDis(blasterCurrentCell, blockcell);
+                if(blockcell.size() == objectiveCells.length * objectiveCells.length)
+                    return;
             }
             move(world, blaster.getId(), blasterCurrentCell, minDisCellFromObjzone, history);
             setCell(blaster,minDisCellFromObjzone);
@@ -453,6 +456,7 @@ public class Blaster {
     }
     private static void move(World world,int HERODID,Cell src,Cell dest,History history){
         move(world,HERODID,src,dest,history,true);
+        move(world,HERODID,src,dest,history,false);
     }
 
     //    private static boolean isObjzoneEmpty(World world) {
