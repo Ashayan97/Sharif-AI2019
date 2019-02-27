@@ -40,21 +40,22 @@ public class AI {
         init();
         Hero[] hero = world.getMyHeroes();
         Sentry_AI sentry = new Sentry_AI(hero[3],world);
-        sentry.SentryMove();
+        if(hero[3].getCurrentHP() != 0)
+            sentry.SentryMove();
+        if(hero[0].getCurrentHP()!=0)
+            Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
+        if(hero[1].getCurrentHP()!=0)
+            Blaster.blasterMove(this,world,hero[1],histories[indexOfHeroInHistory(hero[1])]);
+//        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
 
-        Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
-        Blaster.blasterMove(this,world,hero[1],histories[indexOfHeroInHistory(hero[1])]);
-        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
-
-
-
-//        Guardian_AI guardian ;
+        Guardian_AI guardian ;
 //        guardian= new Guardian_AI(hero[0],world);
 //        guardian.movePhase();
 //        guardian= new Guardian_AI(hero[1],world);
 //        guardian.movePhase();
-//        guardian= new Guardian_AI(hero[2],world);
-//        guardian.movePhase();
+        guardian= new Guardian_AI(hero[2],world);
+        if(hero[2].getCurrentHP()!=0)
+            guardian.movePhase();
 
     }
 
@@ -64,19 +65,23 @@ public class AI {
         Hero[] heroes = world.getMyHeroes();
 
         Sentry_AI sentry = new Sentry_AI(heroes[3],world);
+        if(heroes[3].getCurrentHP()!=0)
         sentry.actionPhase();
 
-        Blaster.blasterMove(this,world,heroes[0],histories[indexOfHeroInHistory(heroes[0])]);
-        Blaster.blasterMove(this,world,heroes[1],histories[indexOfHeroInHistory(heroes[1])]);
-        Blaster.blasterMove(this,world,heroes[2],histories[indexOfHeroInHistory(heroes[2])]);
+        if(heroes[0].getCurrentHP()!=0)
+            Blaster.blasterAttack(this,world,heroes[0]);
+        if(heroes[1].getCurrentHP()!=0)
+            Blaster.blasterAttack(this,world,heroes[1]);
+//        Blaster.blaster(this,world,heroes[2],histories[indexOfHeroInHistory(heroes[2])]);
 
-//        Guardian_AI guardian;
+        Guardian_AI guardian;
 //        guardian  = new Guardian_AI(heroes[0],world);
 //        guardian.actionPhase();
 //        guardian  = new Guardian_AI(heroes[1],world);
 //        guardian.actionPhase();
-//        guardian  = new Guardian_AI(heroes[2],world);
-//        guardian.actionPhase();
+        guardian  = new Guardian_AI(heroes[2],world);
+        if(heroes[2].getCurrentHP()!=0)
+        guardian.actionPhase();
 
     }
 
@@ -138,10 +143,11 @@ public class AI {
                 world.pickHero(HeroName.BLASTER);
                 break;
             case 1:
-                world.pickHero(HeroName.GUARDIAN);
+                world.pickHero(HeroName.BLASTER);
+
                 break;
             case 2:
-                world.pickHero(HeroName.BLASTER);
+                world.pickHero(HeroName.GUARDIAN);
                 break;
             case 3:
                 world.pickHero(HeroName.SENTRY);

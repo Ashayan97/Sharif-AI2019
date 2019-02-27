@@ -46,11 +46,9 @@ public class Utility {
         return world.getMap()
                 .getCells()
                 [row+(  dir==Direction.DOWN?1:
-                dir==Direction.UP?-1:
-                        0)]
+                dir==Direction.UP?-1: 0)]
                 [col+(  dir==Direction.RIGHT?1:
-                dir==Direction.LEFT?-1:
-                        0)];
+                dir==Direction.LEFT?-1: 0)];
     }
     static Cell nextCell(World world,Cell src,Cell des,Cell[] blockCells){
         Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn(),blockCells)[0];

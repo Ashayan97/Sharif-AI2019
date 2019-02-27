@@ -32,7 +32,7 @@ public class Guardian_AI {
             ArrayList<Hero> enemyHeroInVision = getEnemyHeroesInVision(enemyHeroes);
             ArrayList<Hero> attackAbleEnemies =  getAttackAbleEnemies(enemyHeroes);
             ArrayList<Hero> enemiesInObjective =  getEnemyHeroesInObjective(enemyHeroes);
-            //get All enemy heroes
+            //attack
             if(!attackAbleEnemies.isEmpty()){
                 Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
                 world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,effectiveCell);
@@ -44,6 +44,43 @@ public class Guardian_AI {
                     world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
                     Logger.log("============================FORTIFY==========================",Logger.YELLOW);
                     return;
+                }else if(isDogeReady()){
+                    Hero nearEnemy = findNearHero(world.getOppHeroes());
+                    Cell[] areaOfDogeRange = new Range_fight(world).cellsOfArea(guardian.getCurrentCell(),
+                            guardian.getAbility(AbilityName.GUARDIAN_DODGE).getRange());
+                    //find cell to doge
+                     Cell unVisibleCell = null ;
+                    for (int i = 0; i < areaOfDogeRange.length; i++) {
+                        if(world.isInVision(areaOfDogeRange[i],nearEnemy.getCurrentCell()))
+                            unVisibleCell = areaOfDogeRange[i];
+                    }
+                    if(unVisibleCell!=null){
+                        world.castAbility(guardian,AbilityName.GUARDIAN_DODGE,unVisibleCell);
+                    } else {
+                        //doge to the furthest cell
+                        Cell furthestCell = null;
+                        int maxDistance  =  Integer.MIN_VALUE;
+                        for (int i = 0; i < areaOfDogeRange.length; i++) {
+                            if(!areaOfDogeRange[i].isWall())
+                                if(world.manhattanDistance(nearEnemy.getCurrentCell(),areaOfDogeRange[i])>=maxDistance){
+                                    maxDistance=world.manhattanDistance(nearEnemy.getCurrentCell(),areaOfDogeRange[i]);
+                                    furthestCell=areaOfDogeRange[i];
+                                }
+                        }
+                        if(furthestCell!=null){
+                            world.castAbility(guardian,AbilityName.GUARDIAN_DODGE,furthestCell);
+                            return;
+                        }
+                        return;
+                    }
+                    return;
+                    //last Action before death -->
+                }else {
+                    if(!attackAbleEnemies.isEmpty()){
+                        Cell effectiveCell = findEffectiveCell(attackAbleEnemies);
+                        world.castAbility(guardian,AbilityName.GUARDIAN_ATTACK,effectiveCell);
+                        return; // stop continue this method
+                    }
                 }
             }
             //guardian can see enemy and enemy is in objective zone
@@ -71,7 +108,7 @@ public class Guardian_AI {
                     if(isDangerTime()){
                         if(isFortifyReady()) {
                             world.castAbility(guardian, AbilityName.GUARDIAN_FORTIFY, guardian.getCurrentCell());
-                            Logger.log("============================FORTIFY==========================",Logger.YELLOW);
+                            Logger.log("============================FORTIFY==========================",Logger.BLUE);
                             return;
                         }else if(isDogeReady()){
                             world.castAbility(guardian, guardian.getAbility(AbilityName.GUARDIAN_DODGE),
@@ -254,15 +291,32 @@ public class Guardian_AI {
                     world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
             } else { // guardian an see enemyHeroes -->
                 //find near enemy and go to kill that
+                int movePhaseCount = world.getMovePhaseNum()%6+1;
                 ArrayList<Hero> enemiesInObjective = getEnemyHeroesInObjective(world.getOppHeroes());
+                //enemies in objective -->
                 if(!enemiesInObjective.isEmpty()){
                     Hero nearEnemy = findNearHero(enemiesInObjective);
+                    int distnceToNearEnemy = world.manhattanDistance(nearEnemy.getCurrentCell(),guardian.getCurrentCell());
+                    if(movePhaseCount==5){
+                        if(distnceToNearEnemy<=1){
+                            Logger.log("=== === === === === === GUARDIAN EFFECTIVE AP === === === ===",Logger.BLUE);
+                            return;
+                        }
+                    }
+                    if(movePhaseCount==6){
+                        if(distnceToNearEnemy<=2){
+                            Logger.log("=== === === === === === GUARDIAN EFFECTIVE AP === === === ===",Logger.BLUE);
+                            return;
+                        }
+                    }
                     //check if in current cell
-                    if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell()))
-                        if(world.getPathMoveDirections(guardian.getCurrentCell(),
-                                nearEnemy.getCurrentCell(),getHeroesLocation(world.getMyHeroes())).length!=0)
-                        world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),
-                            nearEnemy.getCurrentCell(),getHeroesLocation(world.getMyHeroes()))[0]);
+                    if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell())) {
+                        if (world.getPathMoveDirections(guardian.getCurrentCell(),
+                                nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes())).length != 0) {
+                            world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
+                                    nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes()))[0]);
+                        }
+                    }
                 } else {
                     //TODO ببینیم اصلا می صرفه بریم سمت دشمنی که نزدیک هست؟؟
                 }
