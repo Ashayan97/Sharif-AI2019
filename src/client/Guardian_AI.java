@@ -168,6 +168,10 @@ public class Guardian_AI {
         //save AP for Blaster or Sentry
         if(world.getAP()<=30)
             return;
+        if(guardian.getCurrentCell().isInMyRespawnZone() && isDogeReady() &&
+                world.getAP()>=guardian.getAbility(AbilityName.GUARDIAN_DODGE).getAPCost()){
+            return;
+        }
         //if guardian are not in Objective zone :
         if(!isInObjectiveZone()){
             if(nearestObjectiveCell().length!=0)
