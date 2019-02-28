@@ -59,7 +59,7 @@ public class Blaster {
                     && !blasterCell.isInObjectiveZone()) {
                 // hichki tu range attack nis va kharej objzone hastim
                 Cell[] avai = Utility.availableCells(world.getMap(), Utility.BLASTER_DODGE_RANGE, blasterCell);
-                Cell minObjzone = objzoneCellMinDis(blasterCell,true);
+                Cell minObjzone = objzoneCellMinDis(world, blasterCell, true);
                 int min = Integer.MAX_VALUE;
                 Cell shodDodge = avai[0];
                 for (Cell anAvai : avai)
@@ -360,7 +360,7 @@ public class Blaster {
             Cell nextCell = Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone);
             Hero[] perdict = Utility.getGuardians(world,nextCell);
             if(perdict.length == 0) {
-                move(world, blaster.getId(), blasterCurrentCell, nextCell, history);
+                Utility.move(world, blaster.getId(), blasterCurrentCell, nextCell);
                 setCell(blaster, nextCell);
             }
         }
@@ -533,23 +533,22 @@ public class Blaster {
         }
         return objectiveCells[rowIndex][colIndex];
     }
-    private static Cell objzoneCellMinDis(Cell center,boolean forceEmpty){
+
+    private static Cell objzoneCellMinDis(World world, Cell center, boolean forceEmpty) {
         if(!forceEmpty)
             return objzoneCellMinDis(center);
         if(center.isInObjectiveZone())
             return null;
-        int minDis = Integer.MAX_VALUE;
-        Cell ans = objectiveCells[0][0];
-        for (int i = 0; i < objectiveCells.length; i++) {
-            for (int j = 0; j < objectiveCells.length; j++) {
-                int tmpDis = Utility.distance(center,objectiveCells[i][j]);
-                if(tmpDis < minDis){
-                    tmpDis = minDis;
-                    ans = objectiveCells[i][j];
-                }
-            }
+
+        Cell first = objzoneCellMinDis(center);
+        Vector<Cell> block = new Vector<>();
+        while (world.getMyHero(first) != null) {
+            block.add(first);
+            first = objzoneCellMinDis(center, block);
+            if (block.size() == objectiveCells.length * objectiveCells.length)
+                return null;
         }
-        return ans;
+        return first;
     }
 
     /**
@@ -559,11 +558,9 @@ public class Blaster {
     private static Cell vasateshun(World world, Cell start, Cell end) {
         return vasateshun(world, start, end, end);
     }
-
     private static Cell vasateshun(World world, Cell start, Cell mid, Cell end) {
         return vasateshun(world, start, mid, end, end);
     }
-
     private static Cell vasateshun(World world, Cell start, Cell mid, Cell mid2, Cell end) {
         Cell DOWN = Utility.getDOWN(start, Utility.getDOWN(mid, Utility.getDOWN(mid2, end)));
         Cell UP = Utility.getUP(start, Utility.getUP(mid, Utility.getUP(mid2, end)));
@@ -625,24 +622,13 @@ public class Blaster {
         return AI.getNextCell(h) == null?h.getCurrentCell():AI.getNextCell(h);
     }
 
+    private static void move(World world, int HERODID, Cell src, Cell dest, History history) {
+        move(world, HERODID, src, dest, history, true);
+    }
     private static void move(World world,int HEROID, Cell src,Cell dst, History history,boolean saveCell){
         Utility.move(world,HEROID,src,dst);
         if(saveCell)
             history.addLastStep(src);
     }
-    private static void move(World world,int HERODID,Cell src,Cell dest,History history){
-        move(world,HERODID,src,dest,history,true);
-    }
-
-    //    private static boolean isObjzoneEmpty(World world) {
-//        Hero[] opp = Utility.getSawHero(world);
-//        if(opp.length == 0)
-//            return true;
-//        for (int i = 0; i < opp.length; i++) {
-//            if(opp[i].getCurrentCell().isInObjectiveZone())
-//                return false;
-//        }
-//        return true;
-//    }
 
 }
