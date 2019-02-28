@@ -187,6 +187,29 @@ public class Sentry_AI {
         lastData.ourHeroes = ourHeroes;
     }
 
+
+    public void newMove() {
+        if (hero.getCurrentHP() == 0) {
+            lastData.Des = null;
+            return;
+        }
+        ArrayList<Cell> ourHeroes = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            ourHeroes.add(world.getMyHeroes()[i].getCurrentCell());
+        }
+        if (heroes.length != 0 && world.manhattanDistance(hero.getCurrentCell(), rangeFight.NearstEnemy(hero.getCurrentCell(), heroes)) == 7) {
+            return;
+        }else {
+            if (rangeFight.canSeeAnyOne()) {
+
+                world.moveHero(hero, world.getPathMoveDirections(hero.getCurrentCell(), rangeFight.enemyTarget(hero), ourHeroes.toArray(new Cell[ourHeroes.size()]))[0]);
+            } else {
+                Direction dir = ObjectMove();
+                world.moveHero(hero, dir);
+            }
+        }
+    }
+
     public void SentryMove() {
         if (hero.getCurrentHP() == 0) {
             lastData.Des = null;
@@ -219,7 +242,7 @@ public class Sentry_AI {
             setLastData();
             world.moveHero(hero, dir[0]);
         } else {
-            if (rangeFight.isSafe(hero, 6) ) {
+            if (rangeFight.isSafe(hero, 6)) {
 //                if (heroes.length != 0)
 //                    lastData.escapeCell = null;
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
@@ -229,8 +252,8 @@ public class Sentry_AI {
 //                    else
                     dir = ObjectMove();
                     if (dir != null) {
-                        Cell next=Utility.nextCell(world, hero.getCurrentCell(), dir);
-                        if (rangeFight.isSafe(hero,6)) {
+                        Cell next = Utility.nextCell(world, hero.getCurrentCell(), dir);
+                        if (rangeFight.isSafe(hero, 6)) {
                             setLastData();
                             world.moveHero(hero, dir);
 
@@ -291,7 +314,7 @@ public class Sentry_AI {
 
 
     private boolean isBlaster(Cell cell) {
-        Hero[] enemyInRange=rangeFight.InRangeAtk(cell,7);
+        Hero[] enemyInRange = rangeFight.InRangeAtk(cell, 7);
         for (Hero inRangeAtkHeroe : enemyInRange) {
             if (inRangeAtkHeroe.getName().equals(HeroName.BLASTER) && lastData.returnEnemyBombActivation(inRangeAtkHeroe))
                 return true;

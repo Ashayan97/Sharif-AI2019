@@ -37,6 +37,40 @@ public class Range_fight {
         return min;
     }
 
+    boolean canSeeAnyOne(){
+        Hero[] enemy=world.getOppHeroes();
+        for (int i = 0; i < enemy.length; i++) {
+            if (enemy[i].getCurrentCell().getRow()!=-1)
+                return true;
+        }
+        return false;
+    }
+
+    public Cell enemyTarget(Hero hero){
+        Cell enemy=NearstEnemy(hero.getCurrentCell(),world.getOppHeroes());
+        Cell[] cells=cellsOfArea(enemy,7);
+        Cell des=null;
+        Hero[] our=world.getMyHeroes();
+        Cell[] ourCell=new Cell[our.length];
+        for (int i = 0; i < our.length; i++) {
+            ourCell[i]=our[i].getCurrentCell();
+        }
+        int dis=Integer.MAX_VALUE;
+        for (Cell cell : cells) {
+            if (world.isInVision(cell, enemy) && !cell.isWall() &&
+                    world.manhattanDistance(cell, enemy) >= 6 &&
+                    world.manhattanDistance(cell, enemy) <= 7 &&
+                    world.manhattanDistance(hero.getCurrentCell(), cell) <= dis &&
+                    world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell).length!=0
+            ) {
+                des = cell;
+                dis = world.manhattanDistance(hero.getCurrentCell(), cell);
+            }
+        }
+        return des;
+
+    }
+
     public boolean isSafe(Hero hero, int range) {
         Hero[] OppHero = world.getOppHeroes();
         for (Hero aOppHero : OppHero) {

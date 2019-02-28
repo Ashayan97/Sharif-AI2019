@@ -108,6 +108,7 @@ public class AI {
         this.world = world;
         Utility.printMap(world);
         init();
+        Hero[] hero = world.getMyHeroes();
         Hero[] heroes = world.getMyHeroes();
         if (flag == 0) {
             lastData.world = world;
@@ -122,7 +123,7 @@ public class AI {
         Guardian_AI guardian;
 
         sentry = new Sentry_AI(heroes[FORTH_HERO], world, lastData);
-        sentry.SentryMove();
+        sentry.newMove();
 //        sentry = new Sentry_AI(heroes[FIRST_HERO],world,lastData);
 //        sentry.SentryMove();
 
