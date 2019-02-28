@@ -15,14 +15,8 @@ public class Blaster {
     private static final int GUARDIAN_DANGER_DISTANCE = 3;
     private static AI AI;
     //*******************************
-    static void set(World world){
-        Map map = world.getMap();
-        int row ,col;
-        row = col = (int)Math.sqrt(map.getObjectiveZone().length);
-        objectiveCells = new Cell[row][col];
-        for (int i = 0; i < row; i++)
-            for (int j = 0; j < col; j++)
-                objectiveCells[i][j] = map.getObjectiveZone()[i*col + j];
+    static void set(Cell[][] objectiveCells) {
+        client.Blaster.objectiveCells = objectiveCells;
     }
     //**************main methods*****************
 
@@ -461,9 +455,6 @@ public class Blaster {
         if(blastercc.isInObjectiveZone())
             return null;
         int rowIndex=0,colIndex=0,minDis = Integer.MAX_VALUE;
-        for (int i = 0; i < blocks.length; i++) {
-            System.out.println(blocks[i].getRow()+"-"+blocks[i].getColumn());
-        }
         for (int i=0;i<objectiveCells.length;i++) {
             for (int j = 0; j < objectiveCells.length; j++) {
                 boolean flag = false;
@@ -484,7 +475,6 @@ public class Blaster {
                 }
             }
         }
-        System.out.println(rowIndex+"-"+colIndex);
         return objectiveCells[rowIndex][colIndex];
     }
     private static Cell objzoneCellMinDis(Cell center,boolean forceEmpty){

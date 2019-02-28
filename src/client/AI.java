@@ -10,9 +10,8 @@ public class AI {
 
     private int PICK_PHASE_COUNTER = 0;
     private Hero[] herosInVision;
-    private Cell[] objectiveCells;
+    private Cell[][] objectiveCells;
     private History[] histories;
-    private Vector<Cell> wallsCell;
     private Vector<Hero> atttackTo;
     private int whoAttackID;
     private boolean inAttack = false;
@@ -28,13 +27,29 @@ public class AI {
     private int THERD_HERO = -1;
     private int FORTH_HERO = -1;
     private int BEST_FOR_GUARDIAN_RESPAWNZONE = -1;
+    private int inProcess;
+
+    private void setInProcess(int index) {
+        inProcess = index;
+    }
+
+    int getInProcess() {
+        return inProcess;
+    }
+
+    int FB() {
+        return SECOND_HERO;
+    }
+
+    int SB() {
+        return THERD_HERO;
+    }
 
     //****************************************
     void preProcess(World world) {
         this.world = world;
-        objectiveCells = world.getMap().getObjectiveZone();
-        initWallCell();
-        Blaster.set(world);
+        initMap();
+        Blaster.set(objectiveCells);
         Cell[] res = world.getMap().getMyRespawnZone();
         for (int i = 0; i < res.length; i++) {
             Cell[] avires = Utility.availableCells(world.getMap(), 1, res[i]);
@@ -72,7 +87,9 @@ public class AI {
         if (hero[FORTH_HERO].getCurrentHP() != 0)
             sentry.SentryMove();
 //        Blaster.blasterMove(this,world,hero[FORTH_HERO],histories[indexOfHeroInHistory(hero[FORTH_HERO])]);
+        setInProcess(SECOND_HERO);
         Blaster.blasterMove(this, world, hero[SECOND_HERO], histories[indexOfHeroInHistory(hero[SECOND_HERO])]);
+        setInProcess(THERD_HERO);
         Blaster.blasterMove(this, world, hero[THERD_HERO], histories[indexOfHeroInHistory(hero[THERD_HERO])]);
 //        Blaster.blasterMove(this,world,hero[FIRST_HERO],histories[indexOfHeroInHistory(hero[FIRST_HERO])]);
 
@@ -96,7 +113,9 @@ public class AI {
             sentry.actionPhase();
 
 //        Blaster.blasterAttack(this,world,heroes[FORTH_HERO]);
+        setInProcess(SECOND_HERO);
         Blaster.blasterAttack(this, world, heroes[SECOND_HERO]);
+        setInProcess(THERD_HERO);
         Blaster.blasterAttack(this, world, heroes[THERD_HERO]);
 //        Blaster.blasterAttack(this,world,heroes[FIRST_HERO]);
 
@@ -130,18 +149,19 @@ public class AI {
             SECOND_HERO = 1;
             FORTH_HERO = 2;
             THERD_HERO = 3;
-        } else if (FIRST_HERO == 1) {
+        } else if (BEST_FOR_GUARDIAN_RESPAWNZONE == 1) {
             SECOND_HERO = 0;
-            FORTH_HERO = 2;
             THERD_HERO = 3;
+            FORTH_HERO = 2;
         } else if (BEST_FOR_GUARDIAN_RESPAWNZONE == 2) {
             SECOND_HERO = 0;
-            FORTH_HERO = 1;
             THERD_HERO = 3;
-        } else {
-            SECOND_HERO = 0;
             FORTH_HERO = 1;
+        } else {
+            FIRST_HERO = 3;
+            SECOND_HERO = 0;
             THERD_HERO = 2;
+            FORTH_HERO = 1;
         }
     }
 
@@ -149,13 +169,31 @@ public class AI {
         herosInVision = Utility.getSawHero(world);
     }
 
-    private void initWallCell() {
-        if (wallsCell == null) {
-            wallsCell = new Vector<>();
-            for (Cell[] arryCell : world.getMap().getCells())
-                for (Cell cell : arryCell)
-                    if (cell.isWall())
-                        wallsCell.add(cell);
+    private void initMap() {
+        client.model.Map map = world.getMap();
+        Cell objtive[] = map.getObjectiveZone();
+        int minRow = Integer.MAX_VALUE, maxRow = Integer.MIN_VALUE, minCol = Integer.MAX_VALUE, maxCol = Integer.MIN_VALUE;
+        for (int i = 0; i < objtive.length; i++) {
+            if (minRow > objtive[i].getRow())
+                minRow = objtive[i].getRow();
+
+            if (maxRow < objtive[i].getRow())
+                maxRow = objtive[i].getRow();
+
+            if (minCol > objtive[i].getColumn())
+                minCol = objtive[i].getColumn();
+
+            if (maxCol < objtive[i].getColumn())
+                maxCol = objtive[i].getColumn();
+        }
+        objectiveCells = new Cell[maxRow - minRow + 1][maxCol - minCol + 1];
+        int row = 0, col = 0;
+        for (int i = minRow; i <= maxRow; i++) {
+            for (int j = minCol; j <= maxCol; j++) {
+                objectiveCells[row][col++] = map.getCells()[i][j];
+            }
+            col = 0;
+            row++;
         }
     }
 
