@@ -171,10 +171,10 @@ public class AI {
             world.pickHero(HeroName.GUARDIAN);
         }else if(PICK_PHASE_COUNTER == SECOND_HERO){
             world.pickHero(HeroName.BLASTER);
-        }else if(PICK_PHASE_COUNTER == FORTH_HERO){
-            world.pickHero(HeroName.SENTRY);
         }else if(PICK_PHASE_COUNTER == THERD_HERO){
             world.pickHero(HeroName.BLASTER);
+        } else if (PICK_PHASE_COUNTER == FORTH_HERO) {
+            world.pickHero(HeroName.SENTRY);
         }
 
         PICK_PHASE_COUNTER++;
