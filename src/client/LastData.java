@@ -39,15 +39,16 @@ public class LastData {
     public void isAnyBombUsed() {
         if (world.getMovePhaseNum() == 1) {
             CastAbility[] castAbilities = world.getOppCastAbilities();
-//            System.out.println("\n\n\n======================");
-//            for (int i = 0; i < castAbilities.length; i++) {
-//                if (castAbilities[i].getAbilityName().equals(AbilityName.BLASTER_BOMB))
-//                    System.out.println("BOOOOOOOOOOOOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMMMBBBBBBBBBBBBBBBBBBBBBB");
-//                if (castAbilities[i].getAbilityName().equals(AbilityName.SENTRY_RAY))
-//                    System.out.println("RAYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
-//
-//            }
-//            System.out.println("+===================================================\n");
+            System.out.println("\n\n\n======================");
+            for (int i = 0; i < castAbilities.length; i++) {
+                if (castAbilities[i].getAbilityName().equals(AbilityName.BLASTER_BOMB))
+                    System.out.println("BOOOOOOOOOOOOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMMMBBBBBBBBBBBBBBBBBBBBBB");
+                if (castAbilities[i].getAbilityName().equals(AbilityName.SENTRY_RAY))
+                    System.out.println("RAYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+                System.out.println("=============================   "+castAbilities.length+"    ========================");
+
+            }
+            System.out.println("+===================================================\n");
             for (int i = 0; i < castAbilities.length; i++) {
                 for (int j = 0; j < blasterEnemy.length; j++) {
                     if (castAbilities[i].getAbilityName().equals(AbilityName.BLASTER_BOMB)&&castAbilities[i].getCasterId() == blasterEnemy[j].getId() && bomber[j] != 0) {
