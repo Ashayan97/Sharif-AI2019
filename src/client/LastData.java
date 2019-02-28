@@ -15,6 +15,7 @@ public class LastData {
     public int[] bomber = new int[4];
     public World world;
     public Cell escapeCell=null;
+    public Hero blasterRun=null;
 
 
     public void bombReducer() {

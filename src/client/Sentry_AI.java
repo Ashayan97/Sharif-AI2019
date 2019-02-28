@@ -219,32 +219,36 @@ public class Sentry_AI {
             setLastData();
             world.moveHero(hero, dir[0]);
         } else {
-            if (rangeFight.isSafe(hero, 6)) {
-                if (heroes.length!=0)
-                    lastData.escapeCell=null;
+            if (rangeFight.isSafe(hero, 6) ) {
+//                if (heroes.length != 0)
+//                    lastData.escapeCell = null;
                 if (!hero.getCurrentCell().isInObjectiveZone()) {
                     Direction dir;
-                    if (lastData.escapeCell != null)
-                        dir = ObjectMove(lastData.escapeCell);
-                    else
-                        dir = ObjectMove();
+//                    if (lastData.escapeCell != null)
+//                        dir = ObjectMove(lastData.escapeCell);
+//                    else
+                    dir = ObjectMove();
                     if (dir != null) {
-                        if (heroes.length!=0)
-                            lastData.escapeCell=null;
-                        setLastData();
-                        world.moveHero(hero, dir);
+                        Cell next=Utility.nextCell(world, hero.getCurrentCell(), dir);
+                        if (rangeFight.isSafe(hero,6)) {
+                            setLastData();
+                            world.moveHero(hero, dir);
+
+                        }
                     }
                 }
             } else {
-                Direction dir=null;
+                Direction dir = null;
                 setLastData();
-                if (lastData.escapeCell!=null) {
-                    EscapeDirection(rangeFight.InRangeAtk(hero, 7),lastData.escapeCell);
-                }else
-                    dir=EscapeDirection(rangeFight.InRangeAtk(hero, 7));
-                lastData.escapeCell = hero.getCurrentCell();
-                if (dir!=null)
-                    world.moveHero(hero, EscapeDirection(rangeFight.InRangeAtk(hero, 7)));
+//                if (lastData.escapeCell != null) {
+//                    EscapeDirection(inRangeAtkHeroes, lastData.escapeCell);
+//                } else
+                dir = EscapeDirection(inRangeAtkHeroes);
+//                lastData.escapeCell = hero.getCurrentCell();
+                if (dir != null) {
+                    world.moveHero(hero, dir);
+                }
+
             }
         }
 
@@ -286,436 +290,15 @@ public class Sentry_AI {
     }
 
 
-    private boolean isBlaster() {
-        for (Hero inRangeAtkHeroe : inRangeAtkHeroes) {
-            if (inRangeAtkHeroe.getName().equals(HeroName.BLASTER))
+    private boolean isBlaster(Cell cell) {
+        Hero[] enemyInRange=rangeFight.InRangeAtk(cell,7);
+        for (Hero inRangeAtkHeroe : enemyInRange) {
+            if (inRangeAtkHeroe.getName().equals(HeroName.BLASTER) && lastData.returnEnemyBombActivation(inRangeAtkHeroe))
                 return true;
         }
 
         return false;
     }
-
-//    private Direction EscapeDirection(Hero[] inRange) {
-//        Direction bestMove = null;
-//        Cell nearest = rangeFight.NearstEnemy(hero.getCurrentCell(), inRangeAtkHeroes);
-//        float maxDistance = rangeFight.avgDistance(inRange, hero.getCurrentCell());
-//        Hero[] ourInRange = rangeFight.InRangeAtk(hero, 4, ourHeroes);
-//        float ourInrangeAvg = rangeFight.avgDistance(ourInRange, hero.getCurrentCell());
-//
-//        ////////////////////////////////////////////////////////////////////////////////
-//        if (isBlaster() && ourInrangeAvg > 0) {
-//            int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
-//            if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
-//            ) {
-//                bestMove = Direction.UP;
-//                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
-//                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//            }
-//
-//            if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-//                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
-//            ) {
-//                bestMove = Direction.DOWN;
-//                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-//                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//
-//            }
-//
-//            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > ourInrangeAvg &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
-//            ) {
-//                bestMove = Direction.LEFT;
-//                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
-//                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//
-//            }
-//            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > ourInrangeAvg &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
-//            ) {
-//                bestMove = Direction.RIGHT;
-//            }
-//            if (bestMove != null)
-//                return bestMove;
-//            else {
-//                if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-//                ) {
-//                    bestMove = Direction.UP;
-//                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//
-//                }
-//
-//                if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-//                ) {
-//                    bestMove = Direction.DOWN;
-//                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                }
-//
-//                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > ourInrangeAvg &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-//                ) {
-//                    bestMove = Direction.LEFT;
-//                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//
-//                }
-//                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-//                ) {
-//                    bestMove = Direction.RIGHT;
-//                }
-//                if (bestMove != null)
-//                    return bestMove;
-//                else {
-//                    if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                            map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-//                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
-//                    ) {
-//                        bestMove = Direction.UP;
-//                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
-//                    }
-//
-//                    if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-//                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
-//                    ) {
-//                        bestMove = Direction.DOWN;
-//                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-//
-//                    }
-//
-//                    if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-////                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-//                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
-//                    ) {
-//                        bestMove = Direction.LEFT;
-//                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
-//                    }
-//                    if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-////                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-//                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
-//                    ) {
-//                        bestMove = Direction.RIGHT;
-//                    }
-//                    if (bestMove != null)
-//                        return bestMove;
-//                    else {
-//                        if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                                map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-//                        ) {
-//                            bestMove = Direction.UP;
-//                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//
-//                        }
-//
-//                        if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                                map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-//                        ) {
-//                            bestMove = Direction.DOWN;
-//                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                        }
-//
-//                        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-//                        ) {
-//                            bestMove = Direction.LEFT;
-//                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//
-//                        }
-//                        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-//                        ) {
-//                            bestMove = Direction.RIGHT;
-//                        }
-//                        if (bestMove != null)
-//                            return bestMove;
-//                        else {
-//
-//                            if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-//                            ) {
-//                                bestMove = Direction.UP;
-//                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                            }
-//
-//                            if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-//                            ) {
-//                                bestMove = Direction.DOWN;
-//                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                            }
-//
-//                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) == maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-//                            ) {
-//                                bestMove = Direction.LEFT;
-//                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                            }
-//                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) == maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-//                            ) {
-//                                bestMove = Direction.RIGHT;
-//                            }
-//                        }
-//                        if (bestMove != null)
-//                            return bestMove;
-//                        else {
-//
-//                            if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-//                            ) {
-//                                bestMove = Direction.UP;
-//                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                            }
-//
-//                            if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-//                            ) {
-//                                bestMove = Direction.DOWN;
-//                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                            }
-//
-//                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-//                            ) {
-//                                bestMove = Direction.LEFT;
-//                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                            }
-//                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-////                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-//                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-//                            ) {
-//                                bestMove = Direction.RIGHT;
-//                            }
-//                        }
-//                    }
-//                }
-//                return bestMove;
-//            }
-//        } else {
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//            int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
-//            if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
-//            ) {
-//                bestMove = Direction.UP;
-//                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
-//            }
-//
-//            if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
-//            ) {
-//                bestMove = Direction.DOWN;
-//                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-//
-//            }
-//
-//            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
-//            ) {
-//                bestMove = Direction.LEFT;
-//                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
-//            }
-//            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-//                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
-//            ) {
-//                bestMove = Direction.RIGHT;
-//            }
-//            if (bestMove != null)
-//                return bestMove;
-//            else {
-//                if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-//                ) {
-//                    bestMove = Direction.UP;
-//                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                }
-//
-//                if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-//                ) {
-//                    bestMove = Direction.DOWN;
-//                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                }
-//
-//                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-//                ) {
-//                    bestMove = Direction.LEFT;
-//                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                }
-//                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-//                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-//                ) {
-//                    bestMove = Direction.RIGHT;
-//                }
-//                if (bestMove != null)
-//                    return bestMove;
-//                else {
-//
-//                    if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-//                    ) {
-//                        bestMove = Direction.UP;
-//                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-//                    }
-//
-//                    if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-//                    ) {
-//                        bestMove = Direction.DOWN;
-//                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-//                    }
-//
-//                    if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) == maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-//                    ) {
-//                        bestMove = Direction.LEFT;
-//                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-//                    }
-//                    if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) == maxDistance &&
-//                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-//                    ) {
-//                        bestMove = Direction.RIGHT;
-//                    }
-//                }
-//                return bestMove;
-//            }
-//        }
-//
-//    }
-
 
     private Direction EscapeDirection(Hero[] inRange) {
         Direction bestMove = null;
@@ -723,204 +306,283 @@ public class Sentry_AI {
         float maxDistance = rangeFight.avgDistance(inRange, hero.getCurrentCell());
         Hero[] ourInRange = rangeFight.InRangeAtk(hero, 4, ourHeroes);
         float ourInrangeAvg = rangeFight.avgDistance(ourInRange, hero.getCurrentCell());
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        boolean upIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest);
+        boolean DownIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest);
+        boolean RightIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest);
+        boolean LeftIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest);
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        boolean upIsInMap = map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn());
+        boolean DownIsInMap = map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn());
+        boolean RightIsInMap = map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1);
+        boolean LeftIsInMap = map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        float UpOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+        float DownOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+        float LeftOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+        float RightOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1));
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        float EnemyAvgUp = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+        float EnemyAvgDown = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+        float EnemyAvgLeft = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+        float EnemyAvgRight = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1));
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        int UpDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
+        int DownDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
+        int LeftDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
+        int RightDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)));
 
-        ////////////////////////////////////////////////////////////////////////////////{best place
-        if (isBlaster() && ourInrangeAvg > 0) {
-            int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
+        ////////////////////////////////////////////////////////////////////////////////best place
+        int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
+        if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
+                upIsInVision &&
+                UpOurAvg > ourInrangeAvg &&
+                EnemyAvgUp > maxDistance &&
+                upIsInMap &&
+                UpDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.UP;
+            maxDistance = EnemyAvgUp;
+            disOfZone = UpDisOfZone;
+            ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+        }
+
+        if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
+                DownOurAvg > ourInrangeAvg &&
+                DownIsInVision &&
+                EnemyAvgDown > maxDistance &&
+                DownIsInMap &&
+                DownDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.DOWN;
+            maxDistance = EnemyAvgDown;
+            disOfZone = DownDisOfZone;
+            ourInrangeAvg = DownOurAvg;
+
+        }
+
+        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
+                LeftIsInVision &&
+                LeftOurAvg > ourInrangeAvg &&
+                EnemyAvgLeft > maxDistance &&
+                LeftIsInMap &&
+                LeftDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.LEFT;
+            maxDistance = EnemyAvgLeft;
+            disOfZone = LeftDisOfZone;
+            ourInrangeAvg = LeftOurAvg;
+
+        }
+        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
+                RightIsInVision &&
+                RightOurAvg > ourInrangeAvg &&
+                EnemyAvgRight > maxDistance &&
+                RightIsInMap &&
+                RightDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.RIGHT;
+        }
+        if (bestMove != null)
+            return bestMove;
+            //////////////////////////////////////////////////////////////////////////with out zone
+        else {
             if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                    upIsInVision &&
+                    UpOurAvg > ourInrangeAvg &&
+                    EnemyAvgUp > maxDistance &&
+                    upIsInMap
             ) {
                 bestMove = Direction.UP;
-                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
-                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+                maxDistance = EnemyAvgUp;
+                ourInrangeAvg = UpOurAvg;
+
             }
 
             if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                    DownIsInVision &&
+                    DownOurAvg > ourInrangeAvg &&
+                    EnemyAvgDown > maxDistance &&
+                    DownIsInMap
             ) {
                 bestMove = Direction.DOWN;
-                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-
+                maxDistance = EnemyAvgDown;
+                ourInrangeAvg = DownOurAvg;
             }
 
             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > ourInrangeAvg &&
-                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
+                    LeftIsInVision &&
+                    LeftOurAvg > ourInrangeAvg &&
+                    EnemyAvgLeft > maxDistance &&
+                    LeftIsInMap
             ) {
                 bestMove = Direction.LEFT;
-                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
-                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+                maxDistance = EnemyAvgLeft;
+                ourInrangeAvg = LeftOurAvg;
 
             }
             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > ourInrangeAvg &&
-                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
+                    RightIsInVision &&
+                    DownOurAvg > ourInrangeAvg &&
+                    EnemyAvgRight > maxDistance &&
+                    RightIsInMap
             ) {
                 bestMove = Direction.RIGHT;
             }
             if (bestMove != null)
                 return bestMove;
-                //////////////////////////////////////////////////////////////////////////with out zone
+
+                /////////////////////////////////////////////////////////////////////////////////////////without distance from friends
             else {
                 if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
+                        EnemyAvgUp > maxDistance &&
+                        upIsInVision &&
+                        upIsInMap &&
+                        UpDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.UP;
-                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-
+                    maxDistance = EnemyAvgUp;
+                    disOfZone = UpDisOfZone;
                 }
 
                 if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
+                        DownIsInVision &&
+                        EnemyAvgDown > maxDistance &&
+                        DownIsInMap &&
+                        DownDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.DOWN;
-                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+                    maxDistance = EnemyAvgDown;
+                    disOfZone = DownDisOfZone;
+
                 }
 
                 if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
+                        LeftIsInVision &&
+                        EnemyAvgLeft > maxDistance &&
+                        LeftIsInMap &&
+                        LeftDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.LEFT;
-                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-
+                    maxDistance = EnemyAvgLeft;
+                    disOfZone = LeftDisOfZone;
                 }
                 if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
+                        RightIsInVision &&
+                        EnemyAvgRight > maxDistance &&
+                        RightIsInMap &&
+                        RightDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.RIGHT;
                 }
                 if (bestMove != null)
                     return bestMove;
-
-                    /////////////////////////////////////////////////////////////////////////////////////////without distance from friends
+                    /////////////////////////////////////////////////////////without zone
                 else {
                     if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                            map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                            upIsInVision &&
+                            EnemyAvgUp > maxDistance &&
+                            upIsInMap
                     ) {
                         bestMove = Direction.UP;
-                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
+                        maxDistance = EnemyAvgUp;
+
                     }
 
                     if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                            map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                            DownIsInVision &&
+                            EnemyAvgDown > maxDistance &&
+                            DownIsInMap
                     ) {
                         bestMove = Direction.DOWN;
-                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-
+                        maxDistance = EnemyAvgDown;
                     }
 
                     if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
+                            LeftIsInVision &&
+                            EnemyAvgLeft > maxDistance &&
+                            LeftIsInMap
                     ) {
                         bestMove = Direction.LEFT;
-                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
+                        maxDistance = EnemyAvgLeft;
+
                     }
                     if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
+                            RightIsInVision &&
+                            EnemyAvgRight > maxDistance &&
+                            RightIsInMap
                     ) {
                         bestMove = Direction.RIGHT;
                     }
                     if (bestMove != null)
                         return bestMove;
-                        /////////////////////////////////////////////////////////without zone
                     else {
+
                         if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
+                                EnemyAvgUp > maxDistance &&
+                                upIsInMap
                         ) {
                             bestMove = Direction.UP;
-                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-
+                            maxDistance = EnemyAvgUp;
                         }
 
                         if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
+                                EnemyAvgDown > maxDistance &&
+                                DownIsInMap
                         ) {
                             bestMove = Direction.DOWN;
-                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+                            maxDistance = EnemyAvgDown;
                         }
 
                         if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
+                                EnemyAvgLeft > maxDistance &&
+                                LeftIsInMap
                         ) {
                             bestMove = Direction.LEFT;
-                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-
+                            maxDistance = EnemyAvgLeft;
                         }
                         if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
+                                RightIsInVision &&
+                                EnemyAvgRight > maxDistance &&
+                                RightIsInMap
+                        ) {
+                            bestMove = Direction.RIGHT;
+                        }
+                    }
+                    if (bestMove != null)
+                        return bestMove;
+                    else {
+
+                        if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
+                                upIsInVision &&
+                                EnemyAvgUp == maxDistance &&
+                                upIsInMap
+                        ) {
+                            bestMove = Direction.UP;
+                            maxDistance = EnemyAvgUp;
+                        }
+
+                        if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
+                                DownIsInVision &&
+                                EnemyAvgDown == maxDistance &&
+                                DownIsInMap
+                        ) {
+                            bestMove = Direction.DOWN;
+                            maxDistance = EnemyAvgDown;
+                        }
+
+                        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
+                                LeftIsInVision &&
+                                EnemyAvgLeft == maxDistance &&
+                                LeftIsInMap
+                        ) {
+                            bestMove = Direction.LEFT;
+                            maxDistance = EnemyAvgLeft;
+                        }
+                        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
+                                RightIsInVision &&
+                                EnemyAvgRight == maxDistance &&
+                                RightIsInMap
                         ) {
                             bestMove = Direction.RIGHT;
                         }
@@ -929,110 +591,33 @@ public class Sentry_AI {
                         else {
 
                             if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
+                                    EnemyAvgUp == maxDistance &&
+                                    upIsInMap
                             ) {
                                 bestMove = Direction.UP;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+                                maxDistance = EnemyAvgUp;
                             }
 
                             if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
+                                    EnemyAvgDown == maxDistance &&
+                                    DownIsInMap
                             ) {
                                 bestMove = Direction.DOWN;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+                                maxDistance = EnemyAvgDown;
                             }
 
                             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
+                                    EnemyAvgLeft == maxDistance &&
+                                    LeftIsInMap
                             ) {
                                 bestMove = Direction.LEFT;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+                                maxDistance = EnemyAvgLeft;
                             }
                             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
+                                    EnemyAvgRight == maxDistance &&
+                                    RightIsInMap
                             ) {
                                 bestMove = Direction.RIGHT;
-                            }
-                        }
-                        if (bestMove != null)
-                            return bestMove;
-                        else {
-
-                            if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-                            ) {
-                                bestMove = Direction.UP;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                            }
-
-                            if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-                            ) {
-                                bestMove = Direction.DOWN;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                            }
-
-                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-                            ) {
-                                bestMove = Direction.LEFT;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                            }
-                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-                            ) {
-                                bestMove = Direction.RIGHT;
-                            }
-                            if (bestMove != null)
-                                return bestMove;
-                            else {
-
-                                if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-                                ) {
-                                    bestMove = Direction.UP;
-                                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                                }
-
-                                if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-                                ) {
-                                    bestMove = Direction.DOWN;
-                                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                                }
-
-                                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-                                ) {
-                                    bestMove = Direction.LEFT;
-                                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                                }
-                                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-                                ) {
-                                    bestMove = Direction.RIGHT;
-                                }
                             }
                         }
                     }
@@ -1043,266 +628,315 @@ public class Sentry_AI {
     }
 
 
-
-    private Direction EscapeDirection(Hero[] inRange,Cell escape) {
+    private Direction EscapeDirection(Hero[] inRange, Cell escape) {
         Direction bestMove = null;
         Cell nearest = rangeFight.NearstEnemy(hero.getCurrentCell(), inRangeAtkHeroes);
         float maxDistance = rangeFight.avgDistance(inRange, hero.getCurrentCell());
         Hero[] ourInRange = rangeFight.InRangeAtk(hero, 4, ourHeroes);
         float ourInrangeAvg = rangeFight.avgDistance(ourInRange, hero.getCurrentCell());
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        boolean upIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest);
+        boolean DownIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest);
+        boolean RightIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest);
+        boolean LeftIsInVision = world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest);
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        boolean upIsInMap = map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn());
+        boolean DownIsInMap = map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn());
+        boolean RightIsInMap = map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1);
+        boolean LeftIsInMap = map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        float UpOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+        float DownOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+        float LeftOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+        float RightOurAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1));
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        float EnemyAvgUp = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+        float EnemyAvgDown = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+        float EnemyAvgLeft = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+        float EnemyAvgRight = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1));
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        int UpDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
+        int DownDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
+        int LeftDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
+        int RightDisOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)));
+
+
         ////////////////////////////////////////////////////////////////////////////////{best place
-        if (isBlaster() && ourInrangeAvg > 0) {
-            int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
+        int disOfZone = world.manhattanDistance(hero.getCurrentCell(), rangeFight.findNearestZoneCell(hero.getCurrentCell()));
+        if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
+                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                upIsInVision &&
+                EnemyAvgUp > maxDistance &&
+                UpOurAvg > ourInrangeAvg &&
+                upIsInMap &&
+                UpDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.UP;
+            maxDistance = EnemyAvgUp;
+            disOfZone = UpDisOfZone;
+            ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+        }
+
+        if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
+                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                DownOurAvg > ourInrangeAvg &&
+                DownIsInVision &&
+                EnemyAvgDown > maxDistance &&
+                DownIsInMap &&
+                DownDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.DOWN;
+            maxDistance = EnemyAvgDown;
+            disOfZone = DownDisOfZone;
+            ourInrangeAvg = DownOurAvg;
+
+        }
+
+        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
+                !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                LeftIsInVision &&
+                LeftOurAvg > ourInrangeAvg &&
+                EnemyAvgLeft > maxDistance &&
+                LeftIsInMap &&
+                LeftDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.LEFT;
+            maxDistance = EnemyAvgLeft;
+            disOfZone = LeftDisOfZone;
+            ourInrangeAvg = LeftOurAvg;
+
+        }
+        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
+                !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                RightIsInVision &&
+                RightOurAvg > ourInrangeAvg &&
+                EnemyAvgRight > maxDistance &&
+                RightIsInMap &&
+                RightDisOfZone <= disOfZone
+        ) {
+            bestMove = Direction.RIGHT;
+        }
+        if (bestMove != null)
+            return bestMove;
+            //////////////////////////////////////////////////////////////////////////with out zone
+        else {
             if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                    upIsInVision &&
+                    UpOurAvg > ourInrangeAvg &&
+                    EnemyAvgUp > maxDistance &&
+                    upIsInMap
             ) {
                 bestMove = Direction.UP;
-                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
+                maxDistance = EnemyAvgUp;
                 ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+
             }
 
             if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                    DownIsInVision &&
+                    DownOurAvg > ourInrangeAvg &&
+                    EnemyAvgDown > maxDistance &&
+                    DownIsInMap
             ) {
                 bestMove = Direction.DOWN;
-                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-
+                maxDistance = EnemyAvgDown;
+                ourInrangeAvg = DownOurAvg;
             }
 
             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-                    !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))&&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > ourInrangeAvg &&
-                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
+                    !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                    LeftIsInVision &&
+                    LeftOurAvg > ourInrangeAvg &&
+                    EnemyAvgLeft > maxDistance &&
+                    LeftIsInMap
             ) {
                 bestMove = Direction.LEFT;
-                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
-                ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+                maxDistance = EnemyAvgLeft;
+                ourInrangeAvg = LeftOurAvg;
 
             }
             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                    rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > ourInrangeAvg &&
-                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-                    world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
+                    !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                    RightIsInVision &&
+                    DownOurAvg > ourInrangeAvg &&
+                    EnemyAvgRight > maxDistance &&
+                    RightIsInMap
             ) {
                 bestMove = Direction.RIGHT;
             }
             if (bestMove != null)
                 return bestMove;
-                //////////////////////////////////////////////////////////////////////////with out zone
+
+                /////////////////////////////////////////////////////////////////////////////////////////without distance from friends
             else {
                 if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
+                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                        EnemyAvgUp > maxDistance &&
+                        upIsInVision &&
+                        upIsInMap &&
+                        UpDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.UP;
-                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-
+                    maxDistance = EnemyAvgUp;
+                    disOfZone = UpDisOfZone;
                 }
 
                 if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
+                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                        DownIsInVision &&
+                        EnemyAvgDown > maxDistance &&
+                        DownIsInMap &&
+                        DownDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.DOWN;
-                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+                    maxDistance = EnemyAvgDown;
+                    disOfZone = DownDisOfZone;
+
                 }
 
                 if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
+                        !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                        LeftIsInVision &&
+                        EnemyAvgLeft > maxDistance &&
+                        LeftIsInMap &&
+                        LeftDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.LEFT;
-                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                    ourInrangeAvg = rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-
+                    maxDistance = EnemyAvgLeft;
+                    disOfZone = LeftDisOfZone;
                 }
                 if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                        rangeFight.avgDistance(ourHeroes, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > ourInrangeAvg &&
-                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
+                        !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                        RightIsInVision &&
+                        EnemyAvgRight > maxDistance &&
+                        RightIsInMap &&
+                        RightDisOfZone <= disOfZone
                 ) {
                     bestMove = Direction.RIGHT;
                 }
                 if (bestMove != null)
                     return bestMove;
-
-                    /////////////////////////////////////////////////////////////////////////////////////////without distance from friends
+                    /////////////////////////////////////////////////////////without zone
                 else {
                     if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                            map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                            upIsInVision &&
+                            EnemyAvgUp > maxDistance &&
+                            upIsInMap
                     ) {
                         bestMove = Direction.UP;
-                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())));
+                        maxDistance = EnemyAvgUp;
+
                     }
 
                     if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                            map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))) <= disOfZone
+                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                            DownIsInVision &&
+                            EnemyAvgDown > maxDistance &&
+                            DownIsInMap
                     ) {
                         bestMove = Direction.DOWN;
-                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())));
-
+                        maxDistance = EnemyAvgDown;
                     }
 
                     if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1))) <= disOfZone
+                            !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                            LeftIsInVision &&
+                            EnemyAvgLeft > maxDistance &&
+                            LeftIsInMap
                     ) {
                         bestMove = Direction.LEFT;
-                        maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                        disOfZone = world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)));
+                        maxDistance = EnemyAvgLeft;
+
                     }
                     if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                            !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                            world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                            rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                            map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1) &&
-                            world.manhattanDistance(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), rangeFight.findNearestZoneCell(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1))) <= disOfZone
+                            !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                            RightIsInVision &&
+                            EnemyAvgRight > maxDistance &&
+                            RightIsInMap
                     ) {
                         bestMove = Direction.RIGHT;
                     }
                     if (bestMove != null)
                         return bestMove;
-                        /////////////////////////////////////////////////////////without zone
                     else {
+
                         if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                                EnemyAvgUp > maxDistance &&
+                                upIsInMap
                         ) {
                             bestMove = Direction.UP;
-                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-
+                            maxDistance = EnemyAvgUp;
                         }
 
                         if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                                EnemyAvgDown > maxDistance &&
+                                DownIsInMap
                         ) {
                             bestMove = Direction.DOWN;
-                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+                            maxDistance = EnemyAvgDown;
                         }
 
                         if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                                EnemyAvgLeft > maxDistance &&
+                                LeftIsInMap
                         ) {
                             bestMove = Direction.LEFT;
-                            maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-
+                            maxDistance = EnemyAvgLeft;
                         }
                         if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()-1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow()+1, hero.getCurrentCell().getColumn() ), nearest) &&
-//                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                                world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                                map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                                RightIsInVision &&
+                                EnemyAvgRight > maxDistance &&
+                                RightIsInMap
+                        ) {
+                            bestMove = Direction.RIGHT;
+                        }
+                    }
+                    if (bestMove != null)
+                        return bestMove;
+                    else {
+
+                        if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                                upIsInVision &&
+                                EnemyAvgUp == maxDistance &&
+                                upIsInMap
+                        ) {
+                            bestMove = Direction.UP;
+                            maxDistance = EnemyAvgUp;
+                        }
+
+                        if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                                DownIsInVision &&
+                                EnemyAvgDown == maxDistance &&
+                                DownIsInMap
+                        ) {
+                            bestMove = Direction.DOWN;
+                            maxDistance = EnemyAvgDown;
+                        }
+
+                        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                                LeftIsInVision &&
+                                EnemyAvgLeft == maxDistance &&
+                                LeftIsInMap
+                        ) {
+                            bestMove = Direction.LEFT;
+                            maxDistance = EnemyAvgLeft;
+                        }
+                        if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
+                                !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                                RightIsInVision &&
+                                EnemyAvgRight == maxDistance &&
+                                RightIsInMap
                         ) {
                             bestMove = Direction.RIGHT;
                         }
@@ -1311,164 +945,44 @@ public class Sentry_AI {
                         else {
 
                             if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
+                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) &&
+                                    EnemyAvgUp == maxDistance &&
+                                    upIsInMap
                             ) {
                                 bestMove = Direction.UP;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
+                                maxDistance = EnemyAvgUp;
                             }
 
                             if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
+                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) &&
+                                    EnemyAvgDown == maxDistance &&
+                                    DownIsInMap
                             ) {
                                 bestMove = Direction.DOWN;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
+                                maxDistance = EnemyAvgDown;
                             }
 
                             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
+                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) &&
+                                    EnemyAvgLeft == maxDistance &&
+                                    LeftIsInMap
                             ) {
                                 bestMove = Direction.LEFT;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
+                                maxDistance = EnemyAvgLeft;
                             }
                             if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) > maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
+                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) &&
+                                    EnemyAvgRight == maxDistance &&
+                                    RightIsInMap
                             ) {
                                 bestMove = Direction.RIGHT;
-                            }
-                        }
-                        if (bestMove != null)
-                            return bestMove;
-                        else {
-
-                            if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-                            ) {
-                                bestMove = Direction.UP;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                            }
-
-                            if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-                            ) {
-                                bestMove = Direction.DOWN;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                            }
-
-                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-                            ) {
-                                bestMove = Direction.LEFT;
-                                maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                            }
-                            if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                                    !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-                                    world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                    rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) == maxDistance &&
-                                    map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-                            ) {
-                                bestMove = Direction.RIGHT;
-                            }
-                            if (bestMove != null)
-                                return bestMove;
-                            else {
-
-                                if (!map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()).isWall() &&
-                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn())
-                                ) {
-                                    bestMove = Direction.UP;
-                                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()));
-                                }
-
-                                if (!map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()).isWall() &&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn())
-                                ) {
-                                    bestMove = Direction.DOWN;
-                                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()));
-                                }
-
-                                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1).isWall() &&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1)
-                                ) {
-                                    bestMove = Direction.LEFT;
-                                    maxDistance = rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() - 1));
-                                }
-                                if (!map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1).isWall() &&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() - 1, hero.getCurrentCell().getColumn()))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() + 1, hero.getCurrentCell().getColumn()))&&
-//                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()-1))&&
-                                        !escape.equals(map.getCell(hero.getCurrentCell().getRow() , hero.getCurrentCell().getColumn()+1))&&
-//                                        world.isInVision(map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1), nearest) &&
-                                        rangeFight.avgDistance(inRange, map.getCell(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)) == maxDistance &&
-                                        map.isInMap(hero.getCurrentCell().getRow(), hero.getCurrentCell().getColumn() + 1)
-                                ) {
-                                    bestMove = Direction.RIGHT;
-                                }
                             }
                         }
                     }
                 }
             }
         }
+
         return bestMove;
     }
 
