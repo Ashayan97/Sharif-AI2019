@@ -40,7 +40,7 @@ public class Range_fight {
     public boolean isSafe(Hero hero, int range) {
         Hero[] OppHero = world.getOppHeroes();
         for (int i = 0; i < OppHero.length; i++) {
-            if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) < range)
+            if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) <= range)
                 if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) >= 5) {
 
                 } else
@@ -104,8 +104,12 @@ public class Range_fight {
         Cell[] cells = map.getObjectiveZone();
         Cell min = cells[0];
         int minLen = Integer.MAX_VALUE;
+        ArrayList<Cell> ourLoc=new ArrayList<>();
+        for (int i = 0; i < world.getMyHeroes().length; i++) {
+            ourLoc.add(world.getMyHeroes()[i].getCurrentCell());
+        }
         for (int i = 0; i < cells.length; i++) {
-            if (min == null && world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null) {
+            if (min == null && world.getMyHero(cells[i]) == null && world.getPathMoveDirections(start,cells[i],ourLoc).length!=0) {
                 min = cells[i];
                 minLen = world.manhattanDistance(start, min);
             } else if (world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null && world.manhattanDistance(cells[i], start) < minLen) {
@@ -119,8 +123,12 @@ public class Range_fight {
     public Cell findNearestCell(Cell start, Cell[] cells) {
         Cell min = null;
         int minLen = Integer.MAX_VALUE;
+        ArrayList<Cell> ourLoc=new ArrayList<>();
+        for (int i = 0; i < world.getMyHeroes().length; i++) {
+            ourLoc.add(world.getMyHeroes()[i].getCurrentCell());
+        }
         for (int i = 0; i < cells.length; i++) {
-            if (min == null && world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null) {
+            if (min == null && world.getMyHero(cells[i]) == null && world.getPathMoveDirections(start,cells[i],ourLoc).length!=0) {
                 min = cells[i];
                 minLen = world.manhattanDistance(start, min);
             } else if (world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null && world.manhattanDistance(cells[i], start) < minLen) {

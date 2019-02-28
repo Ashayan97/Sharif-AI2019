@@ -67,7 +67,7 @@ public class AI {
         }
         lastData.world = world;
         lastData.bombReducer();
-        lastData.isAnyBombUsed();
+        lastData.isAnyBombUsed(world);
         Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO], world, lastData);
         if (hero[FORTH_HERO].getCurrentHP() != 0)
             sentry.SentryMove();

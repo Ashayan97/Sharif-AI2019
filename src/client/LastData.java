@@ -14,9 +14,11 @@ public class LastData {
     public Hero inAtk=null;
     public int[] bomber = new int[4];
     public World world;
+    public Cell escapeCell=null;
+
 
     public void bombReducer() {
-        if (world.getMovePhaseNum() == 1) {
+        if (world.getMovePhaseNum() == 0) {
             for (int i = 0; i < bomber.length; i++) {
                 if (bomber[i] != 0)
                     bomber[i]--;
@@ -36,19 +38,9 @@ public class LastData {
         blasterEnemy = blaster.toArray(new Hero[blaster.size()]);
     }
 
-    public void isAnyBombUsed() {
-        if (world.getMovePhaseNum() == 1) {
+    public void isAnyBombUsed(World world) {
+        if (world.getMovePhaseNum() == 0) {
             CastAbility[] castAbilities = world.getOppCastAbilities();
-//            System.out.println("\n\n\n======================");
-//            for (int i = 0; i < castAbilities.length; i++) {
-//                if (castAbilities[i].getAbilityName().equals(AbilityName.BLASTER_BOMB))
-//                    System.out.println("BOOOOOOOOOOOOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMMMBBBBBBBBBBBBBBBBBBBBBB");
-//                if (castAbilities[i].getAbilityName().equals(AbilityName.SENTRY_RAY))
-//                    System.out.println("RAYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
-//                System.out.println("=============================   "+castAbilities.length+"    ========================");
-//
-//            }
-//            System.out.println("+===================================================\n");
             for (int i = 0; i < castAbilities.length; i++) {
                 for (int j = 0; j < blasterEnemy.length; j++) {
                     if (castAbilities[i].getAbilityName().equals(AbilityName.BLASTER_BOMB)&&castAbilities[i].getCasterId() == blasterEnemy[j].getId() && bomber[j] != 0) {
