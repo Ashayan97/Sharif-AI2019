@@ -203,14 +203,13 @@ public class Blaster_AI {
         return ai.getNextCell(th) == null ? th.getCurrentCell() : ai.getNextCell(th);
     }
 
-
     /**
      * hero'ii k behesh attack mizane ro set mikone tu AI v ag dodge bzne cell ro set mikone mikone
      */
     public void attack() {
         if (blaster.getCurrentHP() == 0 || world.getAP() < 15)
             return;
-        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() && world.getAP() >= 25 ?
+        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() ?
                 AbilityName.BLASTER_BOMB :
                 AbilityName.BLASTER_ATTACK;
         Hero[] inMyAttckRange = Utility.getInAttackRange(world, blaster, abilityName);
