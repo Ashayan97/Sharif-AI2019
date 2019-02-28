@@ -296,29 +296,23 @@ public class Blaster {
                 safeFromBlasters(world, blaster, blasterCurrentCell, dupRangeH);
             }
         } else {
-            System.out.println("=======================\nin safemove and out of objzone\n"+blasterCurrentCell.getRow()+"-"+blasterCurrentCell.getColumn());
-
             Vector<Cell> blockcell = new Vector<>();
             Cell minDisCellFromObjzone;
 
             do{
                 minDisCellFromObjzone = objzoneCellMinDis(blasterCurrentCell, blockcell);
                 blockcell.add(minDisCellFromObjzone);
-                System.out.println(blockcell.size()+":"+minDisCellFromObjzone.getRow()+"-"+minDisCellFromObjzone.getColumn());
                 if(blockcell.size() == objectiveCells.length * objectiveCells.length)
                     return;
             } while (Utility.distance(blasterCurrentCell,minDisCellFromObjzone) == 1 &&
                     world.getMyHero(minDisCellFromObjzone) != null);
 
             Cell nextCell = Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone);
-            System.out.println("next cell : "+nextCell.getRow()+"-"+nextCell.getColumn());
             Hero[] perdict = Utility.getGuardians(world,nextCell);
-            System.out.println("perdict len : "+perdict.length);
             if(perdict.length == 0) {
                 move(world, blaster.getId(), blasterCurrentCell, nextCell, history);
                 setCell(blaster, nextCell);
             }
-            System.out.println("==========================");
         }
     }
 
