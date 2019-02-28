@@ -95,6 +95,12 @@ public class AI {
 
     void pickTurn(World world) {
         this.world = world;
+        if (FIRST_HERO == -1) {
+            FIRST_HERO = 0;
+            SECOND_HERO = 1;
+            THERD_HERO = 2;
+            FORTH_HERO = 3;
+        }
         pickHeroInPhase();
     }
 
@@ -117,6 +123,8 @@ public class AI {
 
         sentry = new Sentry_AI(heroes[FORTH_HERO], world, lastData);
         sentry.SentryMove();
+//        sentry = new Sentry_AI(heroes[FIRST_HERO],world,lastData);
+//        sentry.SentryMove();
 
         setInProcess(SECOND_HERO);
         blaster = new Blaster_AI(world, this, heroes[SECOND_HERO], histories[indexOfHeroInHistory(heroes[SECOND_HERO])], objectiveCells);
@@ -142,6 +150,8 @@ public class AI {
 
         sentry = new Sentry_AI(heroes[FORTH_HERO], world, lastData);
         sentry.actionPhase();
+//        sentry = new Sentry_AI(heroes[FIRST_HERO],world,lastData);
+//        sentry.actionPhase();
 
 //        Blaster.blasterAttack(this,world,heroes[FORTH_HERO]);
         setInProcess(SECOND_HERO);
