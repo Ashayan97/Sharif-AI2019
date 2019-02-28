@@ -9,7 +9,18 @@ public class Logger {
     public static void log(String log){
         System.out.println(BLUE+" "+log+"\u001B[0m");
     }
+
     public static void log(String log , String Color){
         System.out.println(Color+" "+log+"\u001B[0m");
     }
+
+    /**
+     * created By Omidekz
+     */
+    private static final String _END_ = "\u001B[0m";
+
+    public static String Log(String log, String Color) {
+        return Color + " " + log + _END_;
+    }
+
 }
