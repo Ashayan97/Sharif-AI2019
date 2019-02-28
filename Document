@@ -6,13 +6,12 @@ ATK :
 
 
 Blaster :
-1-Keep guardian dis at least 3
-2-Blaster keep distance of 5 from each other
-3-Blaster normal atk needs to find best atk cell
+1-Keep guardian dis at least 3 *DONE
+2-Blaster keep distance of 5 from each other *DONE
+3-Blaster normal atk needs to find best atk cell *DONE
 
 
 Sentry :
-
 1-need to atk if there is no one in atk vision
 2-need to move if no one in atk vision
 3-need to doge if there is more than 2 blaster in atk range
