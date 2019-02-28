@@ -67,10 +67,6 @@ public class AI {
 //        Blaster.blasterMove(this,world,hero[FIRST_HERO],histories[indexOfHeroInHistory(hero[FIRST_HERO])]);
 
         Guardian_AI guardian ;
-//        guardian= new Guardian_AI(hero[0],world);
-//        guardian.movePhase();
-//        guardian= new Guardian_AI(hero[1],world);
-//        guardian.movePhase();
         guardian= new Guardian_AI(hero[FIRST_HERO],world);
         guardian.movePhase();
 
