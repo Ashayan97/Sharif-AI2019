@@ -61,6 +61,7 @@ public class AI {
         init();
         Hero[] hero = world.getMyHeroes();
         if (flag == 0) {
+            lastData.world = world;
             lastData.setBlasterEnemy(world.getOppHeroes());
             flag++;
         }
