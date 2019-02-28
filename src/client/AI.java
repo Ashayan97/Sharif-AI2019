@@ -59,7 +59,16 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO],world,lastData);
+//        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO],world,lastData);
+        if (flag == 0) {
+            lastData.world = world;
+            lastData.setBlasterEnemy(world.getOppHeroes());
+            flag++;
+        }
+        lastData.world = world;
+        lastData.bombReducer();
+        lastData.isAnyBombUsed(world);
+        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO], world, lastData);
         sentry.SentryMove();
 //        Blaster.blasterMove(this,world,hero[FORTH_HERO],histories[indexOfHeroInHistory(hero[FORTH_HERO])]);
         Blaster.blasterMove(this,world,hero[SECOND_HERO],histories[indexOfHeroInHistory(hero[SECOND_HERO])]);
