@@ -239,12 +239,13 @@ public class Utility {
         Vector<Hero> heroes = new Vector<>();
         Cell heroCell = hero.getCurrentCell();
         for (Cell anAvailable : available) {
-            if (    world.getOppHero(anAvailable) != null&&
-                    !hero.getAbility(abilityNames[0]).isLobbing() &&
+            if (world.getOppHero(anAvailable) == null)
+                continue;
+
+            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
                     world.isInVision(heroCell, anAvailable))
                 heroes.add(world.getOppHero(anAvailable));
-            else if (   world.getOppHero(anAvailable) != null&&
-                        hero.getAbility(abilityNames[0]).isLobbing())
+            else if (hero.getAbility(abilityNames[0]).isLobbing())
                 heroes.add(world.getOppHero(anAvailable));
         }
         return heroes.toArray(new Hero[0]);

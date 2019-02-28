@@ -203,14 +203,13 @@ public class Blaster_AI {
         return ai.getNextCell(th) == null ? th.getCurrentCell() : ai.getNextCell(th);
     }
 
-
     /**
      * hero'ii k behesh attack mizane ro set mikone tu AI v ag dodge bzne cell ro set mikone mikone
      */
     public void attack() {
         if (blaster.getCurrentHP() == 0 || world.getAP() < 15)
             return;
-        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() && world.getAP() >= 25 ?
+        AbilityName abilityName = blaster.getAbility(AbilityName.BLASTER_BOMB).isReady() ?
                 AbilityName.BLASTER_BOMB :
                 AbilityName.BLASTER_ATTACK;
         Hero[] inMyAttckRange = Utility.getInAttackRange(world, blaster, abilityName);
@@ -229,7 +228,9 @@ public class Blaster_AI {
                 int min = Integer.MAX_VALUE;
                 Cell shodDodge = avai[0];
                 for (Cell anAvai : avai)
-                    if (!anAvai.isWall() && Utility.distance(anAvai, minObjzone) < min) {
+                    if (!anAvai.isWall()
+                            && world.isInVision(minObjzone, anAvai)
+                            && Utility.distance(anAvai, minObjzone) < min) {
                         shodDodge = anAvai;
                         min = Utility.distance(anAvai, minObjzone);
                     }
@@ -241,6 +242,8 @@ public class Blaster_AI {
             }
         } else {
             Cell whereShouldIAttack = getBestForBlasterAttack(inMyAttckRange, abilityName);
+            if (Utility.distance(blasterCell, whereShouldIAttack) > (abilityName == AbilityName.BLASTER_BOMB ? 7 : 5))
+                Logger.log(String.format("ID : %d, [%d,%d]-->[%d,%d], inRangeLen : %d", blaster.getId(), blasterCell.getRow(), blasterCell.getColumn(), whereShouldIAttack.getRow(), whereShouldIAttack.getColumn(), inMyAttckRange.length) + abilityName.name(), Logger.FULL_SOFT_GREEN);
             world.castAbility(blaster.getId(), abilityName, whereShouldIAttack);
             ai.setInAttack(blaster, world.getOppHero(whereShouldIAttack));
         }
