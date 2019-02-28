@@ -94,8 +94,6 @@ public class AI {
         guardian.actionPhase();
 
     }
-
-
     //****************************************
     /**
      * this method initialize our need across the phase or turn
