@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * @author : Amirhossein
- * @version : 1.1
+ * @version : 2.1
  * guardian hero
  * */
 public class Guardian_AI {
@@ -41,6 +41,11 @@ public class Guardian_AI {
                 world.castAbility(guardian,AbilityName.GUARDIAN_DODGE,bestForDoge);
                 return;
             }
+        }
+        Hero weakestHero = findHelpNeededHero(world.getMyHeroes());
+        if(isFortifyReady()&&weakestHero!=null){
+            world.castAbility(guardian,AbilityName.GUARDIAN_FORTIFY,weakestHero.getCurrentCell());
+            return; //stop continue this method
         }
         // if guardian in objective Zone -->
         if(canSeeAnyOne()){
@@ -556,6 +561,103 @@ public class Guardian_AI {
         return locations;
     }
 
+    private Hero findHelpNeededHero(Hero[] myHero){
+        Hero result=null;
+        ArrayList<Hero> fortifyAble = new ArrayList<>();
+        for (int i = 0 ; i<myHero.length ; i++){
+            if(myHero[i].getCurrentHP()!=0){
+                int distance = world.manhattanDistance(guardian.getCurrentCell(),myHero[i].getCurrentCell());
+                if(distance<=guardian.getAbility(AbilityName.GUARDIAN_FORTIFY).getRange())
+                    fortifyAble.add(myHero[i]);
+            }
+        }
+        if(!fortifyAble.isEmpty()){
+            //find allied hero with minimum health point
+            int minHealth = Integer.MIN_VALUE;
+            Hero weakestHero = null ;
+            for (int i = 0; i < fortifyAble.size(); i++) {
+                weakestHero = fortifyAble.get(i);
+                if(weakestHero.getCurrentHP()<=minHealth){
+                    minHealth=weakestHero.getCurrentHP();
+                }
+            }
+            if(guardian.getCurrentHP()>=100){
+                if(isHeroInDanger(weakestHero)){
+                    result=weakestHero;
+                }
+            }
+        }
+        return result;
+    }
+    private boolean isHeroInDanger(Hero weakHero){
+        Cell heroCell = weakHero.getCurrentCell();
+        int HP = weakHero.getCurrentHP();
+
+        if(weakHero.getName().equals(HeroName.BLASTER)){
+            if(HP<=100){
+                //find near heroes in range 7
+                ArrayList<Hero> enemyAroundWeakest = new ArrayList<>();
+                Hero[] enemies = world.getOppHeroes();
+                isEnemyInRange7(heroCell, enemyAroundWeakest, enemies);
+                return !enemyAroundWeakest.isEmpty();
+
+            }else
+                return false;
+
+        }else if(weakHero.getName().equals(HeroName.SENTRY)){
+            if(HP<=80){
+                ArrayList<Hero> enemyAroundWeakest = new ArrayList<>();
+                Hero[] enemies = world.getOppHeroes();
+                isEnemyInRange7(heroCell, enemyAroundWeakest, enemies);
+                return !enemyAroundWeakest.isEmpty();
+            }else
+                return false;
+        }
+        return false;
+    }
+
+    private int numberOfGuardian(ArrayList<Hero> heroes){
+        int count = 0;
+        for(Hero  hero : heroes){
+            if(hero.getName().equals(HeroName.GUARDIAN))
+                count++;
+        }
+        return count;
+    }
+
+    private int numberOfBlaster(ArrayList<Hero> heroes){
+        int count = 0 ;
+        for(Hero hero:heroes)
+            if(hero.getName().equals(HeroName.BLASTER))
+                count++;
+        return count;
+    }
+
+    private int numberOfSentry(ArrayList<Hero> heroes){
+        int count = 0 ;
+        for(Hero hero:heroes)
+            if(hero.getName().equals(HeroName.SENTRY))
+                count++;
+        return count;
+    }
+
+    private int numberOfHealer(ArrayList<Hero> heroes){
+        int count = 0 ;
+        for(Hero hero:heroes)
+            if(hero.getName().equals(HeroName.HEALER))
+                count++;
+        return count;
+    }
+
+    private void isEnemyInRange7(Cell heroCell, ArrayList<Hero> enemyAroundWeakest, Hero[] enemies) {
+        for (Hero enemy : enemies) {
+            if (enemy.getCurrentHP() != 0) {
+                int distance = world.manhattanDistance(enemy.getCurrentCell(), heroCell);
+                if (distance <= 7)
+                    enemyAroundWeakest.add(enemy);
+            }
+        }
+    }
 
     public Hero getGuardian() {
         return guardian;
@@ -568,4 +670,5 @@ public class Guardian_AI {
     public void setWorld(World world) {
         this.world = world;
     }
+
 }

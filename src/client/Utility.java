@@ -40,6 +40,29 @@ public class Utility {
         world.moveHero(heroId,direction);
     }
 
+    static void move(World world, int id, Cell start, int dr, int dc) {
+        move(world, id, start, world.getMap().getCells()[dr][dc]);
+    }
+
+    static float avgDis(Cell center, Cell[] cls) {
+        float sum = 0;
+        for (Cell c : cls)
+            sum += distance(center, c);
+        return sum / cls.length;
+    }
+
+    static float avgDis(Cell cell, Hero[] heroes) {
+        Cell[] cls = new Cell[heroes.length];
+        int i = 0;
+        for (Hero h : heroes)
+            cls[i++] = h.getCurrentCell();
+        return avgDis(cell, cls);
+    }
+
+    static float avgDis(Hero h, Hero[] hs) {
+        return avgDis(h.getCurrentCell(), hs);
+    }
+
     static Cell nextCell(World world,Cell src,Direction dir){
         int row = src.getRow();
         int col = src.getColumn();
@@ -216,12 +239,13 @@ public class Utility {
         Vector<Hero> heroes = new Vector<>();
         Cell heroCell = hero.getCurrentCell();
         for (Cell anAvailable : available) {
-            if (    world.getOppHero(anAvailable) != null&&
-                    !hero.getAbility(abilityNames[0]).isLobbing() &&
+            if (world.getOppHero(anAvailable) == null)
+                continue;
+
+            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
                     world.isInVision(heroCell, anAvailable))
                 heroes.add(world.getOppHero(anAvailable));
-            else if (   world.getOppHero(anAvailable) != null&&
-                        hero.getAbility(abilityNames[0]).isLobbing())
+            else if (hero.getAbility(abilityNames[0]).isLobbing())
                 heroes.add(world.getOppHero(anAvailable));
         }
         return heroes.toArray(new Hero[0]);

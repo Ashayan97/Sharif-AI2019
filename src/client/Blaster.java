@@ -331,7 +331,31 @@ public class Blaster {
 //                safeFromBlasters(world, blaster, blasterCurrentCell, dupRangeH);
 //            }else{
             Cell goal;
-            if (AI.getInProcess() == AI.SB()) {
+            if (AI.isRezerevd()) {
+                if (AI.getWhoRezereved() == AI.getInProcess()) {
+                    if (Utility.distance(blasterCurrentCell, AI.getRezerevedCell()) == 0)
+                        return;
+                    Utility.move(world, blaster, blasterCurrentCell, AI.getRezerevedCell());
+                    setCell(blaster, Utility.nextCell(world, blasterCurrentCell, AI.getRezerevedCell()));
+                } else {
+                    if (AI.getRezerevedCell().getColumn() != AI.getColGoal1()) {
+                        Cell g1 = world.getMap().getCells()[AI.getRowGoal()][AI.getColGoal1()];
+                        if (Utility.distance(g1, blasterCurrentCell) == 0)
+                            return;
+                        Utility.move(world, blaster, blasterCurrentCell, g1);
+                        setCell(blaster, Utility.nextCell(world, blasterCurrentCell, g1));
+                    } else {
+                        Cell g2 = world.getMap().getCells()[AI.getRowGoal()][AI.getColGoal2()];
+                        if (Utility.distance(blasterCurrentCell, g2) == 0)
+                            return;
+                        Utility.move(world, blaster, blasterCurrentCell, g2);
+                        setCell(blaster, Utility.nextCell(world, blasterCurrentCell, g2));
+                    }
+                }
+            } else {
+
+            }
+            if (AI.getInProcess() != AI.FB()) {
                 goal = objectiveCells[objectiveCells.length / 2][0];
             } else {
                 goal = objectiveCells[objectiveCells.length / 2][objectiveCells.length - 1];
