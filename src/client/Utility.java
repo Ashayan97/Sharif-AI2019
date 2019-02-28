@@ -40,6 +40,29 @@ public class Utility {
         world.moveHero(heroId,direction);
     }
 
+    static void move(World world, int id, Cell start, int dr, int dc) {
+        move(world, id, start, world.getMap().getCells()[dr][dc]);
+    }
+
+    static float avgDis(Cell center, Cell[] cls) {
+        float sum = 0;
+        for (Cell c : cls)
+            sum += distance(center, c);
+        return sum / cls.length;
+    }
+
+    static float avgDis(Cell cell, Hero[] heroes) {
+        Cell[] cls = new Cell[heroes.length];
+        int i = 0;
+        for (Hero h : heroes)
+            cls[i++] = h.getCurrentCell();
+        return avgDis(cell, cls);
+    }
+
+    static float avgDis(Hero h, Hero[] hs) {
+        return avgDis(h.getCurrentCell(), hs);
+    }
+
     static Cell nextCell(World world,Cell src,Direction dir){
         int row = src.getRow();
         int col = src.getColumn();
