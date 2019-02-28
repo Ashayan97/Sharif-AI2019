@@ -240,6 +240,8 @@ public class Blaster_AI {
             }
         } else {
             Cell whereShouldIAttack = getBestForBlasterAttack(inMyAttckRange, abilityName);
+            if (Utility.distance(blasterCell, whereShouldIAttack) > (abilityName == AbilityName.BLASTER_BOMB ? 7 : 5))
+                Logger.log(String.format("ID : %d, [%d,%d]-->[%d,%d], inRangeLen : %d", blaster.getId(), blasterCell.getRow(), blasterCell.getColumn(), whereShouldIAttack.getRow(), whereShouldIAttack.getColumn(), inMyAttckRange.length) + abilityName.name(), Logger.FULL_SOFT_GREEN);
             world.castAbility(blaster.getId(), abilityName, whereShouldIAttack);
             ai.setInAttack(blaster, world.getOppHero(whereShouldIAttack));
         }
