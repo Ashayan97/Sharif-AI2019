@@ -178,17 +178,29 @@ public class Range_fight {
 
     public Cell bestDodge(Cell center, int Range, int safeRange) {
         Cell[] cells = cellsOfArea(center, Range);
+        ArrayList<Cell> firstChoice = new ArrayList<>();
         ArrayList<Cell> lastChoice = new ArrayList<>();
         Cell Des = center;
         int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
         for (Cell cell : cells) {
-            if (isSafe(cell, safeRange) && !cell.isWall() && world.getMyHero(cell)==null)
+            if (isSafe(cell, safeRange) && !cell.isWall() && world.getMyHero(cell) == null)
                 lastChoice.add(cell);
         }
+
         for (int i = 0; i < lastChoice.size(); i++) {
-            if (world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i))) <= min) {
-                Des = lastChoice.get(i);
-                min = world.manhattanDistance(lastChoice.get(i), findNearestZoneCell(lastChoice.get(i)));
+            if (max < world.manhattanDistance(center, lastChoice.get(i)))
+                max = world.manhattanDistance(center, lastChoice.get(i));
+        }
+
+        for (int i = 0; i < lastChoice.size(); i++) {
+            if (world.manhattanDistance(center, lastChoice.get(i)) == max)
+                firstChoice.add(cells[i]);
+        }
+
+        for (int i = 0; i < firstChoice.size(); i++) {
+            if (world.manhattanDistance(firstChoice.get(i), findNearestZoneCell(firstChoice.get(i))) <= min) {
+                min = world.manhattanDistance(firstChoice.get(i), findNearestZoneCell(firstChoice.get(i)));
             }
         }
 
