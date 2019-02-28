@@ -20,8 +20,9 @@ public class AI {
     private Sentry_AI sentry;
     private Map<Integer, Hero> heroInAttack = new HashMap<>();
     private Map<Integer, Cell> dodgeMap = new HashMap<>();
-    private Map<Integer,Cell> nextCell = new HashMap<>();
-    private LastData lastData=new LastData();
+    private Map<Integer, Cell> nextCell = new HashMap<>();
+    private LastData lastData = new LastData();
+//    private boolean flag = true;
 
     //****************************************
     void preProcess(World world) {
@@ -41,19 +42,36 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-        Sentry_AI sentry = new Sentry_AI(hero[3],world,lastData);
-        if(hero[3].getCurrentHP() != 0)
+        if (flag == 0) {
+            lastData.setBlasterEnemy(world.getOppHeroes());
+            flag++;
+        }
+//        System.out.println("///////////////////////////////////////////// blasters");
+//        for (int i = 0; i < lastData.blasterEnemy.length; i++) {
+//            System.out.println(lastData.blasterEnemy[i]);
+//            System.out.println("_______________");
+//            System.out.println(lastData.bomber[i]);
+//        }
+//
+//
+//        System.out.println("///////////////////////////////////////////end");
+        lastData.world = world;
+        lastData.bombReducer();
+        lastData.isAnyBombUsed();
+        Sentry_AI sentry = new Sentry_AI(hero[3], world, lastData);
+        if (hero[3].getCurrentHP() != 0)
             sentry.SentryMove();
-        Blaster.blasterMove(this,world,hero[0],histories[indexOfHeroInHistory(hero[0])]);
-        Blaster.blasterMove(this,world,hero[1],histories[indexOfHeroInHistory(hero[1])]);
+        Blaster.blasterMove(this, world, hero[0], histories[indexOfHeroInHistory(hero[0])]);
+        Blaster.blasterMove(this, world, hero[1], histories[indexOfHeroInHistory(hero[1])]);
 //        Blaster.blasterMove(this,world,hero[2],histories[indexOfHeroInHistory(hero[2])]);
 
-        Guardian_AI guardian ;
+        Guardian_AI guardian;
 //        guardian= new Guardian_AI(hero[0],world);
 //        guardian.movePhase();
 //        guardian= new Guardian_AI(hero[1],world);
 //        guardian.movePhase();
-        guardian= new Guardian_AI(hero[2],world);
+
+        guardian = new Guardian_AI(hero[2], world);
         guardian.movePhase();
 
     }
@@ -63,12 +81,12 @@ public class AI {
         init();
         Hero[] heroes = world.getMyHeroes();
 
-        Sentry_AI sentry = new Sentry_AI(heroes[3],world,lastData);
-        if(heroes[3].getCurrentHP()!=0)
+        Sentry_AI sentry = new Sentry_AI(heroes[3], world, lastData);
+        if (heroes[3].getCurrentHP() != 0)
             sentry.actionPhase();
 
-        Blaster.blasterAttack(this,world,heroes[0]);
-        Blaster.blasterAttack(this,world,heroes[1]);
+        Blaster.blasterAttack(this, world, heroes[0]);
+        Blaster.blasterAttack(this, world, heroes[1]);
 //        Blaster.blaster(this,world,heroes[2],histories[indexOfHeroInHistory(heroes[2])]);
 
         Guardian_AI guardian;
@@ -76,7 +94,7 @@ public class AI {
 //        guardian.actionPhase();
 //        guardian  = new Guardian_AI(heroes[1],world);
 //        guardian.actionPhase();
-        guardian  = new Guardian_AI(heroes[2],world);
+        guardian = new Guardian_AI(heroes[2], world);
         guardian.actionPhase();
 
     }
@@ -193,22 +211,26 @@ public class AI {
         System.out.println(str + cell.getRow() + "-" + cell.getColumn());
     }
 
-    void setInAttack(Hero fael,Hero maful){
-        heroInAttack.put(fael.getId(),maful);
+    void setInAttack(Hero fael, Hero maful) {
+        heroInAttack.put(fael.getId(), maful);
     }
-    void dodgeTo(Hero in,Cell dodgeTo){
-        dodgeMap.put(in.getId(),dodgeTo);
+
+    void dodgeTo(Hero in, Cell dodgeTo) {
+        dodgeMap.put(in.getId(), dodgeTo);
     }
-    void addCell(Hero h,Cell cell){
-        nextCell.put(h.getId(),cell);
+
+    void addCell(Hero h, Cell cell) {
+        nextCell.put(h.getId(), cell);
     }
-    Cell getNextCell(Hero h){
-        if(nextCell.containsKey(h.getId()))
+
+    Cell getNextCell(Hero h) {
+        if (nextCell.containsKey(h.getId()))
             return nextCell.get(h.getId());
         return null;
     }
-    Cell[] getInAttackCell(){
-        Hero[] hs=heroInAttack.values().toArray(new Hero[0]);
+
+    Cell[] getInAttackCell() {
+        Hero[] hs = heroInAttack.values().toArray(new Hero[0]);
         Cell[] cs = new Cell[hs.length];
         for (int i = 0; i < hs.length; i++) {
             cs[i] = hs[i].getCurrentCell();
