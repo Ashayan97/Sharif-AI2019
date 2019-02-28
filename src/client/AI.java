@@ -75,7 +75,6 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-
         if (flag == 0) {
             lastData.world = world;
             lastData.setBlasterEnemy(world.getOppHeroes());
