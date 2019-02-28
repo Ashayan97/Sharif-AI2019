@@ -128,10 +128,13 @@ public class Range_fight {
             ourLoc.add(world.getMyHeroes()[i].getCurrentCell());
         }
         for (int i = 0; i < cells.length; i++) {
-            if (min == null && world.getMyHero(cells[i]) == null && world.getPathMoveDirections(start,cells[i],ourLoc).length!=0) {
+            if (world.getPathMoveDirections(start, cells[i], ourLoc).length == 0)
+                continue;
+            if (min == null && world.getMyHero(cells[i]) == null) {
                 min = cells[i];
                 minLen = world.manhattanDistance(start, min);
-            } else if (world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null && world.manhattanDistance(cells[i], start) < minLen) {
+            } else if (world.getMyHero(cells[i]) == null
+                    && world.manhattanDistance(cells[i], start) < minLen) {
                 min = cells[i];
                 minLen = world.manhattanDistance(start, min);
             }
