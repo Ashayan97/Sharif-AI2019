@@ -48,8 +48,8 @@ public class AI {
     //****************************************
     void preProcess(World world) {
         this.world = world;
-        initMap();
-        Blaster.set(objectiveCells);
+        init();
+//        Blaster.set(objectiveCells);
         Cell[] res = world.getMap().getMyRespawnZone();
         for (int i = 0; i < res.length; i++) {
             Cell[] avires = Utility.availableCells(world.getMap(), 1, res[i]);
@@ -75,10 +75,7 @@ public class AI {
         Utility.printMap(world);
         init();
         Hero[] hero = world.getMyHeroes();
-<<<<<<<<< Temporary merge branch 1
-        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO],world,lastData);
-        sentry.SentryMove();
-=========
+
         if (flag == 0) {
             lastData.world = world;
             lastData.setBlasterEnemy(world.getOppHeroes());
@@ -87,10 +84,8 @@ public class AI {
         lastData.world = world;
         lastData.bombReducer();
         lastData.isAnyBombUsed(world);
-        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO], world, lastData);
-        if (hero[FORTH_HERO].getCurrentHP() != 0)
-            sentry.SentryMove();
->>>>>>>>> Temporary merge branch 2
+        Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO],world,lastData);
+        sentry.SentryMove();
 //        Blaster.blasterMove(this,world,hero[FORTH_HERO],histories[indexOfHeroInHistory(hero[FORTH_HERO])]);
         Blaster.blasterMove(this,world,hero[SECOND_HERO],histories[indexOfHeroInHistory(hero[SECOND_HERO])]);
         Blaster.blasterMove(this,world,hero[THERD_HERO],histories[indexOfHeroInHistory(hero[THERD_HERO])]);
