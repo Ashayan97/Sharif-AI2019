@@ -347,15 +347,15 @@ public class Blaster {
 //            }
         } else {
             Vector<Cell> blockcell = new Vector<>();
-            Cell minDisCellFromObjzone;
+            Cell minDisCellFromObjzone = objzoneCellMinDis(world, blasterCurrentCell, true);
 
-            do{
-                minDisCellFromObjzone = objzoneCellMinDis(blasterCurrentCell, blockcell);
-                blockcell.add(minDisCellFromObjzone);
-                if(blockcell.size() == objectiveCells.length * objectiveCells.length)
-                    return;
-            } while (Utility.distance(blasterCurrentCell,minDisCellFromObjzone) == 1 &&
-                    world.getMyHero(minDisCellFromObjzone) != null);
+//            do{
+//                minDisCellFromObjzone = objzoneCellMinDis(blasterCurrentCell, blockcell);
+//                blockcell.add(minDisCellFromObjzone);
+//                if(blockcell.size() == objectiveCells.length * objectiveCells.length)
+//                    return;
+//            } while (Utility.distance(blasterCurrentCell,minDisCellFromObjzone) == 1 &&
+//                    world.getMyHero(minDisCellFromObjzone) != null);
 
             Cell nextCell = Utility.nextCell(world,blasterCurrentCell,minDisCellFromObjzone);
             Hero[] perdict = Utility.getGuardians(world,nextCell);
@@ -533,7 +533,6 @@ public class Blaster {
         }
         return objectiveCells[rowIndex][colIndex];
     }
-
     private static Cell objzoneCellMinDis(World world, Cell center, boolean forceEmpty) {
         if(!forceEmpty)
             return objzoneCellMinDis(center);
