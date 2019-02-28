@@ -224,7 +224,7 @@ public class Utility {
                         hero.getAbility(abilityNames[0]).isLobbing())
                 heroes.add(world.getOppHero(anAvailable));
         }
-        return heroes.toArray(new Hero[]{});
+        return heroes.toArray(new Hero[0]);
     }
 
     /**

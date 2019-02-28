@@ -52,9 +52,11 @@ public class Blaster {
         if (inMyAttckRange.length == 0) {
             int row;
             int col;
-            if (blaster.getCurrentCell().isInObjectiveZone()) {
-                dodgeToNearestEnemy(ai, world, blaster, blasterCell);
-            } else if (blaster.getAbility(AbilityName.BLASTER_DODGE).isReady()) {
+//            if (blaster.getCurrentCell().isInObjectiveZone()) {
+//                dodgeToNearestEnemy(ai, world, blaster, blasterCell);
+            /*}else */
+            if (blaster.getAbility(AbilityName.BLASTER_DODGE).isReady()
+                    && !blasterCell.isInObjectiveZone()) {
                 // hichki tu range attack nis va kharej objzone hastim
                 Cell[] avai = Utility.availableCells(world.getMap(), Utility.BLASTER_DODGE_RANGE, blasterCell);
                 Cell minObjzone = objzoneCellMinDis(blasterCell,true);
@@ -193,16 +195,14 @@ public class Blaster {
     private static Cell getBestForBlasterAttack(World world, Hero mhero, Hero[] inMyAttckRange, AbilityName abilityName) {
         if(inMyAttckRange.length == 1)
             return inMyAttckRange[0].getCurrentCell();
-        if(abilityName == AbilityName.BLASTER_BOMB && inMyAttckRange.length == 2){
+        if (abilityName == AbilityName.BLASTER_BOMB
+                && inMyAttckRange.length == 2) {
             //2 ta hastan v ability = BOMB
-            if(Utility.distance(inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell()) <= 2*Utility_Attack.radius_of_blaster_bomb) {
+            if (Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[1].getCurrentCell())
+                    <= 2 * Utility_Attack.radius_of_blaster_bomb) {
                 // mishe zad beyeneshun
-                Cell[] effectiveCells = Utility.effectiveCells(world,inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell());
-                if(effectiveCells.length == 1)
-                    return effectiveCells[0];
-                return  Utility.distance(mhero.getCurrentCell(),effectiveCells[0]) <= Utility.distance(mhero.getCurrentCell(),effectiveCells[1])?
-                        effectiveCells[0]:
-                        effectiveCells[1];
+                return vasateshun(world, inMyAttckRange[0].getCurrentCell(),
+                        inMyAttckRange[0].getCurrentCell());
             }else{ // nmishe zad beyneshun
                  /// vase hamin mizanm be uni k junesh kamtre
                 Utility.sortOnHP(inMyAttckRange);
@@ -214,7 +214,8 @@ public class Blaster {
                     return minCellFrom(world,mhero.getCurrentCell(),5,inMyAttckRange[0].getCurrentCell());
                 }
             }
-        }else if(abilityName == AbilityName.BLASTER_BOMB && inMyAttckRange.length == 3){
+        } else if (abilityName == AbilityName.BLASTER_BOMB
+                && inMyAttckRange.length == 3) {
             // 3 ta hastan v ability = BOMB
             if(Utility.distance(inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell())
                 <= 2*Utility_Attack.radius_of_blaster_bomb &&
@@ -224,20 +225,40 @@ public class Blaster {
                 <= 2*Utility_Attack.radius_of_blaster_bomb)
                 // mishe zad vasateshun
                 return vasateshun(world,inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell(),inMyAttckRange[2].getCurrentCell());
-        }else if(abilityName == AbilityName.BLASTER_BOMB && inMyAttckRange.length == 4){
-            Utility.sortOnHP(inMyAttckRange);
-            return minCellFrom(world,mhero.getCurrentCell(),5,inMyAttckRange[0].getCurrentCell());
+            else {
+                Utility.sortOnHP(inMyAttckRange);
+                return minCellFrom(world, mhero.getCurrentCell(), 5, inMyAttckRange[0].getCurrentCell());
+            }
+        } else if (abilityName == AbilityName.BLASTER_BOMB
+                && inMyAttckRange.length == 4) {
+            int range = 2 * Utility_Attack.radius_of_blaster_bomb;
+            if (Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[1].getCurrentCell())
+                    <= range
+                    && Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[2].getCurrentCell())
+                    <= range
+                    && Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[3].getCurrentCell())
+                    <= range
+                    && Utility.distance(inMyAttckRange[1].getCurrentCell(), inMyAttckRange[2].getCurrentCell())
+                    <= range
+                    && Utility.distance(inMyAttckRange[1].getCurrentCell(), inMyAttckRange[3].getCurrentCell())
+                    <= range
+                    && Utility.distance(inMyAttckRange[2].getCurrentCell(), inMyAttckRange[3].getCurrentCell())
+                    <= range) {
+                //4 an v mishe zad vasateshun
+                return vasateshun(world, inMyAttckRange[0].getCurrentCell(),
+                        inMyAttckRange[1].getCurrentCell(),
+                        inMyAttckRange[2].getCurrentCell(),
+                        inMyAttckRange[3].getCurrentCell());
+            } else {
+                Utility.sortOnHP(inMyAttckRange);
+                return minCellFrom(world, mhero.getCurrentCell(), 5, inMyAttckRange[0].getCurrentCell());
+            }
         }else if(abilityName == AbilityName.BLASTER_ATTACK){
             // in vase attack zadane
             if(inMyAttckRange.length == 2) {
                 if (Utility.distance(inMyAttckRange[1].getCurrentCell(), inMyAttckRange[0].getCurrentCell())
                         <= 2 * Utility.BLASTER_ATTACK_RADIUS){
-                    Cell[] effective =
-                            Utility.effectiveCells(world,inMyAttckRange[0].getCurrentCell(),inMyAttckRange[1].getCurrentCell());
-                    if(effective.length == 1)
-                        return effective[0];
-                    return Utility.distance(effective[0],mhero.getCurrentCell())<=Utility.distance(effective[1],mhero.getCurrentCell())?
-                            effective[0]:effective[1];
+                    return vasateshun(world, inMyAttckRange[0].getCurrentCell(), inMyAttckRange[1].getCurrentCell());
                 }else { // dota hastan ama faselashun bishtare 2 hast
                     Utility.sortOnHP(inMyAttckRange);
                     return minCellFrom(world,mhero.getCurrentCell(),4,inMyAttckRange[0].getCurrentCell());
@@ -254,9 +275,29 @@ public class Blaster {
                     Utility.sortOnHP(inMyAttckRange);
                     return minCellFrom(world,mhero.getCurrentCell(),4,inMyAttckRange[0].getCurrentCell());
                 }
-            }else{
-                Utility.sortOnHP(inMyAttckRange);
-                return minCellFrom(world,mhero.getCurrentCell(),4,inMyAttckRange[0].getCurrentCell());
+            } else {
+                int range = 2 * Utility.BLASTER_ATTACK_RADIUS;
+                if (Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[1].getCurrentCell())
+                        <= range
+                        && Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[2].getCurrentCell())
+                        <= range
+                        && Utility.distance(inMyAttckRange[0].getCurrentCell(), inMyAttckRange[3].getCurrentCell())
+                        <= range
+                        && Utility.distance(inMyAttckRange[1].getCurrentCell(), inMyAttckRange[2].getCurrentCell())
+                        <= range
+                        && Utility.distance(inMyAttckRange[1].getCurrentCell(), inMyAttckRange[3].getCurrentCell())
+                        <= range
+                        && Utility.distance(inMyAttckRange[2].getCurrentCell(), inMyAttckRange[3].getCurrentCell())
+                        <= range) {
+                    //4 an v mishe zad vasateshun
+                    return vasateshun(world, inMyAttckRange[0].getCurrentCell(),
+                            inMyAttckRange[1].getCurrentCell(),
+                            inMyAttckRange[2].getCurrentCell(),
+                            inMyAttckRange[3].getCurrentCell());
+                } else {
+                    Utility.sortOnHP(inMyAttckRange);
+                    return minCellFrom(world, mhero.getCurrentCell(), 4, inMyAttckRange[0].getCurrentCell());
+                }
             }
         }
         Utility.sortOnDistance(mhero.getCurrentCell(),inMyAttckRange);
@@ -286,9 +327,24 @@ public class Blaster {
             Hero[] blasters = getBelasters(world, blaster);
             boolean dupRange = blasters.length!=0;
             Vector<Hero> dupRangeH = new Vector<>(Arrays.asList(blasters));
-            if (dupRange) {
-                safeFromBlasters(world, blaster, blasterCurrentCell, dupRangeH);
+//            if (dupRange) {
+//                safeFromBlasters(world, blaster, blasterCurrentCell, dupRangeH);
+//            }else{
+            Cell goal;
+            if (AI.getInProcess() == AI.SB()) {
+                goal = objectiveCells[objectiveCells.length / 2][0];
+            } else {
+                goal = objectiveCells[objectiveCells.length / 2][objectiveCells.length - 1];
             }
+            if (Utility.distance(blasterCurrentCell, goal) == 0)
+                return;
+
+            Cell nextCell = Utility.nextCell(world, blasterCurrentCell, goal);
+            if (Utility.getGuardians(world, nextCell).length != 0)
+                return;
+            Utility.move(world, blaster.getId(), blasterCurrentCell, goal);
+            setCell(blaster, nextCell);
+//            }
         } else {
             Vector<Cell> blockcell = new Vector<>();
             Cell minDisCellFromObjzone;
@@ -500,12 +556,20 @@ public class Blaster {
      * 3 cell migire v beyneshun ro return mikone msln:
      * (1,1) (2,2) (1 3) => return mikone (1,2)
      * */
-    private static Cell vasateshun(World world,Cell start, Cell mid, Cell end) {
-        Cell left = Utility.getLEFT(Utility.getLEFT(start,mid),end);
-        Cell right = Utility.getRIGHT(Utility.getRIGHT(start,mid),end);
-        Cell up = Utility.getUP(Utility.getUP(start,mid),end);
-        Cell down = Utility.getDOWN(Utility.getDOWN(start,mid),end);
-        return world.getMap().getCell((up.getRow() + down.getRow())/2,(left.getColumn()+right.getColumn())/2);
+    private static Cell vasateshun(World world, Cell start, Cell end) {
+        return vasateshun(world, start, end, end);
+    }
+
+    private static Cell vasateshun(World world, Cell start, Cell mid, Cell end) {
+        return vasateshun(world, start, mid, end, end);
+    }
+
+    private static Cell vasateshun(World world, Cell start, Cell mid, Cell mid2, Cell end) {
+        Cell DOWN = Utility.getDOWN(start, Utility.getDOWN(mid, Utility.getDOWN(mid2, end)));
+        Cell UP = Utility.getUP(start, Utility.getUP(mid, Utility.getUP(mid2, end)));
+        Cell LEFT = Utility.getLEFT(start, Utility.getLEFT(mid, Utility.getLEFT(mid2, end)));
+        Cell RIGHT = Utility.getRIGHT(start, Utility.getRIGHT(mid, Utility.getRIGHT(mid2, end)));
+        return world.getMap().getCell((UP.getRow() + DOWN.getRow()) / 2, (LEFT.getColumn() + RIGHT.getColumn()) / 2);
     }
 
     /**
