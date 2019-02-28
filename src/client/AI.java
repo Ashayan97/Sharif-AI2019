@@ -46,15 +46,6 @@ public class AI {
             lastData.setBlasterEnemy(world.getOppHeroes());
             flag++;
         }
-//        System.out.println("///////////////////////////////////////////// blasters");
-//        for (int i = 0; i < lastData.blasterEnemy.length; i++) {
-//            System.out.println(lastData.blasterEnemy[i]);
-//            System.out.println("_______________");
-//            System.out.println(lastData.bomber[i]);
-//        }
-//
-//
-//        System.out.println("///////////////////////////////////////////end");
         lastData.world = world;
         lastData.bombReducer();
         lastData.isAnyBombUsed();
