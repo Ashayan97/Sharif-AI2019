@@ -60,8 +60,7 @@ public class AI {
         init();
         Hero[] hero = world.getMyHeroes();
         Sentry_AI sentry = new Sentry_AI(hero[FORTH_HERO],world,lastData);
-        if(hero[FORTH_HERO].getCurrentHP() != 0)
-            sentry.SentryMove();
+        sentry.SentryMove();
 //        Blaster.blasterMove(this,world,hero[FORTH_HERO],histories[indexOfHeroInHistory(hero[FORTH_HERO])]);
         Blaster.blasterMove(this,world,hero[SECOND_HERO],histories[indexOfHeroInHistory(hero[SECOND_HERO])]);
         Blaster.blasterMove(this,world,hero[THERD_HERO],histories[indexOfHeroInHistory(hero[THERD_HERO])]);
@@ -83,8 +82,7 @@ public class AI {
         Hero[] heroes = world.getMyHeroes();
 
         Sentry_AI sentry = new Sentry_AI(heroes[FORTH_HERO],world,lastData);
-        if(heroes[FORTH_HERO].getCurrentHP()!=0)
-            sentry.actionPhase();
+        sentry.actionPhase();
 
 //        Blaster.blasterAttack(this,world,heroes[FORTH_HERO]);
         Blaster.blasterAttack(this,world,heroes[SECOND_HERO]);
