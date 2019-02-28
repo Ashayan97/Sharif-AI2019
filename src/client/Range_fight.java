@@ -39,11 +39,13 @@ public class Range_fight {
 
     public boolean isSafe(Hero hero, int range) {
         Hero[] OppHero = world.getOppHeroes();
-        for (int i = 0; i < OppHero.length; i++) {
-            if (world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) <= range)
-                if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(hero.getCurrentCell(), OppHero[i].getCurrentCell()) >= 5) {
+        for (Hero aOppHero : OppHero) {
+            if (world.manhattanDistance(hero.getCurrentCell(), aOppHero.getCurrentCell()) <= range)
+                if (aOppHero.getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(aOppHero.getCurrentCell(), hero.getCurrentCell()) > 5) {
 
-                } else
+                } else if (aOppHero.getName().equals(HeroName.SENTRY)) {
+
+                } else if (!notInEnemyVision(hero, world.getOppHeroes()))
                     return false;
         }
         return true;
@@ -51,11 +53,13 @@ public class Range_fight {
 
     public boolean isSafe(Cell cell, int range) {
         Hero[] OppHero = world.getOppHeroes();
-        for (int i = 0; i < OppHero.length; i++) {
-            if (world.manhattanDistance(cell, OppHero[i].getCurrentCell()) <= range)
-                if (OppHero[i].getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(cell, OppHero[i].getCurrentCell()) > 5) {
-                } else if (OppHero[i].getName().equals(HeroName.HEALER) && world.manhattanDistance(cell, OppHero[i].getCurrentCell()) > 5) {
-                } else
+        for (Hero aOppHero : OppHero) {
+            if (world.manhattanDistance(cell, aOppHero.getCurrentCell()) <= range)
+                if (aOppHero.getName().equals(HeroName.GUARDIAN) && world.manhattanDistance(aOppHero.getCurrentCell(), cell) > 5) {
+
+                } else if (aOppHero.getName().equals(HeroName.SENTRY)) {
+
+                } else if (!notInEnemyVision(cell, world.getOppHeroes()))
                     return false;
 
         }
@@ -64,8 +68,18 @@ public class Range_fight {
 
     public boolean notInEnemyVision(Hero hero, Hero[] oppHero) {
         for (Hero anOppHero : oppHero) {
-            if (world.isInVision(anOppHero.getCurrentCell(), hero.getCurrentCell()))
-                return false;
+            if (anOppHero.getCurrentCell().getRow() != -1)
+                if (world.isInVision(anOppHero.getCurrentCell(), hero.getCurrentCell()))
+                    return false;
+        }
+        return true;
+    }
+
+    public boolean notInEnemyVision(Cell hero, Hero[] oppHero) {
+        for (Hero anOppHero : oppHero) {
+            if (anOppHero.getCurrentCell().getRow() != -1)
+                if (world.isInVision(anOppHero.getCurrentCell(), hero))
+                    return false;
         }
         return true;
     }
@@ -104,12 +118,12 @@ public class Range_fight {
         Cell[] cells = map.getObjectiveZone();
         Cell min = cells[0];
         int minLen = Integer.MAX_VALUE;
-        ArrayList<Cell> ourLoc=new ArrayList<>();
+        ArrayList<Cell> ourLoc = new ArrayList<>();
         for (int i = 0; i < world.getMyHeroes().length; i++) {
             ourLoc.add(world.getMyHeroes()[i].getCurrentCell());
         }
         for (int i = 0; i < cells.length; i++) {
-            if (min == null && world.getMyHero(cells[i]) == null && world.getPathMoveDirections(start,cells[i],ourLoc).length!=0) {
+            if (min == null && world.getMyHero(cells[i]) == null && world.getPathMoveDirections(start, cells[i], ourLoc).length != 0) {
                 min = cells[i];
                 minLen = world.manhattanDistance(start, min);
             } else if (world.getMyHero(cells[i]) == null && world.getOppHero(cells[i]) == null && world.manhattanDistance(cells[i], start) < minLen) {
@@ -123,7 +137,7 @@ public class Range_fight {
     public Cell findNearestCell(Cell start, Cell[] cells) {
         Cell min = null;
         int minLen = Integer.MAX_VALUE;
-        ArrayList<Cell> ourLoc=new ArrayList<>();
+        ArrayList<Cell> ourLoc = new ArrayList<>();
         for (int i = 0; i < world.getMyHeroes().length; i++) {
             ourLoc.add(world.getMyHeroes()[i].getCurrentCell());
         }
