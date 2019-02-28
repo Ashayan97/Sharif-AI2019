@@ -71,11 +71,11 @@ public class Utility {
         return cells.toArray(new Cell[]{});
     }
 
-    private static final String OBJECTIVEZONE_SHAPE   = "#  ",
-            OPP_RESPAWNZONE_SHAPE = "+' ",
-            MY_RESPAWNZONE_SHAPE  = "+  ",
-            WALL_SHAPE            = "/\\ ",
-            NORMAL_CELL           = "-- ";
+    private static final String OBJECTIVEZONE_SHAPE = "   ",
+            OPP_RESPAWNZONE_SHAPE = "   ",
+            MY_RESPAWNZONE_SHAPE = "   ",
+            WALL_SHAPE = "   ",
+            NORMAL_CELL = "   ";
     static void printMap(World world) {
         Cell[][] cells = world.getMap().getCells();
         System.out.print("  ");
@@ -91,13 +91,13 @@ public class Utility {
                 Hero inThisCell = world.getMyHero(cells[i][j]);
                 Hero oppInThisCell = world.getOppHero(cells[i][j]);
                 System.out.print(
-                        oppInThisCell!=null?String.format(     "%s' ",oppInThisCell.getName().name().charAt(0)):
-                                inThisCell!=null?String.format(     "%s  ",inThisCell.getName().name().charAt(0)):
-                                        cells[i][j].isWall() ?              WALL_SHAPE:
-                                                cells[i][j].isInMyRespawnZone() ?   MY_RESPAWNZONE_SHAPE :
-                                                        cells[i][j].isInOppRespawnZone() ?  OPP_RESPAWNZONE_SHAPE :
-                                                                cells[i][j].isInObjectiveZone() ?   OBJECTIVEZONE_SHAPE :
-                                                                        NORMAL_CELL);
+                        oppInThisCell != null ? Logger.Log(String.format("%s' ", oppInThisCell.getName().name().charAt(0)), oppInThisCell.getName()) :
+                                inThisCell != null ? Logger.Log(String.format("%s  ", inThisCell.getName().name().charAt(0)), inThisCell.getName()) :
+                                        cells[i][j].isWall() ? Logger.Log(WALL_SHAPE, Logger.WALL_TYPE) :
+                                                cells[i][j].isInMyRespawnZone() ? Logger.Log(MY_RESPAWNZONE_SHAPE, Logger.OUR_RES_TYPE) :
+                                                        cells[i][j].isInOppRespawnZone() ? Logger.Log(OPP_RESPAWNZONE_SHAPE, Logger.THEM_RES_TYPE) :
+                                                                cells[i][j].isInObjectiveZone() ? Logger.Log(OBJECTIVEZONE_SHAPE, Logger.OBJECTIVE_TYPE) :
+                                                                        Logger.Log(NORMAL_CELL, Logger.NORMAL_CELL_TYPE));
             }
             System.out.println();
         }
