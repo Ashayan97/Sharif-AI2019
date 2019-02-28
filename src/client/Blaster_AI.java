@@ -228,7 +228,9 @@ public class Blaster_AI {
                 int min = Integer.MAX_VALUE;
                 Cell shodDodge = avai[0];
                 for (Cell anAvai : avai)
-                    if (!anAvai.isWall() && Utility.distance(anAvai, minObjzone) < min) {
+                    if (!anAvai.isWall()
+                            && world.isInVision(minObjzone, anAvai)
+                            && Utility.distance(anAvai, minObjzone) < min) {
                         shodDodge = anAvai;
                         min = Utility.distance(anAvai, minObjzone);
                     }
