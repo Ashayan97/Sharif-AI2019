@@ -17,9 +17,10 @@ public class Guardian_AI {
     private Map map;
     private Hero[] alliedHero;
     private static final int criticalHealthPoint = 40 ;
+    private boolean inEnemySide ;
+    private Cell[][] objectiveCells;
 
-
-    public Guardian_AI(Hero guardian, World world) {
+    public Guardian_AI(Hero guardian, World world,Cell[][] objectiveCells) {
         if(guardian==null || !guardian.getName().equals(HeroName.GUARDIAN))
             throw new RuntimeException("HERO PASSED IS NULL OR PASSED WRONG \n" +
                     "هیرو رو اشتباهی پاس دادی یا پاس ندادی");
@@ -28,6 +29,21 @@ public class Guardian_AI {
         this.world = world;
         this.map = world.getMap();
         this.alliedHero = world.getMyHeroes();
+        this.inEnemySide=false;
+        this.objectiveCells=objectiveCells;
+    }
+
+    public Guardian_AI(Hero guardian, World world ,Cell[][] objectiveCells,boolean inEnemySide) {
+        if(guardian==null || !guardian.getName().equals(HeroName.GUARDIAN))
+            throw new RuntimeException("HERO PASSED IS NULL OR PASSED WRONG \n" +
+                    "هیرو رو اشتباهی پاس دادی یا پاس ندادی");
+
+        this.guardian = guardian;
+        this.world = world;
+        this.map = world.getMap();
+        this.alliedHero = world.getMyHeroes();
+        this.objectiveCells=objectiveCells;
+        this.inEnemySide=inEnemySide;
     }
 
     public void actionPhase(){
@@ -178,7 +194,9 @@ public class Guardian_AI {
         }else {
             // guardian are in Objective zone
             // if can't see any one
-            Cell cell = findNearestCellOurSide();
+            //TODO --> --> --> -->
+//            Cell cell = findNearestCellOurSide();
+
             if (!canSeeAnyOne()){
                 // go to nearest row of objective Zone after Blaster
                 if(world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide()).length!=0)
@@ -209,7 +227,7 @@ public class Guardian_AI {
                         if (world.getPathMoveDirections(guardian.getCurrentCell(),
                                 nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes())).length != 0) {
                             // find best cell with range 1 from
-                            Cell bestCell = findNearCellWithRangeOne(nearEnemy.getCurrentCell());
+                            Cell bestCell = findNearCellWithRangeTow(nearEnemy.getCurrentCell());
                             if(world.getPathMoveDirections(guardian.getCurrentCell(),
                                     bestCell, getHeroesLocation(world.getMyHeroes())).length!=0)
                                 world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
@@ -251,8 +269,8 @@ public class Guardian_AI {
         return null;
     }
 
-    private Cell findNearCellWithRangeOne(Cell currentCell) {
-        Cell[] aroundEnemy = new Range_fight(world).cellsOfArea(currentCell,1);
+    private Cell findNearCellWithRangeTow(Cell currentCell) {
+        Cell[] aroundEnemy = new Range_fight(world).cellsOfArea(currentCell,2);
         Cell nearCell = null;
         int minDistance = Integer.MAX_VALUE;
         for (int i= 0 ; i<aroundEnemy.length;i++){
@@ -659,9 +677,6 @@ public class Guardian_AI {
         }
     }
 
-    public Hero getGuardian() {
-        return guardian;
-    }
 
     public void setGuardian(Hero guardian) {
         this.guardian = guardian;
@@ -669,6 +684,66 @@ public class Guardian_AI {
 
     public void setWorld(World world) {
         this.world = world;
+    }
+
+    public Hero getGuardian() {
+        return guardian;
+    }
+
+    //--------------------------------------- --- --- --- --- new methods
+
+    private Cell bestPlaceForStand(int row ,int column){
+        return map.getCell(row,column) ;
+    }
+
+    private Cell bestPlaceForStand(){
+//        Cell[] objective = map.getObjectiveZone();
+//        int minRowValue= Integer.MAX_VALUE ;
+//        int minColumnValue = Integer.MAX_VALUE;
+//        int maxRowValue = Integer.MIN_VALUE;
+//        int maxColumnValue = Integer.MIN_VALUE;
+
+//        for (int i=0 ; i<objective.length ;i++){
+//            if(objective[i].getRow()<minRowValue){
+//                minRowValue = objective[i].getRow();
+//            }
+//            if(objective[i].getColumn()<minColumnValue){
+//                minColumnValue=objective[i].getColumn();
+//            }
+//            if(objective[i].getRow()>maxRowValue){
+//                maxRowValue=objective[i].getRow();
+//            }
+//            if(objective[i].getColumn()>maxColumnValue){
+//                maxColumnValue = objective[i].getColumn();
+//            }
+//        }
+//        Cell upRight , upLeft , downRight , downLeft ;
+//        upLeft = map.getCell(minRowValue,minColumnValue);
+//        upRight = map.getCell(minRowValue,maxColumnValue);
+//        downLeft = map.getCell(maxRowValue,minColumnValue);
+//        downRight = map.getCell(maxRowValue,maxColumnValue);
+//
+//        Cell midUp = map.getCell(upLeft.getRow(),(upLeft.getColumn()+upRight.getColumn())/2);
+//        Cell midDown = map.getCell(downLeft.getRow(),(downLeft.getColumn()+downRight.getColumn())/2);
+//
+//        Cell nearTarget;
+//
+//        if(inEnemySide)
+//            nearTarget = map.getOppRespawnZone()[0];
+//        else
+//            nearTarget = map.getMyRespawnZone()[0];
+
+//        ///////////////////////////////////////////////////////
+
+//        Cell upLeft = objectiveCells[0][0];
+//        Cell upRight = objectiveCells[0][objectiveCells[0].length-1];
+//        Cell downLeft = objectiveCells[objectiveCells.length-1][0];
+//        Cell downRight = objectiveCells[objectiveCells[0].length-1][objectiveCells[0].length];
+//
+//        Cell
+        //TODO :: ::: ::
+
+        return null;
     }
 
 }
