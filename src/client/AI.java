@@ -96,7 +96,7 @@ public class AI {
 
     void moveTurn(World world) {
         this.world = world;
-        Utility.printMap(world);
+//        Utility.printMap(world);
         init();
         shynSet(world);
         sentrMove(FORTH_HERO);
