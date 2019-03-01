@@ -102,8 +102,8 @@ public class AI {
         sentrMove(FORTH_HERO);
         blasterMove(SECOND_HERO, false);
         blasterMove(THERD_HERO, false);
-//        blasterMove(FIRST_HERO,true);
-        guadianMove(FIRST_HERO);
+        blasterMove(FIRST_HERO, true);
+//        guadianMove(FIRST_HERO);
     }
     void actionTurn(World world) {
         this.world = world;
@@ -111,8 +111,8 @@ public class AI {
         sentryAtk(FORTH_HERO);
         blasterAtk(SECOND_HERO, false);
         blasterAtk(THERD_HERO, false);
-//        blasterAtk(FIRST_HERO,true);
-        guardianAtk(FIRST_HERO);
+        blasterAtk(FIRST_HERO, true);
+//        guardianAtk(FIRST_HERO);
     }
 
 
@@ -125,7 +125,7 @@ public class AI {
      */
     private void pickHeroInPhase() {
         if (PICK_PHASE_COUNTER == FIRST_HERO) {
-            world.pickHero(HeroName.GUARDIAN);
+            world.pickHero(HeroName.BLASTER);
         } else if (PICK_PHASE_COUNTER == SECOND_HERO) {
             world.pickHero(HeroName.BLASTER);
         } else if (PICK_PHASE_COUNTER == FORTH_HERO) {
@@ -140,12 +140,12 @@ public class AI {
 
     private void guadianMove(int index) {
         Guardian_AI
-                guardian = new Guardian_AI(world.getMyHeroes()[index], world);
+                guardian = new Guardian_AI(world.getMyHeroes()[index], world, objectiveCells);
         guardian.movePhase();
     }
 
     private void guardianAtk(int index) {
-        new Guardian_AI(world.getMyHeroes()[index], world).actionPhase();
+        new Guardian_AI(world.getMyHeroes()[index], world, objectiveCells).actionPhase();
     }
 
     private void shynSet(World world) {
