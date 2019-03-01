@@ -102,7 +102,7 @@ public class AI {
         sentrMove(FORTH_HERO);
         blasterMove(SECOND_HERO, false);
         blasterMove(THERD_HERO, false);
-//        blasterMove(FIRST_HERO, true);
+//        blasterMove(FORTH_HERO, true);
         guadianMove(FIRST_HERO);
     }
     void actionTurn(World world) {
@@ -111,7 +111,7 @@ public class AI {
         sentryAtk(FORTH_HERO);
         blasterAtk(SECOND_HERO, false);
         blasterAtk(THERD_HERO, false);
-//        blasterAtk(FIRST_HERO, true);
+//        blasterAtk(FORTH_HERO, true);
         guardianAtk(FIRST_HERO);
     }
 
