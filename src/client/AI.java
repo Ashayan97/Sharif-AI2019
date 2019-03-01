@@ -9,16 +9,12 @@ import java.util.Map;
 public class AI {
 
     private int PICK_PHASE_COUNTER = 0;
-    private Hero[] herosInVision;
     private Cell[][] objectiveCells;
     private History[] histories;
     private Vector<Hero> atttackTo;
-    private int whoAttackID;
-    private boolean inAttack = false;
     private World world;
     private int flag = 0;
     private LastData lastData = new LastData();
-    private Sentry_AI sentry;
     private Map<Integer, Hero> heroInAttack = new HashMap<>();
     private Map<Integer, Cell> dodgeMap = new HashMap<>();
     private Map<Integer, Cell> nextCell = new HashMap<>();
@@ -35,44 +31,39 @@ public class AI {
     private void setInProcess(int index) {
         inProcess = index;
     }
-
     int getRowGoal() {
         return r;
     }
-
     int getColGoal1() {
         return c1;
     }
-
     int getColGoal2() {
         return c2;
     }
-
     int getInProcess() {
         return inProcess;
     }
-
     int FB() {
         return SECOND_HERO;
     }
-
     void setRezereved(Cell goal) {
+        if (goal == null) {
+            whoRezereved = -1;
+            rezereved = null;
+            return;
+        }
         whoRezereved = getInProcess();
         rezereved = goal;
     }
-
     int getWhoRezereved() {
         return whoRezereved;
     }
-
     Cell getRezerevedCell() {
         return rezereved;
     }
-
     boolean isRezerevd() {
         return getRezerevedCell() != null;
     }
-
     //****************************************
     void preProcess(World world) {
         this.world = world;
@@ -92,7 +83,6 @@ public class AI {
         }
         setINDEX();
     }
-
     void pickTurn(World world) {
         this.world = world;
         if (FIRST_HERO == -1) {
@@ -108,7 +98,57 @@ public class AI {
         this.world = world;
         Utility.printMap(world);
         init();
-        Hero[] heroes = world.getMyHeroes();
+        shynSet(world);
+        sentrMove(FORTH_HERO);
+        blasterMove(SECOND_HERO, false);
+        blasterMove(THERD_HERO, false);
+//        blasterMove(FIRST_HERO,true);
+        guadianMove(FIRST_HERO);
+    }
+    void actionTurn(World world) {
+        this.world = world;
+        init();
+        sentryAtk(FORTH_HERO);
+        blasterAtk(SECOND_HERO, false);
+        blasterAtk(THERD_HERO, false);
+//        blasterAtk(FIRST_HERO,true);
+        guardianAtk(FIRST_HERO);
+    }
+
+
+//****************************************
+
+    /**
+     * we pick
+     * our hero for
+     * game in this method
+     */
+    private void pickHeroInPhase() {
+        if (PICK_PHASE_COUNTER == FIRST_HERO) {
+            world.pickHero(HeroName.GUARDIAN);
+        } else if (PICK_PHASE_COUNTER == SECOND_HERO) {
+            world.pickHero(HeroName.BLASTER);
+        } else if (PICK_PHASE_COUNTER == FORTH_HERO) {
+            world.pickHero(HeroName.SENTRY);
+        } else if (PICK_PHASE_COUNTER == THERD_HERO) {
+            world.pickHero(HeroName.BLASTER);
+        }
+
+        PICK_PHASE_COUNTER++;
+
+    }
+
+    private void guadianMove(int index) {
+        Guardian_AI
+                guardian = new Guardian_AI(world.getMyHeroes()[index], world);
+        guardian.movePhase();
+    }
+
+    private void guardianAtk(int index) {
+        new Guardian_AI(world.getMyHeroes()[index], world).actionPhase();
+    }
+
+    private void shynSet(World world) {
         if (flag == 0) {
             lastData.world = world;
             lastData.setBlasterEnemy(world.getOppHeroes());
@@ -117,58 +157,36 @@ public class AI {
         lastData.world = world;
         lastData.bombReducer();
         lastData.isAnyBombUsed(world);
-        Sentry_AI sentry;
-        Blaster_AI blaster;
-        Guardian_AI guardian;
+    }
 
-        sentry = new Sentry_AI(heroes[FORTH_HERO], world, lastData);
-        sentry.SentryMove();
-//        sentry = new Sentry_AI(heroes[FIRST_HERO],world,lastData);
-//        sentry.SentryMove();
-
-        setInProcess(SECOND_HERO);
-        blaster = new Blaster_AI(world, this, heroes[SECOND_HERO], histories[indexOfHeroInHistory(heroes[SECOND_HERO])], objectiveCells);
-        blaster.move();
-
-        setInProcess(THERD_HERO);
-        blaster = new Blaster_AI(world, this, heroes[THERD_HERO], histories[indexOfHeroInHistory(heroes[THERD_HERO])], objectiveCells);
-        blaster.move();
-
-        guardian = new Guardian_AI(heroes[FIRST_HERO], world);
-        guardian.movePhase();
+    void blasterAtk(int index, boolean forceDupping) {
+        setInProcess(index);
+        Blaster_AI blaster_ai = new Blaster_AI(world, this, world.getMyHeroes()[index], histories[indexOfHeroInHistory(world.getMyHeroes()[index])], objectiveCells);
+        blaster_ai.attack(forceDupping);
 
     }
 
-    void actionTurn(World world) {
-        this.world = world;
-        init();
-        Hero[] heroes = world.getMyHeroes();
-
-        Sentry_AI sentry;
-        Blaster_AI blaster;
-        Guardian_AI guardian;
-
-        sentry = new Sentry_AI(heroes[FORTH_HERO], world, lastData);
-        sentry.actionPhase();
-//        sentry = new Sentry_AI(heroes[FIRST_HERO],world,lastData);
-//        sentry.actionPhase();
-
-//        Blaster.blasterAttack(this,world,heroes[FORTH_HERO]);
-        setInProcess(SECOND_HERO);
-        blaster = new Blaster_AI(world, this, heroes[SECOND_HERO], histories[indexOfHeroInHistory(heroes[SECOND_HERO])], objectiveCells);
-        blaster.attack();
-//        Blaster.blasterAttack(this, world, heroes[SECOND_HERO]);
-        setInProcess(THERD_HERO);
-        blaster = new Blaster_AI(world, this, heroes[THERD_HERO], histories[indexOfHeroInHistory(heroes[THERD_HERO])], objectiveCells);
-        blaster.attack();
-//        Blaster.blasterAttack(this, world, heroes[THERD_HERO]);
-
-        guardian = new Guardian_AI(heroes[FIRST_HERO], world);
-        guardian.actionPhase();
-
+    void blasterMove(int index, boolean forceDup) {
+        setInProcess(index);
+        Hero h = world.getMyHeroes()[index];
+        if (h.getCurrentCell().isInMyRespawnZone())
+            return;
+        Blaster_AI blaster_ai = new Blaster_AI(world, this, h, histories[indexOfHeroInHistory(h)], objectiveCells);
+        blaster_ai.move(forceDup);
+        if (h.getCurrentHP() == 0 && getWhoRezereved() == index) {
+            setRezereved(null);
+        }
     }
 
-//****************************************
+    void sentrMove(int index) {
+        Sentry_AI sentry_ai = new Sentry_AI(world.getMyHeroes()[index], world, lastData);
+        sentry_ai.SentryMove();
+    }
+
+    void sentryAtk(int index) {
+        Sentry_AI sentry_ai = new Sentry_AI(world.getMyHeroes()[index], world, lastData);
+        sentry_ai.actionPhase();
+    }
 
     /**
      * this
@@ -180,7 +198,6 @@ public class AI {
      */
     private void init() {
         initHistorys(world.getMyHeroes());
-        initHeroInVision();
     }
 
     private void setINDEX() {
@@ -203,10 +220,6 @@ public class AI {
             THERD_HERO = 2;
             FORTH_HERO = 1;
         }
-    }
-
-    private void initHeroInVision() {
-        herosInVision = Utility.getSawHero(world);
     }
 
     private void initMap() {
@@ -242,12 +255,12 @@ public class AI {
 
     /**
      * in method
-     *     check migkone
-     *     ke ag
-     *     histories ma
-     *     init nashode
-     *     initesh kone
-     * */
+     * check migkone
+     * ke ag
+     * histories ma
+     * init nashode
+     * initesh kone
+     */
     private void initHistorys(Hero[] myHero) {
         if (histories == null) {
             histories = new History[4];
@@ -257,12 +270,12 @@ public class AI {
     }
 
     /**
-     *      in method
-     *      mige kodum
-     *      az hero
-     *
-     *      haye ma(@myHeroes),hero'ye doshman(oppHero) ro didan
-     * */
+     * in method
+     * mige kodum
+     * az hero
+     * <p>
+     * haye ma(@myHeroes),hero'ye doshman(oppHero) ro didan
+     */
     private Hero[] whoSeeThisHero(Hero oppHeroe) {
         Vector<Hero> heroes = new Vector<>();
         Hero[] myHeroes = world.getMyHeroes();
@@ -271,26 +284,6 @@ public class AI {
             if (world.isInVision(myHero.getCurrentCell(), oppHeroCurrentCell))
                 heroes.add(myHero);
         return heroes.toArray(new Hero[]{});
-    }
-
-    /**
-     *      we pick
-     *      our hero for
-     *      game in this method
-     * */
-    private void pickHeroInPhase() {
-        if (PICK_PHASE_COUNTER == FIRST_HERO) {
-            world.pickHero(HeroName.GUARDIAN);
-        } else if (PICK_PHASE_COUNTER == SECOND_HERO) {
-            world.pickHero(HeroName.BLASTER);
-        } else if (PICK_PHASE_COUNTER == FORTH_HERO) {
-            world.pickHero(HeroName.SENTRY);
-        } else if (PICK_PHASE_COUNTER == THERD_HERO) {
-            world.pickHero(HeroName.BLASTER);
-        }
-
-        PICK_PHASE_COUNTER++;
-
     }
 
 
@@ -302,18 +295,6 @@ public class AI {
         }
         System.out.println(String.format("i:%d , HEREID:%d", -1, hero.getId()));
         return -1;
-    }
-
-    private void setGpAttack(Hero whoAttack, Collection<Hero> toAttack) {
-        this.atttackTo.addAll(toAttack);
-        this.whoAttackID = whoAttack.getId();
-        inAttack = true;
-    }
-
-    private void clearGpAttack() {
-        whoAttackID = -1;
-        atttackTo = null;
-        inAttack = false;
     }
 
     void setInAttack(Hero fael, Hero maful) {

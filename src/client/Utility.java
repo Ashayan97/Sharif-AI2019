@@ -230,6 +230,9 @@ public class Utility {
                 results[0]=aimCell1;
             }
         }
+        System.out.println(String.format("efctive\n[%d,%d],[%d,%d] => res[%d,%d] ", firstCell.getRow(), firstCell.getColumn()
+                , secondCell.getRow(), secondCell.getColumn(), results[0].getRow(), results[0].getColumn())
+                + (results.length == 2 ? String.format(",[%d,%d]", results[1].getRow(), results[1].getColumn()) : ""));
         return results;
     }
 
@@ -241,12 +244,7 @@ public class Utility {
         for (Cell anAvailable : available) {
             if (world.getOppHero(anAvailable) == null)
                 continue;
-
-            if (!hero.getAbility(abilityNames[0]).isLobbing() &&
-                    world.isInVision(heroCell, anAvailable))
-                heroes.add(world.getOppHero(anAvailable));
-            else if (hero.getAbility(abilityNames[0]).isLobbing())
-                heroes.add(world.getOppHero(anAvailable));
+            heroes.add(world.getOppHero(anAvailable));
         }
         return heroes.toArray(new Hero[0]);
     }
