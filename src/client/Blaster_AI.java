@@ -174,13 +174,23 @@ public class Blaster_AI {
 //            } while (Utility.distance(blasterCurrentCell,minDisCellFromObjzone) == 1 &&
 //                    world.getMyHero(minDisCellFromObjzone) != null);
 
-            Cell nextCell = Utility.nextCell(world, blasterCurrentCell, minDisCellFromObjzone);
+            Cell[] ourHeroCell = ourHeroCell();
+            Cell nextCell = Utility.nextCell(world, blasterCurrentCell, minDisCellFromObjzone, ourHeroCell);
             Hero[] perdict = Utility.getGuardians(world, nextCell);
             if (perdict.length == 0) {
                 Utility.move(world, blaster.getId(), blasterCurrentCell, nextCell);
                 setCell(nextCell);
             }
         }
+    }
+
+    private Cell[] ourHeroCell() {
+        Cell[] cls = new Cell[3];
+        int k = 0;
+        for (Hero h : world.getMyHeroes())
+            if (h.getId() != blaster.getId())
+                cls[k++] = h.getCurrentCell();
+        return cls;
     }
 
     private void gotoGoal(Cell blasterCurrentCell) {
@@ -371,6 +381,7 @@ public class Blaster_AI {
                 Cell shodDodge = avai[0];
                 for (Cell anAvai : avai)
                     if (!anAvai.isWall()
+                            && world.getMyHero(anAvai) == null // fixed this shit
                             && world.isInVision(minObjzone, anAvai)
                             && Utility.distance(anAvai, minObjzone) < min) {
                         shodDodge = anAvai;
