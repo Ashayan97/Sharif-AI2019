@@ -175,7 +175,9 @@ public class Blaster_AI {
 //                    world.getMyHero(minDisCellFromObjzone) != null);
 
             Cell[] ourHeroCell = ourHeroCell();
-            Cell nextCell = Utility.nextCell(world, blasterCurrentCell, minDisCellFromObjzone, ourHeroCell);
+            Cell nextCell = nextCell = Utility.nextCell(world, blasterCurrentCell, minDisCellFromObjzone, ourHeroCell);
+            if (nextCell == null)
+                return;
             Hero[] perdict = Utility.getGuardians(world, nextCell);
             if (perdict.length == 0) {
                 Utility.move(world, blaster.getId(), blasterCurrentCell, nextCell);
@@ -382,7 +384,7 @@ public class Blaster_AI {
                 for (Cell anAvai : avai)
                     if (!anAvai.isWall()
                             && world.getMyHero(anAvai) == null // fixed this shit
-                            && world.isInVision(minObjzone, anAvai)
+                            //&& world.isInVision(minObjzone, anAvai)
                             && Utility.distance(anAvai, minObjzone) < min) {
                         shodDodge = anAvai;
                         min = Utility.distance(anAvai, minObjzone);
@@ -563,7 +565,6 @@ public class Blaster_AI {
     private Cell minCellFrom(Cell from, int range, Cell to) {
         return minCellFrom(from, range, new Cell[]{to});
     }
-
     private Cell minCellFrom(Cell from, int radius, Cell... to) {
         Cell[] avi = Utility.availableCells(world.getMap(), radius, from);
         int minDis = Integer.MAX_VALUE;
@@ -597,7 +598,6 @@ public class Blaster_AI {
         }
         return min;
     }
-
     private Cell minCellFrom(Cell from, int radius, Hero[] hs) {
         Cell[] cells = new Cell[hs.length];
         for (int i = 0; i < hs.length; i++) {
@@ -624,13 +624,15 @@ public class Blaster_AI {
     private Cell objzoneCellMinDis(Cell blastercc, Vector<Cell> blocks) {
         return objzoneCellMinDis(blastercc, blocks.toArray(new Cell[0]));
     }
-
     private Cell objzoneCellMinDis(Cell blastercc, Cell[] blocks) {
         if (blastercc.isInObjectiveZone())
             return null;
         int rowIndex = 0, colIndex = 0, minDis = Integer.MAX_VALUE;
         for (int i = 0; i < objectiveCells.length; i++) {
             for (int j = 0; j < objectiveCells.length; j++) {
+                if (objectiveCells[i][j].isWall())
+                    continue;
+
                 boolean flag = false;
                 for (Cell block : blocks) {
                     if (objectiveCells[i][j].getRow() == block.getRow()
@@ -651,7 +653,6 @@ public class Blaster_AI {
         }
         return objectiveCells[rowIndex][colIndex];
     }
-
     private Cell objzoneCellMinDis(World world, Cell center, boolean forceEmpty) {
         if (!forceEmpty)
             return objzoneCellMinDis(center);

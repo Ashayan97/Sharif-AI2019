@@ -74,8 +74,10 @@ public class Utility {
                 dir==Direction.LEFT?-1: 0)];
     }
     static Cell nextCell(World world,Cell src,Cell des,Cell[] blockCells){
-        Direction dir = world.getPathMoveDirections(src.getRow(),src.getColumn(),des.getRow(),des.getColumn(),blockCells)[0];
-        return nextCell(world,src,dir);
+        Direction dir[] = world.getPathMoveDirections(src.getRow(), src.getColumn(), des.getRow(), des.getColumn(), blockCells);
+        if (dir.length == 0)
+            return null;
+        return nextCell(world, src, dir[0]);
     }
     static Cell nextCell(World world,Cell src,Cell des){
         return nextCell(world,src,world.getPathMoveDirections(src,des)[0]);

@@ -96,14 +96,14 @@ public class AI {
 
     void moveTurn(World world) {
         this.world = world;
-//        Utility.printMap(world);
+        Utility.printMap(world);
         init();
         shynSet(world);
         sentrMove(FORTH_HERO);
         blasterMove(SECOND_HERO, false);
         blasterMove(THERD_HERO, false);
-        blasterMove(FIRST_HERO, true);
-//        guadianMove(FIRST_HERO);
+//        blasterMove(FIRST_HERO, true);
+        guadianMove(FIRST_HERO);
     }
     void actionTurn(World world) {
         this.world = world;
@@ -111,8 +111,8 @@ public class AI {
         sentryAtk(FORTH_HERO);
         blasterAtk(SECOND_HERO, false);
         blasterAtk(THERD_HERO, false);
-        blasterAtk(FIRST_HERO, true);
-//        guardianAtk(FIRST_HERO);
+//        blasterAtk(FIRST_HERO, true);
+        guardianAtk(FIRST_HERO);
     }
 
 
@@ -125,7 +125,7 @@ public class AI {
      */
     private void pickHeroInPhase() {
         if (PICK_PHASE_COUNTER == FIRST_HERO) {
-            world.pickHero(HeroName.BLASTER);
+            world.pickHero(HeroName.GUARDIAN);
         } else if (PICK_PHASE_COUNTER == SECOND_HERO) {
             world.pickHero(HeroName.BLASTER);
         } else if (PICK_PHASE_COUNTER == FORTH_HERO) {
@@ -135,7 +135,6 @@ public class AI {
         }
 
         PICK_PHASE_COUNTER++;
-
     }
 
     private void guadianMove(int index) {
