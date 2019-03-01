@@ -99,19 +99,19 @@ public class AI {
         Utility.printMap(world);
         init();
         shynSet(world);
-        sentrMove(FORTH_HERO);
+//        sentrMove(FORTH_HERO);
         blasterMove(SECOND_HERO, false);
         blasterMove(THERD_HERO, false);
-//        blasterMove(FORTH_HERO, true);
+        blasterMove(FORTH_HERO, true);
         guadianMove(FIRST_HERO);
     }
     void actionTurn(World world) {
         this.world = world;
         init();
-        sentryAtk(FORTH_HERO);
+//        sentryAtk(FORTH_HERO);
         blasterAtk(SECOND_HERO, false);
         blasterAtk(THERD_HERO, false);
-//        blasterAtk(FORTH_HERO, true);
+        blasterAtk(FORTH_HERO, true);
         guardianAtk(FIRST_HERO);
     }
 
@@ -129,7 +129,7 @@ public class AI {
         } else if (PICK_PHASE_COUNTER == SECOND_HERO) {
             world.pickHero(HeroName.BLASTER);
         } else if (PICK_PHASE_COUNTER == FORTH_HERO) {
-            world.pickHero(HeroName.SENTRY);
+            world.pickHero(HeroName.BLASTER);
         } else if (PICK_PHASE_COUNTER == THERD_HERO) {
             world.pickHero(HeroName.BLASTER);
         }
@@ -179,12 +179,12 @@ public class AI {
 
     void sentrMove(int index) {
         Sentry_AI sentry_ai = new Sentry_AI(world.getMyHeroes()[index], world, lastData);
-        sentry_ai.SentryMove();
+        sentry_ai.newMove();
     }
 
     void sentryAtk(int index) {
         Sentry_AI sentry_ai = new Sentry_AI(world.getMyHeroes()[index], world, lastData);
-        sentry_ai.actionPhase();
+        sentry_ai.newActionPhase();
     }
 
     /**
