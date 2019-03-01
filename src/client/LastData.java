@@ -45,7 +45,7 @@ public class LastData {
             for (int i = 0; i < castAbilities.length; i++) {
                 for (int j = 0; j < blasterEnemy.length; j++) {
                     if (castAbilities[i].getAbilityName().equals(AbilityName.BLASTER_BOMB)&&castAbilities[i].getCasterId() == blasterEnemy[j].getId() && bomber[j] != 0) {
-                        bomber[j] = 4;
+                        bomber[j] = 3;
                     }
                 }
             }
