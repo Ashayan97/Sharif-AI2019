@@ -199,8 +199,8 @@ public class Guardian_AI {
 
             if (!canSeeAnyOne()){
                 // go to nearest row of objective Zone after Blaster
-                if(world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide()).length!=0)
-                    world.moveHero(guardian,world.getPathMoveDirections(guardian.getCurrentCell(),findNearestCellOurSide())[0]);
+                //stay
+                return;
             } else { // guardian an see enemyHeroes -->
                 //find near enemy and go to kill that
                 int movePhaseCount = world.getMovePhaseNum()%6+1;
