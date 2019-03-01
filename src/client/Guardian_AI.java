@@ -616,6 +616,39 @@ public class Guardian_AI {
         return false;
     }
 
+    private int numberOfGuardian(ArrayList<Hero> heroes){
+        int count = 0;
+        for(Hero  hero : heroes){
+            if(hero.getName().equals(HeroName.GUARDIAN))
+                count++;
+        }
+        return count;
+    }
+
+    private int numberOfBlaster(ArrayList<Hero> heroes){
+        int count = 0 ;
+        for(Hero hero:heroes)
+            if(hero.getName().equals(HeroName.BLASTER))
+                count++;
+        return count;
+    }
+
+    private int numberOfSentry(ArrayList<Hero> heroes){
+        int count = 0 ;
+        for(Hero hero:heroes)
+            if(hero.getName().equals(HeroName.SENTRY))
+                count++;
+        return count;
+    }
+
+    private int numberOfHealer(ArrayList<Hero> heroes){
+        int count = 0 ;
+        for(Hero hero:heroes)
+            if(hero.getName().equals(HeroName.HEALER))
+                count++;
+        return count;
+    }
+
     private void isEnemyInRange7(Cell heroCell, ArrayList<Hero> enemyAroundWeakest, Hero[] enemies) {
         for (Hero enemy : enemies) {
             if (enemy.getCurrentHP() != 0) {
