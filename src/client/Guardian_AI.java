@@ -223,6 +223,11 @@ public class Guardian_AI {
                         }
                     }
                     //check if in current cell
+                    if(movePhaseCount==6 &&
+                            world.manhattanDistance(guardian.getCurrentCell(),nearEnemy.getCurrentCell())<=
+                            guardian.getAbility(AbilityName.GUARDIAN_ATTACK).getRange()){
+                        return;
+                    }
                     if(!guardian.getCurrentCell().equals(nearEnemy.getCurrentCell())) {
                         if (world.getPathMoveDirections(guardian.getCurrentCell(),
                                 nearEnemy.getCurrentCell(), getHeroesLocation(world.getMyHeroes())).length != 0) {
@@ -232,6 +237,7 @@ public class Guardian_AI {
                                     bestCell, getHeroesLocation(world.getMyHeroes())).length!=0)
                                 world.moveHero(guardian, world.getPathMoveDirections(guardian.getCurrentCell(),
                                         bestCell, getHeroesLocation(world.getMyHeroes()))[0]);
+                            return;
                         }
                     }
                 } else {
@@ -735,10 +741,6 @@ public class Guardian_AI {
 
 //        ///////////////////////////////////////////////////////
 
-//        Cell upLeft = objectiveCells[0][0];
-//        Cell upRight = objectiveCells[0][objectiveCells[0].length-1];
-//        Cell downLeft = objectiveCells[objectiveCells.length-1][0];
-//        Cell downRight = objectiveCells[objectiveCells[0].length-1][objectiveCells[0].length];
 //
 //        Cell
         //TODO :: ::: ::
