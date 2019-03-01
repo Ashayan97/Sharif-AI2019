@@ -150,7 +150,7 @@ public class AI {
         Guardian_AI guardian;
 
         sentry = new Sentry_AI(heroes[FORTH_HERO], world, lastData);
-        sentry.actionPhase();
+        sentry.newActionPhase();
 //        sentry = new Sentry_AI(heroes[FIRST_HERO],world,lastData);
 //        sentry.actionPhase();
 

@@ -58,8 +58,8 @@ public class Range_fight {
         int dis=Integer.MAX_VALUE;
         for (Cell cell : cells) {
             if (world.isInVision(cell, enemy) && !cell.isWall() &&
-                    world.manhattanDistance(cell, enemy) == 7 &&
-//                    world.manhattanDistance(cell, enemy) <= 7 &&
+                    world.manhattanDistance(cell, enemy) <= 7 &&
+                    world.manhattanDistance(cell, enemy) >= 6 &&
                     world.manhattanDistance(hero.getCurrentCell(), cell) <= dis &&
                     !cell.isWall()&&
                     world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell).length!=0&&

@@ -243,7 +243,7 @@ public class Sentry_AI {
             return;
         } else {
             if (rangeFight.canSeeAnyOne()) {
-                dir=rangeFight.enemyTarget(hero);
+//                dir=rangeFight.enemyTarget(hero);
 //                if (!isBlaster())
 //                    world.moveHero(hero,rangeFight.enemyRun(hero));
 //                else
