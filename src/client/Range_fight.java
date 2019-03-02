@@ -25,73 +25,91 @@ public class Range_fight {
         this.world = world;
     }
 
+//    public Cell NearstEnemy(Cell us, Hero[] heroes) {
+//        Cell min = null;
+//        for (int i = 0; i < heroes.length; i++) {
+//            if (min == null)
+//                min = heroes[i].getCurrentCell();
+//            else if (world.manhattanDistance(us, heroes[i].getCurrentCell()) < world.manhattanDistance(us, min))
+//                min = heroes[i].getCurrentCell();
+//
+//        }
+//        return min;
+//    }
+
+
     public Cell NearstEnemy(Cell us, Hero[] heroes) {
         Cell min = null;
-        for (int i = 0; i < heroes.length; i++) {
-            if (min == null)
-                min = heroes[i].getCurrentCell();
-            else if (world.manhattanDistance(us, heroes[i].getCurrentCell()) < world.manhattanDistance(us, min))
-                min = heroes[i].getCurrentCell();
-
+        for (Hero heroe : heroes) {
+            if (min == null) {
+                min = heroe.getCurrentCell();
+            } else if (world.manhattanDistance(us, heroe.getCurrentCell()) < world.manhattanDistance(us, min)) {
+                min = heroe.getCurrentCell();
+            }
         }
         return min;
     }
 
-    boolean canSeeAnyOne(){
-        Hero[] enemy=world.getOppHeroes();
+
+    boolean canSeeAnyOne() {
+        Hero[] enemy = world.getOppHeroes();
         for (int i = 0; i < enemy.length; i++) {
-            if (enemy[i].getCurrentCell().getRow()!=-1)
+            if (enemy[i].getCurrentCell().getRow() != -1)
                 return true;
         }
         return false;
     }
 
-    public Direction enemyTarget(Hero hero){
-        Cell enemy=NearstEnemy(hero.getCurrentCell(),world.getOppHeroes());
-        Cell[] cells=cellsOfArea(enemy,6);
-        Direction des=null;
-        Hero[] our=world.getMyHeroes();
-        Cell[] ourCell=new Cell[our.length];
+    public Cell enemyTarget(Hero hero, LastData lastData) {
+        Cell enemy = NearstEnemy(hero.getCurrentCell(), world.getOppHeroes());
+        int range=7;
+        if (lastData.returnEnemyBombActivation(world.getOppHero(enemy)) )
+            range=8;
+        Cell[] cells = cellsOfArea(enemy, range);
+        Cell des = null;
+        Hero[] our = world.getMyHeroes();
+        Cell[] ourCell = new Cell[our.length];
         for (int i = 0; i < our.length; i++) {
-            ourCell[i]=our[i].getCurrentCell();
+            if (!our[i].equals(hero))
+                ourCell[i] = our[i].getCurrentCell();
         }
-        int dis=Integer.MAX_VALUE;
+        int dis = Integer.MAX_VALUE;
         for (Cell cell : cells) {
             if (world.isInVision(cell, enemy) && !cell.isWall() &&
-                    world.manhattanDistance(cell, enemy) <= 7 &&
-                    world.manhattanDistance(cell, enemy) >= 6 &&
+                    world.manhattanDistance(cell, enemy) == range &&
+//                    world.manhattanDistance(cell, enemy) > 6 &&
                     world.manhattanDistance(hero.getCurrentCell(), cell) <= dis &&
-                    !cell.isWall()&&
-                    world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell).length!=0&&
-                    world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell)!=null
+                    world.getMyHero(cell)==null&&
+                    !cell.isWall() &&
+                    world.getPathMoveDirections(hero.getCurrentCell(), cell, ourCell).length != 0 &&
+                    world.getPathMoveDirections(hero.getCurrentCell(), cell, ourCell) != null
             ) {
-                des = world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell)[0];
+                des = cell;
                 dis = world.manhattanDistance(hero.getCurrentCell(), cell);
             }
         }
         return des;
     }
 
-
-    public Direction enemyRun(Hero hero){
-        Cell enemy=NearstEnemy(hero.getCurrentCell(),world.getOppHeroes());
-        Cell[] cells=cellsOfArea(enemy,8);
-        Direction des=null;
-        Hero[] our=world.getMyHeroes();
-        Cell[] ourCell=new Cell[our.length];
+    public Direction enemyRun(Hero hero) {
+        Cell enemy = NearstEnemy(hero.getCurrentCell(), world.getOppHeroes());
+        Cell[] cells = cellsOfArea(enemy, 8);
+        Direction des = null;
+        Hero[] our = world.getMyHeroes();
+        Cell[] ourCell = new Cell[our.length];
         for (int i = 0; i < our.length; i++) {
-            ourCell[i]=our[i].getCurrentCell();
+            ourCell[i] = our[i].getCurrentCell();
         }
-        int dis=Integer.MAX_VALUE;
+        int dis = Integer.MAX_VALUE;
         for (Cell cell : cells) {
             if (world.isInVision(cell, enemy) && !cell.isWall() &&
                     world.manhattanDistance(cell, enemy) == 8 &&
                     world.manhattanDistance(hero.getCurrentCell(), cell) <= dis &&
-                    !cell.isWall()&&
-                    world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell).length!=0&&
-                    world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell)!=null
+                    !cell.isWall() &&
+                    world.getPathMoveDirections(hero.getCurrentCell(), cell, ourCell).length != 0 &&
+                    world.getPathMoveDirections(hero.getCurrentCell(), cell, ourCell) != null
             ) {
-                des = world.getPathMoveDirections(hero.getCurrentCell(),cell,ourCell)[0];
+                des = world.getPathMoveDirections(hero.getCurrentCell(), cell, ourCell)[0];
                 dis = world.manhattanDistance(hero.getCurrentCell(), cell);
             }
         }
@@ -156,25 +174,6 @@ public class Range_fight {
         return heroes.toArray(new Hero[0]);
     }
 
-    public Hero[] InRangeAtk(Cell hero, int range) {
-        ArrayList<Hero> heroes = new ArrayList<>();
-        Hero[] Opp = world.getOppHeroes();
-        for (int i = 0; i < Opp.length; i++) {
-            if (Opp[i].getCurrentCell().getColumn() != -1 && world.manhattanDistance(hero, Opp[i].getCurrentCell()) <= range)
-                heroes.add(Opp[i]);
-        }
-        return heroes.toArray(new Hero[0]);
-    }
-
-    public Hero[] InRangeAtk(Hero hero, int range, Hero[] Opp) {
-        ArrayList<Hero> heroes = new ArrayList<>();
-//        Hero[] Opp = world.getOppHeroes();
-        for (int i = 0; i < Opp.length; i++) {
-            if (world.manhattanDistance(hero.getCurrentCell(), Opp[i].getCurrentCell()) <= range && !Opp[i].equals(hero))
-                heroes.add(Opp[i]);
-        }
-        return heroes.toArray(new Hero[0]);
-    }
 
     public Cell findNearestZoneCell(Cell start) {
         Cell[] cells = map.getObjectiveZone();
@@ -263,6 +262,7 @@ public class Range_fight {
         for (int i = 0; i < firstChoice.size(); i++) {
             if (world.manhattanDistance(firstChoice.get(i), findNearestZoneCell(firstChoice.get(i))) <= min) {
                 min = world.manhattanDistance(firstChoice.get(i), findNearestZoneCell(firstChoice.get(i)));
+                Des = firstChoice.get(i);
             }
         }
 
@@ -292,16 +292,6 @@ public class Range_fight {
         return inVision.toArray(new Hero[inVision.size()]);
     }
 
-    public Hero[] inVisionEnemy(Cell hero, int range) {
-        Hero[] heroes = world.getOppHeroes();
-        ArrayList<Hero> inVision = new ArrayList<>();
-        for (int i = 0; i < heroes.length; i++) {
-            if (world.isInVision(hero, heroes[i].getCurrentCell()) && world.manhattanDistance(heroes[i].getCurrentCell(), hero) <= range)
-                inVision.add(heroes[i]);
-        }
-        return inVision.toArray(new Hero[inVision.size()]);
-    }
-
     public Cell bestSafe(Cell[] cells, Cell center) {
         Cell bestCell = null;
         Hero[] inrange = InRangeAtk(world.getMyHero(center), 6);
@@ -314,24 +304,5 @@ public class Range_fight {
 
     }
 
-    public Cell bestInVision(Hero hero, Cell enemy, int range) {
-        Cell[] cells = cellsOfArea(enemy, range);
-        Cell near = null;
-        int dis = Integer.MAX_VALUE;
-        for (int i = 0; i < cells.length; i++) {
-            if (near == null && !cells[i].isWall() && world.getMyHero(cells[i].getRow(), cells[i].getColumn()) == null) {
-                near = cells[i];
-                dis = world.manhattanDistance(hero.getCurrentCell(), cells[i]);
-            } else if (world.manhattanDistance(hero.getCurrentCell(), cells[i]) < dis &&
-                    world.isInVision(enemy, cells[i]) &&
-                    world.manhattanDistance(enemy, cells[i]) <= range &&
-                    world.manhattanDistance(enemy, cells[i]) >= 5 &&
-                    !cells[i].isWall() &&
-                    world.getMyHero(cells[i].getRow(), cells[i].getColumn()) == null) {
-                near = cells[i];
-                dis = world.manhattanDistance(hero.getCurrentCell(), cells[i]);
-            }
-        }
-        return near;
-    }
+
 }

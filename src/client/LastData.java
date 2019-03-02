@@ -40,7 +40,6 @@ public class LastData {
     }
 
     public void isAnyBombUsed(World world) {
-        if (world.getMovePhaseNum() == 0) {
             CastAbility[] castAbilities = world.getOppCastAbilities();
             for (int i = 0; i < castAbilities.length; i++) {
                 for (int j = 0; j < blasterEnemy.length; j++) {
@@ -49,8 +48,6 @@ public class LastData {
                     }
                 }
             }
-        } else
-            return;
     }
 
     public boolean returnEnemyBombActivation(Hero enemy) {
