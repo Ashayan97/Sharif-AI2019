@@ -96,10 +96,9 @@ public class AI {
 
     void moveTurn(World world) {
         this.world = world;
-        Utility.printMap(world);
         init();
-        shynSet(world);
-//        sentrMove(FORTH_HERO);
+//        Utility.printMap(world);
+//        System.out.println(Logger.Log(world.getCurrentTurn() + "",Logger.UNDER_LINE));
         blasterMove(SECOND_HERO, false);
         blasterMove(THERD_HERO, false);
         blasterMove(FORTH_HERO, true);
@@ -108,7 +107,6 @@ public class AI {
     void actionTurn(World world) {
         this.world = world;
         init();
-//        sentryAtk(FORTH_HERO);
         blasterAtk(SECOND_HERO, false);
         blasterAtk(THERD_HERO, false);
         blasterAtk(FORTH_HERO, true);
@@ -166,10 +164,10 @@ public class AI {
     }
 
     void blasterMove(int index, boolean forceDup) {
-        setInProcess(index);
         Hero h = world.getMyHeroes()[index];
         if (h.getCurrentCell().isInMyRespawnZone())
             return;
+        setInProcess(index);
         Blaster_AI blaster_ai = new Blaster_AI(world, this, h, histories[indexOfHeroInHistory(h)], objectiveCells);
         blaster_ai.move(forceDup);
         if (h.getCurrentHP() == 0 && getWhoRezereved() == index) {

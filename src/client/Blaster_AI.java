@@ -26,19 +26,20 @@ public class Blaster_AI {
             return;
         Hero guardians[] = Utility.getGuardians(world, blaster);
         boolean safe = guardians.length == 0;
+        System.out.println("safe" + safe);
         if (safe)
             safeMove(forceDupping, blaster.getCurrentCell());
         else
             safeFromGuardians(blaster.getCurrentCell(), guardians);
     }
 
-    private Hero[] getBelasters(World world, Hero blaster) {
-        return getBlasters();
+    private Hero[] getBlasters() {
+        return getBlasters(blaster.getCurrentCell(), blaster.getId());
     }
 
-    private Hero[] getBlasters() {
-        Cell center = blaster.getCurrentCell();
-        int blasterID = blaster.getId();
+    private Hero[] getBlasters(Cell centeR, int ID) {
+        Cell center = centeR;
+        int blasterID = ID;
         Cell[] cl = Utility.availableCells(world.getMap(), 4, center);
         Vector<Hero> hs = new Vector<>();
         for (Cell aMh : cl) {
@@ -48,113 +49,146 @@ public class Blaster_AI {
                 hs.add(world.getMyHero(aMh));
         }
         return hs.toArray(new Hero[0]);
+
     }
 
     private void safeFromBlasters(Vector<Hero> dupRangeH) {
+        System.out.println("has dup and dup.les = " + dupRangeH.size());
         Cell[] moveCells = moveCell(world, blaster);
         //obj && > 4
-        float avgDis = Utility.avgDis(blaster, dupRangeH.toArray(new Hero[0]));
+        int avgDis = (int) Utility.avgDis(blaster, dupRangeH.toArray(new Hero[0]));
         //*********************************************
         Cell okCell = null, outofobjOkCell = null, objBadCell = null, badCell = null;
-        boolean okFlag, outofFlag, objbadCellFlag, badCellFlag;
         for (int i = 0; i < moveCells.length; i++) {
-            if (moveCells[i] == null || moveCells[i].isWall())
+            if (moveCells[i] == null
+                    || moveCells[i].isWall()
+                    || world.getMyHero(moveCells[i]) != null)
                 continue;
+
+            boolean okFlag, outofFlag, objbadCellFlag, badCellFlag;
             okFlag = outofFlag = objbadCellFlag = badCellFlag = true;
+
             for (int j = 0; j < dupRangeH.size(); j++) {
                 if (!(moveCells[i].isInObjectiveZone() &&
                         Utility.distance(moveCells[i], currentCell(dupRangeH.get(j))) > 4)) {
                     okFlag = false;
-                } else if (!(moveCells[i].isInObjectiveZone() &&
+                }
+                if (!(moveCells[i].isInObjectiveZone() &&
                         Utility.distance(moveCells[i], currentCell(dupRangeH.get(j))) > avgDis)) {
                     objbadCellFlag = false;
-                } else if (!(Utility.distance(moveCells[i], currentCell(dupRangeH.get(j))) > 4)) {
+                }
+                if (!(Utility.distance(moveCells[i], currentCell(dupRangeH.get(j))) > 4)) {
                     outofFlag = false;
-                } else if (!(Utility.distance(moveCells[i], currentCell(dupRangeH.get(j))) > 4)) {
+                }
+                if (!(Utility.distance(moveCells[i], currentCell(dupRangeH.get(j))) > avgDis)) {
                     badCellFlag = false;
                 }
             }
             if (okFlag) {
+                System.out.println("ok cell select");
                 okCell = moveCells[i];
             } else if (objbadCellFlag) {
+                System.out.println("objbadcell select");
                 objBadCell = moveCells[i];
             } else if (outofFlag) {
+                System.out.println("outofobj select");
                 outofobjOkCell = moveCells[i];
             } else if (badCellFlag) {
+                System.out.println("badcell select");
                 badCell = moveCells[i];
             }
         }
-        Direction[] dir;
+        Direction[] dir = null;
         Cell blasterCurrentCell = blaster.getCurrentCell();
-        if (okCell != null) {
+        if (okCell != null)
             dir = world.getPathMoveDirections(blasterCurrentCell, okCell);
-        } else if (objBadCell != null) {
-            dir = world.getPathMoveDirections(blasterCurrentCell, badCell);
-        } else if (outofobjOkCell != null) {
+        else if (objBadCell != null)
+            dir = world.getPathMoveDirections(blasterCurrentCell, objBadCell);
+        else if (outofobjOkCell != null)
             dir = world.getPathMoveDirections(blasterCurrentCell, outofobjOkCell);
-        } else if (badCell != null) {
+        else if (badCell != null)
             dir = world.getPathMoveDirections(blasterCurrentCell, badCell);
-        } else {
+        else {
+            System.out.println(Logger.Log(String.format("[%d,%d] nashod dur beshe", blasterCurrentCell.getRow(), blasterCurrentCell.getColumn()),
+                    Logger.RED));
             return;
         }
-        //*********************************************
-        for (int i = 0; i < moveCells.length; i++) {
-            if (moveCells[i] != null && moveCells[i].isInObjectiveZone()) {
-                boolean flag = true;
-                for (Hero ourBlaster : dupRangeH) {
-                    if (Utility.distance(moveCells[i], currentCell(ourBlaster)) <= avgDis) {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (flag) {
-                    world.moveHero(blaster.getId(), i == 0 ? Direction.UP :
-                            i == 1 ? Direction.DOWN :
-                                    i == 2 ? Direction.LEFT :
-                                            Direction.RIGHT);
-                    setCell(moveCells[i]);
-                    return;
-                }
-            }
-        }
-        // obj && > aln
-        for (Cell moveCell1 : moveCells) {
-            boolean flag = true;
-            for (int j = 0; moveCell1 != null
-                    && moveCell1.isInObjectiveZone()
-                    && j < dupRangeH.size(); j++) {
-                if (!(Utility.distance(moveCell1, currentCell(dupRangeH.get(j))) >= avgDis)) {
-                    flag = false;
-                    break;
-                }
-            }
-            if (moveCell1 != null && flag) {
-                Utility.move(world, blaster.getId(), blasterCurrentCell, moveCell1);
-                setCell(moveCell1);
+        if (dir != null && dir.length != 0) {
+            Cell nextCell = Utility.nextCell(world, blasterCurrentCell, dir[0]);
+            if (Utility.getGuardians(world, nextCell).length != 0) {
+                System.out.println(Logger.Log(String.format("[%d,%d] vared guardian mishe", blasterCurrentCell.getRow(), blasterCurrentCell.getColumn()) + world.getMyHero(nextCell),
+                        Logger.RED));
                 return;
             }
+            world.moveHero(blaster, dir[0]);
+            setCell(nextCell);
+            System.out.println(Logger.Log(String.format("GO OUT FROM BLASTER RANGE"), Logger.FULL_WHITE));
+        } else {
+            Cell c = okCell != null ? okCell : objBadCell != null ? objBadCell : outofobjOkCell != null ? outofobjOkCell : badCell;
+            System.out.println(Logger.Log(String.format("[%d,%d] dir.length == 0 to[%d,%d]",
+                    blasterCurrentCell.getRow(), blasterCurrentCell.getColumn(),
+                    c.getRow(), c.getColumn()) + c.toString() + world.getMyHero(c),
+                    Logger.RED));
         }
-        // > aln
-        for (Cell moveCell : moveCells) {
-            boolean flag = true;
-            for (int j = 0; moveCell != null
-                    && j < dupRangeH.size(); j++) {
-                if (!(Utility.distance(moveCell, currentCell(dupRangeH.get(j))) >= avgDis)) {
-                    flag = false;
-                    break;
-                }
-            }
-            if (moveCell != null && flag) {
-                Utility.move(world, blaster.getId(), blasterCurrentCell, moveCell);
-                setCell(moveCell);
-                return;
-            }
-        }
+//        *********************************************
+//        for (int i = 0; i < moveCells.length; i++) {
+//            if (moveCells[i] != null && moveCells[i].isInObjectiveZone()) {
+//                boolean flag = true;
+//                for (Hero ourBlaster : dupRangeH) {
+//                    if (Utility.distance(moveCells[i], currentCell(ourBlaster)) <= avgDis) {
+//                        flag = false;
+//                        break;
+//                    }
+//                }
+//                if (flag) {
+//                    world.moveHero(blaster.getId(), i == 0 ? Direction.UP :
+//                            i == 1 ? Direction.DOWN :
+//                                    i == 2 ? Direction.LEFT :
+//                                            Direction.RIGHT);
+//                    setCell(moveCells[i]);
+//                    return;
+//                }
+//            }
+//        }
+//         obj && > aln
+//        for (Cell moveCell1 : moveCells) {
+//            boolean flag = true;
+//            for (int j = 0; moveCell1 != null
+//                    && moveCell1.isInObjectiveZone()
+//                    && j < dupRangeH.size(); j++) {
+//                if (!(Utility.distance(moveCell1, currentCell(dupRangeH.get(j))) >= avgDis)) {
+//                    flag = false;
+//                    break;
+//                }
+//            }
+//            if (moveCell1 != null && flag) {
+//                Utility.move(world, blaster.getId(), blasterCurrentCell, moveCell1);
+//                setCell(moveCell1);
+//                return;
+//            }
+//        }
+//         > aln
+//        for (Cell moveCell : moveCells) {
+//            boolean flag = true;
+//            for (int j = 0; moveCell != null
+//                    && j < dupRangeH.size(); j++) {
+//                if (!(Utility.distance(moveCell, currentCell(dupRangeH.get(j))) >= avgDis)) {
+//                    flag = false;
+//                    break;
+//                }
+//            }
+//            if (moveCell != null && flag) {
+//                Utility.move(world, blaster.getId(), blasterCurrentCell, moveCell);
+//                setCell(moveCell);
+//                return;
+//            }
+//        }
     }
 
     private void safeMove(boolean foreDupping, Cell blasterCurrentCell) {
         if (blasterCurrentCell.isInObjectiveZone()) {
-            Hero[] blasters = getBelasters(world, blaster);
+            System.out.println("safe move and in objzone");
+            Hero[] blasters = getBlasters();
             boolean dupRange = blasters.length != 0;
             Vector<Hero> dupRangeH = new Vector<>(Arrays.asList(blasters));
             if (foreDupping && dupRange) {
@@ -175,11 +209,12 @@ public class Blaster_AI {
 //                    world.getMyHero(minDisCellFromObjzone) != null);
 
             Cell[] ourHeroCell = ourHeroCell();
-            Cell nextCell = nextCell = Utility.nextCell(world, blasterCurrentCell, minDisCellFromObjzone, ourHeroCell);
-            if (nextCell == null)
-                return;
+            Cell nextCell = Utility.nextCell(world, blasterCurrentCell, minDisCellFromObjzone, ourHeroCell);
+            if (nextCell == null) {
+                return; // todo
+            }
             Hero[] perdict = Utility.getGuardians(world, nextCell);
-            if (perdict.length == 0) {
+            if (perdict.length == 0 || getBlasters(nextCell, blaster.getId()).length == 0) {
                 Utility.move(world, blaster.getId(), blasterCurrentCell, nextCell);
                 setCell(nextCell);
             }
@@ -199,23 +234,21 @@ public class Blaster_AI {
         Cell g1 = world.getMap().getCells()[ai.getRowGoal()][ai.getColGoal1()];
         Cell g2 = world.getMap().getCells()[ai.getRowGoal()][ai.getColGoal2()];
         if (Utility.distance(blasterCurrentCell, g1) == 0 ||
-                Utility.distance(blasterCurrentCell, g2) == 0)
+                Utility.distance(blasterCurrentCell, g2) == 0) {
+            ai.setRezereved(Utility.distance(blasterCurrentCell, g1) == 0 ? g1 : g2);
             return;
+        }
         Cell goal;
         if (ai.isRezerevd()) {
             if (ai.getWhoRezereved() == ai.getInProcess()) {
                 goal = ai.getRezerevedCell();
-                Utility.move(world, blaster, blasterCurrentCell, ai.getRezerevedCell());
-                setCell(Utility.nextCell(world, blasterCurrentCell, ai.getRezerevedCell()));
+//                Utility.move(world, blaster, blasterCurrentCell, ai.getRezerevedCell());
+//                setCell(Utility.nextCell(world, blasterCurrentCell, ai.getRezerevedCell()));
             } else {
                 if (ai.getRezerevedCell().getColumn() != ai.getColGoal1()) {
                     goal = g1;
-//                    Utility.move(world, blaster, blasterCurrentCell, g1);
-//                    setCell(Utility.nextCell(world, blasterCurrentCell, g1));
                 } else {
                     goal = g2;
-//                    Utility.move(world, blaster, blasterCurrentCell, g2);
-//                    setCell(Utility.nextCell(world, blasterCurrentCell, g2));
                 }
             }
         } else {
@@ -224,15 +257,9 @@ public class Blaster_AI {
                     world.manhattanDistance(currentCell(ai.getBlaster()), minGoalFromMe);
             if (nearestToMe) {
                 goal = minGoalFromMe;
-//                Utility.move(world, blaster, blasterCurrentCell, minGoalFromMe);
-//                setCell(Utility.nextCell(world, blasterCurrentCell, minGoalFromMe));
-//                ai.setRezereved(minGoalFromMe);
             } else {
                 Cell g = minGoalFromMe.getColumn() == g1.getColumn() ? g2 : g1;
                 goal = g;
-//                Utility.move(world, blaster, blasterCurrentCell, g);
-//                setCell(Utility.nextCell(world, blasterCurrentCell, g));
-//                ai.setRezereved(g);
             }
         }
         Cell next = Utility.nextCell(world, blasterCurrentCell, goal);
