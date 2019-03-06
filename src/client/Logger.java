@@ -17,7 +17,7 @@ public class Logger {
     }
 
     /**
-     * created By Omidekz
+     * changed By Omidekz
      */
     private static final String _END_ = "\u001B[0m";
     public static final String RED = "\033[31m";
@@ -34,7 +34,6 @@ public class Logger {
     public static String Log(String log, String Color) {
         return Color + log + _END_;
     }
-
     public static String Log(String log, HeroName name) {
         switch (name) {
             case GUARDIAN:
@@ -47,7 +46,6 @@ public class Logger {
                 return Log(log, RED);
         }
     }
-
     public static String Log(String log, int type) {
         switch (type) {
             case WALL_TYPE:
@@ -62,5 +60,8 @@ public class Logger {
                 return Log(log, FULL_SOFT_GREEN);
         }
     }
+    /**
+     * end of changing
+     * */
 
 }
